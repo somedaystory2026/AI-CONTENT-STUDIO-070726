@@ -1,0 +1,44 @@
+{
+  "name": "ai-content-studio",
+  "version": "4.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "queue:worker": "tsx scripts/queue-worker.ts",
+    "prisma:seed": "tsx prisma/seed.ts",
+    "typecheck": "tsc --noEmit",
+    "automation:worker": "tsx scripts/automation-worker.ts"
+  },
+  "dependencies": {
+    "@auth/prisma-adapter": "^2.11.1",
+    "@prisma/client": "^6.14.0",
+    "bcryptjs": "^3.0.2",
+    "bullmq": "^5.58.0",
+    "ioredis": "^5.7.0",
+    "next": "16.2.10",
+    "next-auth": "^5.0.0-beta.30",
+    "openai": "^6.45.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "zod": "^4.1.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.10",
+    "prisma": "^6.14.0",
+    "tailwindcss": "^4",
+    "tsx": "^4.20.4",
+    "typescript": "^5"
+  }
+}

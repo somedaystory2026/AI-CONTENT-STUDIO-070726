@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI 인플루언서 진아 생성기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0e1116;
+    --ink-2:#161b22;
+    --ink-3:#1e2530;
+    --line: rgba(255,255,255,0.08);
+    --rose:#ff7aa2;
+    --gold:#f2c879;
+    --text:#eef0f3;
+    --muted:#9aa3af;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+  }
+  h1,h2,h3, .display{ font-family:'Fraunces', serif; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+
+  .app{
+    display:flex;
+    min-height:100vh;
+  }
+  .sidebar{
+    width:400px;
+    min-width:400px;
+    background:var(--ink-2);
+    border-right:1px solid var(--line);
+    padding:28px 24px 60px;
+    overflow-y:auto;
+    max-height:100vh;
+  }
+  .main{
+    flex:1;
+    padding:32px 40px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:22px;
+  }
+  .brand h1{
+    font-size:22px;
+    font-weight:600;
+    margin:0;
+    background:linear-gradient(90deg, var(--rose), var(--gold));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    letter-spacing:0.2px;
+  }
+  .brand p{
+    margin:4px 0 0;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:0.5px;
+  }
+  .icon-btn{
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--muted);
+    width:34px; height:34px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:15px;
+  }
+  .icon-btn:hover{ color:var(--text); border-color:var(--rose); }
+  .topbar-icons{ display:flex; gap:8px; }
+
+  .section{ margin-bottom:26px; }
+  .section-title{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1.2px;
+    color:var(--muted);
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .section-title::before{
+    content:"";
+    width:3px; height:12px;
+    background:linear-gradient(180deg, var(--rose), var(--gold));
+    border-radius:2px;
+    display:inline-block;
+  }
+
+  .ref-gallery{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:6px;
+    margin-bottom:10px;
+  }
+  .ref-thumb{
+    padding:0; border:2px solid transparent; border-radius:8px; overflow:hidden;
+    background:var(--ink-3); cursor:pointer; aspect-ratio:1/1;
+  }
+  .ref-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .ref-thumb.active{ border-color:var(--rose); }
+
+  .upload-row{
+    display:flex; align-items:center; gap:8px;
+    font-size:12px; color:var(--muted);
+  }
+  input[type=file]{ font-size:11px; color:var(--muted); max-width:220px;}
+
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+  label.field-label{
+    display:block; font-size:11.5px; color:var(--muted); margin-bottom:5px;
+  }
+  select, textarea, input[type=text], input[type=password]{
+    width:100%;
+    background:var(--ink-3);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:9px 10px;
+    border-radius:9px;
+    font-size:13px;
+    font-family:inherit;
+  }
+  select:focus, textarea:focus, input:focus{
+    outline:none; border-color:var(--rose);
+  }
+  textarea{ resize:vertical; min-height:54px; }
+
+  .field{ margin-bottom:12px; }
+
+  .face-lock-box{
+    background:var(--ink-3); border:1px solid var(--line); border-radius:12px;
+    padding:12px 14px; margin-top:14px;
+  }
+  .face-lock-box textarea{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; line-height:1.5;
+    resize:vertical;
+  }
+  .face-lock-box .btn-outline{ font-size:12.5px; padding:8px 12px; }
+  .hint{ color:var(--muted); font-weight:400; font-size:10.5px; }
+  .recommend-select{ margin-top:6px; }
+  label.field-label input[type=checkbox]{ margin-right:4px; vertical-align:-2px; }
+
+  .product-tryon{
+    background:var(--ink-3); border:1px solid var(--line); border-radius:12px;
+    padding:12px 14px; margin-bottom:14px;
+  }
+  #product-mode-body{ margin-top:4px; }
+  #product-upload{ margin-top:4px; }
+  .product-thumbs{
+    display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;
+  }
+  .product-thumb{
+    position:relative; width:64px; height:64px; border-radius:8px; overflow:hidden;
+    border:1px solid var(--line); background:var(--ink);
+  }
+  .product-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .product-thumb .remove-thumb{
+    position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:50%;
+    background:rgba(0,0,0,0.65); color:#fff; border:none; font-size:11px; line-height:1;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .product-thumb .remove-thumb:hover{ background:var(--rose); }
+
+  .chip-wrap{ display:flex; flex-wrap:wrap; gap:6px; }
+  .skin-chip, .week-chip{
+    background:var(--ink-3);
+    border:1px solid var(--line);
+    color:var(--muted);
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:12px;
+    cursor:pointer;
+  }
+  .skin-chip.active{ background:linear-gradient(90deg, var(--rose), var(--gold)); color:#1a1210; border-color:transparent; font-weight:600;}
+  .vibe-chip{ background:var(--ink-3); border:1px solid var(--line); color:var(--muted); padding:6px 10px; border-radius:999px; font-size:11.5px; cursor:pointer; }
+  .vibe-chip:hover{ border-color:var(--rose); color:var(--text); }
+  .week-chip{
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    padding:8px 10px; min-width:64px;
+  }
+  .week-chip span{ font-size:9.5px; color:var(--muted); }
+  .week-chip:hover{ border-color:var(--gold); }
+
+  #weekday-chips{ display:flex; gap:6px; margin-bottom:22px; }
+
+  .generate-btn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(90deg, var(--rose), var(--gold));
+    color:#1a1210;
+    font-weight:700;
+    font-size:14.5px;
+    cursor:pointer;
+    margin-top:6px;
+  }
+  .generate-btn:disabled{ opacity:0.6; cursor:default; }
+
+  /* main area */
+  .canvas{
+    flex:1;
+    background:var(--ink-2);
+    border:1px solid var(--line);
+    border-radius:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    min-height:60vh;
+    overflow:hidden;
+  }
+  .placeholder{
+    text-align:center; color:var(--muted); max-width:320px;
+  }
+  .placeholder .glyph{ font-size:44px; margin-bottom:14px; }
+  .hidden{ display:none !important; }
+
+
+  .result-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:1fr 1fr;
+    gap:10px;
+    width:100%;
+    height:100%;
+    padding:14px;
+  }
+  .result-cell{
+    position:relative;
+    background:var(--ink-3);
+    border:2px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:0;
+  }
+  .result-cell img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .result-cell.selected{ border-color:var(--gold); box-shadow:0 0 0 1px var(--gold); }
+  .result-cell .cell-badge{
+    position:absolute; top:8px; left:8px;
+    background:rgba(0,0,0,0.55); color:var(--text);
+    font-size:10.5px; padding:2px 8px; border-radius:999px;
+  }
+  .result-cell.selected .cell-badge{ background:linear-gradient(90deg, var(--rose), var(--gold)); color:#1a1210; font-weight:700; }
+  .result-cell.failed{ cursor:default; }
+  .result-cell .cell-error{
+    padding:14px; text-align:center; color:var(--muted); font-size:11.5px;
+  }
+  .result-cell .cell-retry{
+    margin-top:8px;
+  }
+  .result-cell .cell-loading{
+    display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--muted); font-size:11px;
+  }
+  .result-cell .cell-spinner{
+    width:22px; height:22px; border-radius:50%;
+    border:2.5px solid var(--line); border-top-color:var(--rose);
+    animation:spin 0.9s linear infinite;
+  }
+  .result-toolbar{
+    display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;
+  }
+  .btn-outline{
+    background:transparent; border:1px solid var(--line); color:var(--text);
+    padding:9px 16px; border-radius:10px; font-size:13px; cursor:pointer;
+  }
+  .btn-outline:hover{ border-color:var(--gold); }
+  .btn-small{
+    background:var(--ink-3); border:1px solid var(--line); color:var(--text);
+    padding:5px 10px; border-radius:8px; font-size:11.5px; cursor:pointer;
+  }
+
+  .loading-spinner{
+    width:40px;height:40px;border-radius:50%;
+    border:3px solid var(--line); border-top-color:var(--rose);
+    animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg);} }
+
+  .status-bar{
+    padding:11px 16px; border-radius:10px; font-size:12.5px;
+    background:var(--ink-3); border:1px solid var(--line); color:var(--text);
+  }
+  .status-bar.error{ border-color:#ff6b6b; color:#ffb4b4; }
+
+  .prompt-preview{
+    background:var(--ink-3); border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px; font-size:11px; color:var(--muted); white-space:pre-wrap;
+    max-height:140px; overflow-y:auto;
+  }
+
+  /* modal */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,0.6);
+    display:flex; align-items:center; justify-content:center;
+    z-index:50; padding:20px;
+  }
+  .modal{
+    background:var(--ink-2); border:1px solid var(--line); border-radius:16px;
+    max-width:520px; width:100%; padding:26px; max-height:85vh; overflow-y:auto;
+  }
+  .modal h2{ margin:0 0 6px; font-size:19px; }
+  .modal .sub{ color:var(--muted); font-size:12.5px; margin-bottom:18px; }
+  .modal-close{
+    float:right; background:transparent; border:none; color:var(--muted);
+    font-size:18px; cursor:pointer;
+  }
+  .modal a{ color:var(--gold); }
+
+  .warning-box{
+    background:rgba(242,200,121,0.08); border:1px solid rgba(242,200,121,0.35);
+    color:var(--gold); font-size:11.5px; line-height:1.6;
+    padding:10px 12px; border-radius:10px; margin:14px 0 16px;
+  }
+
+  .engine-picker{ display:flex; gap:8px; }
+  .engine-pill{
+    flex:1; text-align:center;
+    background:var(--ink-3); border:1px solid var(--line); color:var(--muted);
+    padding:9px 8px; border-radius:10px; font-size:12.5px; cursor:pointer;
+  }
+  .engine-pill .engine-sub{ display:block; font-size:9.5px; margin-top:2px; opacity:0.8; }
+  .engine-pill.active{
+    background:linear-gradient(90deg, var(--rose), var(--gold)); color:#1a1210; font-weight:700; border-color:transparent;
+  }
+  .engine-pill.disabled{ opacity:0.4; cursor:not-allowed; }
+
+  .caption-card{
+    background:var(--ink-3); border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px; margin-bottom:10px;
+  }
+  .caption-num{ font-size:10.5px; color:var(--rose); text-transform:uppercase; letter-spacing:1px;}
+  .caption-card p{ font-size:13px; margin:6px 0 10px; line-height:1.5; }
+  .muted{ color:var(--muted); font-size:13px; }
+  .error{ color:#ff9a9a; font-size:13px; }
+
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-track{ background:var(--ink-2); }
+  ::-webkit-scrollbar-thumb{ background:var(--ink-3); border-radius:4px; }
+
+  @media (max-width: 900px){
+    .app{ flex-direction:column; }
+    .sidebar{ width:100%; min-width:0; max-height:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div>
+        <h1>AI 인플루언서 진아 생성기</h1>
+        <p>ONE FACE · INFINITE SCENES</p>
+      </div>
+      <div class="topbar-icons">
+        <button id="btn-help" class="icon-btn" title="도움말">?</button>
+        <button id="btn-settings" class="icon-btn" title="설정">⚙</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">진아 얼굴 고정</div>
+      <div id="ref-gallery" class="ref-gallery"></div>
+      <div class="upload-row">
+        <span>직접 업로드:</span>
+        <input type="file" id="upload-ref" accept="image/*" />
+      </div>
+
+      <div class="face-lock-box">
+        <label class="field-label">🔒 진아 전용 얼굴 고정 프롬프트 <span class="hint">(다른 도구에 붙여넣기용)</span></label>
+        <textarea id="face-lock-prompt-text" rows="6" readonly></textarea>
+        <button type="button" id="copy-face-lock-btn" class="btn-outline" style="width:100%; margin-top:8px;">📋 복사</button>
+        <p class="hint" style="margin-top:6px;">Google Flow처럼 API를 못 쓰는 도구에서는, 위에서 고른 진아 참조 이미지를 함께 업로드하고 이 프롬프트를 붙여넣으면 같은 얼굴을 유지한 채 생성할 수 있어요.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">요일별 원클릭 테마 <button type="button" id="weekday-random-btn" class="btn-small" style="margin-left:auto;">🎲 랜덤</button></div>
+      <div id="weekday-chips"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">상황별 퀵 프리셋 <button type="button" id="vibe-random-btn" class="btn-small" style="margin-left:auto;">🎲 랜덤</button></div>
+      <div id="vibe-chips" class="chip-wrap"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">장소 · 포즈 · 촬영설정 랜덤</div>
+      <button type="button" id="randomize-all-btn" class="btn-outline" style="width:100%;">🎲 장소/포즈/촬영설정 전체 랜덤 섞기</button>
+      <p class="hint" style="margin-top:6px;">인물 설정(성별·에스닉·나이)은 그대로 유지되고, 그 아래 착장·장소·포즈·조명·카메라·필름·피부 설정만 랜덤으로 바뀝니다.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">외부 프롬프트로 생성</div>
+      <p class="hint" style="margin-bottom:8px;">다른 도구에서 이미 만든 프롬프트를 그대로 붙여넣으면, 위에서 고른 진아 얼굴을 유지한 채 그 프롬프트로 생성합니다. (아래 각 항목 설정은 무시됩니다)</p>
+      <textarea id="external-prompt-text" rows="5" placeholder="여기에 외부에서 가져온 프롬프트를 붙여넣으세요..."></textarea>
+      <button type="button" id="gen-from-external-btn" class="btn-outline" style="width:100%; margin-top:8px;">🔒 진아 얼굴로 이 프롬프트 생성하기</button>
+    </div>
+
+    <div class="section">
+      <div class="section-title">인물 설정</div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="field-label">성별</label>
+          <select id="sel-gender"></select>
+        </div>
+        <div class="field">
+          <label class="field-label">에스닉</label>
+          <select id="sel-ethnicity"></select>
+        </div>
+        <div class="field">
+          <label class="field-label">나이</label>
+          <select id="sel-age"></select>
+        </div>
+        <div class="field">
+          <label class="field-label">헤어스타일</label>
+          <select id="sel-hair"></select>
+        </div>
+        <div class="field">
+          <label class="field-label">얼굴 분위기</label>
+          <select id="sel-facestyle"></select>
+        </div>
+        <div class="field">
+          <label class="field-label">표정</label>
+          <select id="sel-expression"></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">착장 &amp; 장소</div>
+
+      <div class="field">
+        <label class="field-label">아웃핏 <span class="hint">(직접 입력 가능 · 아래 추천에서 골라도 됨)</span></label>
+        <textarea id="outfit-text" rows="2" placeholder="예: 오버사이즈 베이지 니트와 와이드 데님"></textarea>
+        <select id="sel-outfit" class="recommend-select">
+          <option value="">🎁 추천 아웃핏에서 선택...</option>
+        </select>
+      </div>
+
+      <div class="field product-tryon">
+        <label class="field-label">
+          <input type="checkbox" id="product-mode-toggle" />
+          제품 사진으로 착용샷 만들기 <span class="hint">(아마존 등에서 캡처한 옷/신발/가방 이미지 업로드)</span>
+        </label>
+        <div id="product-mode-body" class="hidden">
+          <div class="grid-2" style="margin-top:8px;">
+            <div class="field">
+              <label class="field-label">제품 종류</label>
+              <select id="sel-product-type"></select>
+            </div>
+            <div class="field">
+              <label class="field-label">제품명 (선택)</label>
+              <input type="text" id="product-name" placeholder="예: 스트라이프 니트 가디건" />
+            </div>
+          </div>
+          <label class="field-label">제품 이미지 업로드 (여러 장 가능)</label>
+          <input type="file" id="product-upload" accept="image/*" multiple />
+          <div id="product-thumbs" class="product-thumbs"></div>
+          <p class="hint" style="margin-top:6px;">업로드한 제품을 진아에게 그대로 합성해서 입혀줍니다. 위 "아웃핏" 텍스트에는 나머지 코디(예: 하의)를 적어주면 더 정확해요.</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">장소 <span class="hint">(직접 입력 가능 · 아래 추천에서 골라도 됨)</span></label>
+        <textarea id="location-text" rows="2" placeholder="예: 창밖으로 노을이 보이는 루프탑 바"></textarea>
+        <select id="sel-location" class="recommend-select">
+          <option value="">📍 추천 장소에서 선택...</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label">포즈</label>
+        <select id="sel-pose"></select>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">촬영 설정</div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="field-label">조명</label>
+          <select id="sel-lighting"></select>
+        </div>
+        <div class="field">
+          <label class="field-label">카메라</label>
+          <select id="sel-camera"></select>
+        </div>
+        <div class="field">
+          <label class="field-label">필름 톤</label>
+          <select id="sel-film"></select>
+        </div>
+        <div class="field">
+          <label class="field-label">화질</label>
+          <select id="sel-quality"></select>
+        </div>
+        <div class="field">
+          <label class="field-label">비율</label>
+          <select id="sel-aspect"></select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">피부 디테일</label>
+        <div id="skin-chips" class="chip-wrap"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">스토리 (선택)</div>
+      <textarea id="story-context" placeholder="예: 오랜만에 만난 친구와 브런치를 즐기는 중"></textarea>
+    </div>
+
+    <button id="generate-btn" class="generate-btn">✨ 진아 생성하기 (4장)</button>
+    <p class="hint" style="text-align:center; margin-top:6px;">※ 이미지 생성은 항상 Gemini를 사용합니다. GPT/Claude 선택은 캡션 생성에만 적용돼요.</p>
+  </aside>
+
+  <main class="main">
+    <div class="canvas">
+      <div id="result-placeholder" class="placeholder">
+        <div class="glyph">🌸</div>
+        <h3 class="display" style="margin:0 0 8px;">진아를 만나보세요</h3>
+        <p style="font-size:13px; line-height:1.6;">왼쪽에서 얼굴을 고정하고, 착장과 장소를 고른 뒤<br/>“진아 생성하기”를 누르면 같은 상황으로 4장이 만들어져요.</p>
+      </div>
+      <div id="result-loading" class="hidden" style="text-align:center;">
+        <div class="loading-spinner" style="margin:0 auto 14px;"></div>
+        <p class="muted" id="result-loading-text">진아의 새로운 컷 4장을 만드는 중...</p>
+      </div>
+      <div id="result-grid" class="result-grid hidden"></div>
+    </div>
+
+    <div class="result-toolbar">
+      <span id="selected-hint" class="muted" style="margin-right:auto; font-size:12px;"></span>
+      <button id="btn-generate-caption" class="btn-outline">📝 캡션 만들기</button>
+      <button id="download-selected-btn" class="btn-outline">📦 선택한 컷 ZIP 다운로드</button>
+      <button id="download-all-btn" class="btn-outline">🗂 4장 전부 ZIP 다운로드</button>
+    </div>
+
+    <div id="status-bar" class="status-bar hidden"></div>
+
+    <div class="section-title" style="margin-top:4px;">사용된 프롬프트</div>
+    <div id="prompt-preview" class="prompt-preview mono">아직 생성된 프롬프트가 없습니다.</div>
+  </main>
+</div>
+
+<!-- 설정 모달 -->
+<div id="modal-settings" class="modal-backdrop hidden">
+  <div class="modal">
+    <button class="modal-close" data-close="modal-settings">✕</button>
+    <h2>🔑 API 설정</h2>
+    <p class="sub">이미지 생성은 항상 Gemini를 사용합니다 (얼굴 고정·합성 기능 때문에 필수). 캡션 생성 AI는 아래에서 GPT·Claude·Gemini 중 골라서 쓸 수 있어요.</p>
+
+    <div class="field">
+      <label class="field-label">Gemini API Key <span class="hint">(필수 · 이미지 생성)</span></label>
+      <input type="password" id="input-gemini-key" placeholder="AIza..." />
+      <p class="hint" style="margin-top:4px;"><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a> → API 키 발급</p>
+    </div>
+
+    <div class="field">
+      <label class="field-label">OpenAI API Key <span class="hint">(선택 · 캡션을 GPT로 만들 때)</span></label>
+      <input type="password" id="input-openai-key" placeholder="sk-..." />
+      <p class="hint" style="margin-top:4px;"><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a> → API Keys</p>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Claude API Key <span class="hint">(선택 · 캡션을 Claude로 만들 때)</span></label>
+      <input type="password" id="input-claude-key" placeholder="sk-ant-..." />
+      <p class="hint" style="margin-top:4px;"><a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> → API Keys</p>
+    </div>
+
+    <div class="field">
+      <label class="field-label">캡션 생성에 사용할 AI</label>
+      <div id="caption-engine-picker" class="engine-picker"></div>
+    </div>
+
+    <div class="warning-box">
+      ⚠️ API 키는 이 브라우저의 로컬 스토리지에만 저장되며, 저희 서버로 전송되지 않습니다. 각 제공사(Google/OpenAI/Anthropic)로 직접 요청이 전송됩니다.
+    </div>
+
+    <button id="save-api-key" class="generate-btn">저장</button>
+  </div>
+</div>
+
+<!-- 도움말 모달 -->
+<div id="modal-help" class="modal-backdrop hidden">
+  <div class="modal">
+    <button class="modal-close" data-close="modal-help">✕</button>
+    <h2>사용 가이드</h2>
+    <p class="sub">AI 인플루언서 진아 생성기 사용법</p>
+    <ol style="font-size:13.5px; line-height:1.9; padding-left:18px;">
+      <li><b>얼굴 고정</b> — 상단 갤러리에서 진아 레퍼런스 사진을 고르거나, 직접 사진을 업로드하세요. 이 얼굴이 모든 결과물에서 유지됩니다.</li>
+      <li><b>테마 선택</b> — 요일별 원클릭 테마를 누르면 아웃핏·장소·조명이 한 번에 세팅됩니다. 물론 직접 하나씩 골라도 됩니다.</li>
+      <li><b>세부 조정</b> — 인물 설정, 착장/장소, 촬영 설정에서 원하는 옵션을 고르세요. 아웃핏·장소는 드롭다운으로 추천을 골라도 되고, 텍스트 칸에 직접 원하는 내용을 입력해도 됩니다.</li>
+      <li><b>제품 착용샷</b> — "제품 사진으로 착용샷 만들기"를 켜고, 아마존 등에서 캡처한 옷/신발/가방 이미지를 올리면 진아가 그 제품을 그대로 착용한 모습을 생성합니다. 나머지 코디는 아웃핏 텍스트에 적어주세요.</li>
+      <li><b>생성</b> — "진아 생성하기 (4장)"을 누르면 같은 설정(같은 착장/장소/포즈 등)으로 살짝 다른 4가지 컷을 동시에 만들어줍니다 (약 15~40초 소요). 마음에 드는 컷을 클릭해서 선택하세요. 일부만 실패하면 해당 칸에서 "다시 시도"를 누르면 됩니다.</li>
+      <li><b>다운로드</b> — "선택한 컷 ZIP 다운로드"는 고른 1장을, "4장 전부 ZIP 다운로드"는 성공한 컷 전체를 압축 파일(.zip)로 받습니다.</li>
+      <li><b>캡션</b> — 결과물이 마음에 들면 "캡션 만들기"로 인스타그램 게시글 문구 3종을 받아보세요.</li>
+    </ol>
+    <p class="sub">⚠️ API 키가 없으면 이미지 생성이 동작하지 않습니다. 설정 메뉴에서 먼저 키를 등록해주세요.</p>
+    <p class="sub">이 도구로 만든 이미지는 실제 인물이 아닌 AI로 생성된 가상 인플루언서 콘텐츠입니다. 게시할 때는 AI 생성 콘텐츠임을 밝히는 것을 권장합니다.</p>
+  </div>
+</div>
+
+<!-- 캡션 모달 -->
+<div id="modal-caption" class="modal-backdrop hidden">
+  <div class="modal">
+    <button class="modal-close" data-close="modal-caption">✕</button>
+    <h2>📝 캡션 제안</h2>
+    <p class="sub">진아의 목소리로 작성된 인스타그램 캡션 3가지</p>
+    <div id="caption-result"></div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="reference-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,2287 @@
+<html lang="ko" data-lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GPT PARK · SU-Note (수-노트) — Suno 음악 스타일 &amp; 가사 생성기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tailwind.css?v=113">
+<link rel="stylesheet" href="css/styles.css?v=113">
+<style>
+.simg-pop-btn {
+    position: absolute;
+    z-index: 2147483647;
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.simg-pop-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.simg-pop-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: #fff;
+}
+
+.simg-pop-btn-small {
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
+}
+
+.simg-pop-btn-small svg {
+    width: 16px;
+    height: 16px;
+}
+</style></head>
+<body class="app-body">
+<a href="/tools" style="position:fixed;top:14px;right:14px;z-index:2147483647;background:linear-gradient(135deg,#7c3aed,#db00ff);color:#fff;padding:10px 14px;border-radius:999px;font-weight:900;font-family:system-ui,-apple-system,Segoe UI,sans-serif;text-decoration:none;box-shadow:0 10px 30px rgba(124,58,237,.35);transition:transform .2s ease, box-shadow .2s ease;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 14px 36px rgba(219,0,255,.45)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 10px 30px rgba(124,58,237,.35)'">← 통합도구 홈</a>
+
+
+<div class="app-shell">
+
+<!-- ============ Sidebar Nav ============ -->
+<aside id="app-sidebar" class="app-sidebar">
+  <a href="#h-versions" class="brand-wordmark" aria-label="SU-Note — 버전 히스토리 보기">
+    <span class="brand-dot"></span>
+    <span class="brand-text">
+      <span class="brand-name">SU-Note</span>
+      <span class="brand-ko">수-노트</span>
+      <span class="brand-version" id="brand-version" title="현재 버전 (클릭 시 사용법 가이드의 버전 히스토리 열림)">v2.1</span>
+    </span>
+  </a>
+
+  <nav id="tabs" class="side-nav" aria-label="섹션 네비게이션">
+    <button data-tab="builder" class="tab-btn active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"></path></svg>
+      <span data-i18n="tab.builder">빌더</span>
+    </button>
+    <button data-tab="album" class="tab-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+      <span data-i18n="tab.album">앨범</span>
+      <span class="nav-badge">12</span>
+    </button>
+    <button data-tab="artists" class="tab-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+      <span data-i18n="tab.artists">프리셋</span>
+      <span class="nav-badge">460</span>
+    </button>
+    <button data-tab="search" class="tab-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <span data-i18n="tab.search">검색</span>
+      <span class="nav-badge nav-badge-ai" data-i18n-title="tab.search.tip" title="AI 기반 검색">AI</span>
+    </button>
+    <button data-tab="dance" class="tab-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path><path d="M3 12a9 9 0 0 0 18 0"></path></svg>
+      <span data-i18n="tab.dance">댄싱 머신</span>
+      <span class="nav-badge">200</span>
+    </button>
+    <button data-tab="guide" class="tab-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+      <span data-i18n="tab.guide">가이드</span>
+    </button>
+    <button data-tab="presets" class="tab-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+      <span data-i18n="tab.presets">저장됨</span>
+    </button>
+  </nav>
+
+  <div id="sidebar-workflow-slot" class="sidebar-workflow-slot" aria-hidden="true"></div>
+  <div class="sidebar-footer">
+    <div class="theme-toggle">
+      <span class="theme-toggle-label" id="lang-label" data-i18n="footer.lang">언어</span>
+      <div id="lang-seg" class="theme-seg" role="radiogroup" aria-label="UI language">
+        <button class="seg-btn" data-lang-val="ko" title="한국어 (기본)" aria-label="한국어" type="button" aria-pressed="true">
+          <span style="font-family:var(--f-mono);font-weight:800;font-size:11px;letter-spacing:0">한</span>
+        </button>
+        <button class="seg-btn" data-lang-val="en" title="English" aria-label="English" type="button" aria-pressed="false">
+          <span style="font-family:var(--f-mono);font-weight:800;font-size:11px;letter-spacing:0">EN</span>
+        </button>
+      </div>
+    </div>
+    <div class="theme-toggle">
+      <span class="theme-toggle-label" id="theme-label" data-i18n="footer.theme">테마</span>
+      <div id="theme-seg" class="theme-seg" role="radiogroup" aria-label="컬러 테마 선택">
+        <button class="seg-btn" data-theme-val="dark" title="다크 모드 (기본)" aria-label="다크 모드" type="button" aria-pressed="true">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+        <button class="seg-btn" data-theme-val="graphite" title="Warm Sand — 따뜻한 베이지 톤" aria-label="Warm Sand 테마" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v18"></path><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"></path></svg>
+        </button>
+        <button class="seg-btn" data-theme-val="light" title="라이트 모드" aria-label="라이트 모드" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+        </button>
+      </div>
+    </div>
+    <div class="theme-toggle">
+      <span class="theme-toggle-label" data-i18n="footer.split">분할 모드</span>
+      <button id="split-switch" class="theme-switch" aria-label="화면 분할 모드 전환" type="button"></button>
+    </div>
+    <button id="btn-open-suno" class="side-action" data-i18n-title="footer.suno.tip" title="Suno AI 를 분할 화면 옆에 띄움 (분할 모드일 때는 화면 우측 절반 위치로 자동)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+      <span data-i18n="footer.suno">Suno 열기</span>
+    </button>
+    <button id="btn-help" class="side-action" data-i18n-title="footer.help.tip" title="앱 사용법 가이드 (단축키: ?)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      <span data-i18n="footer.help">사용법 가이드</span>
+    </button>
+    <button id="btn-settings" class="side-action" data-i18n-title="footer.settings.tip" title="API 키 / 모델 설정">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <span data-i18n="footer.settings">설정</span>
+    </button>
+    <div class="brand-by-line">by <a href="https://gptparkai.com/" target="_blank" rel="noopener">GPT PARK</a></div>
+  </div>
+</aside>
+
+<!-- ============ Main column ============ -->
+<div class="app-main">
+  <!-- top bar: status -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <button id="mobile-menu-btn" class="mobile-menu-btn" type="button" aria-label="메뉴 열기" aria-controls="app-sidebar">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <span id="header-ai-status" class="header-ai-chip" title="현재 AI 모델 / 가사 언어">
+        <span id="header-ai-provider" class="header-ai-provider">GPT</span>
+        <span class="topbar-dot"></span>
+        <span id="header-ai-lang" class="header-ai-lang">EN 100%</span>
+      </span>
+    </div>
+    <div class="topbar-right" style="color: var(--text-secondary); font-size: 12px; font-weight: 500; letter-spacing: 0.02em;" data-stats="topbar">Suno V5.5 · 648 태그 · 867 템플릿 · 200 댄스</div>
+  </div>
+  <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+
+  <!-- ============ Workflow chart for beginners ============ -->
+  <div id="workflow-chart" class="workflow-chart collapsed" aria-label="앱 사용 순서 안내">
+    <div class="workflow-head">
+      <span class="workflow-eyebrow" data-i18n="wf.eyebrow">처음이라면 — 4단계로 시작하세요</span>
+      <button id="workflow-toggle" class="workflow-toggle" type="button" data-i18n-title="wf.toggle.tip" title="워크플로우 접기·펴기" data-i18n="wf.expand">펴기</button>
+    </div>
+    <ol class="workflow-steps">
+      <li class="workflow-step" data-step="1">
+        <span class="workflow-num">1</span>
+        <div class="workflow-body">
+          <div class="workflow-title" data-i18n="wf.s1.title">스타일 고르기</div>
+          <div class="workflow-desc" data-i18n="wf.s1.desc">빌더 우측 <b>시작점</b> 패널에서 분류 → 시대 → 프리셋 직접 선택, 또는 좌측 <b>프리셋 · 댄싱머신 · 검색</b> 탭에서 골라 <b>빌더에 로드 / 빌더로 전송</b></div>
+        </div>
+      </li>
+      <span class="workflow-arrow" aria-hidden="true">→</span>
+      <li class="workflow-step" data-step="2">
+        <span class="workflow-num">2</span>
+        <div class="workflow-body">
+          <div class="workflow-title" data-i18n="wf.s2.title">제어 조정</div>
+          <div class="workflow-desc" data-i18n="wf.s2.desc">우측 <b>제어 (Mix Console)</b> 에서 페이더로 한·영 비율 · 시적 비유 · 보컬↔랩 조절. 콜앤리스폰스·화음 옵션과 <b>보컬 편곡 스타일</b> 도 선택</div>
+        </div>
+      </li>
+      <span class="workflow-arrow" aria-hidden="true">→</span>
+      <li class="workflow-step" data-step="3">
+        <span class="workflow-num">3</span>
+        <div class="workflow-body">
+          <div class="workflow-title" data-i18n="wf.s3.title">빌더에 로드 + AI 생성 <span class="workflow-pill">선택</span></div>
+          <div class="workflow-desc" data-i18n="wf.s3.desc">제어 패널 하단의 <b>빌더에 로드</b> 버튼을 누르면 Style·구조·편곡 키워드가 한 번에 적용. 필요하면 중앙 <b>AI</b> 패널에 컨셉 입력 → Claude·GPT·Gemini 로 제목·가사 자동 생성</div>
+        </div>
+      </li>
+      <span class="workflow-arrow" aria-hidden="true">→</span>
+      <li class="workflow-step" data-step="4">
+        <span class="workflow-num">4</span>
+        <div class="workflow-body">
+          <div class="workflow-title" data-i18n="wf.s4.title">Suno에 붙여넣기</div>
+          <div class="workflow-desc" data-i18n="wf.s4.desc"><b>📋 Style 복사</b> · <b>📋 Lyrics 복사</b> 로 클립보드에 → Suno AI Custom Mode 의 Style · Lyrics 필드에 각각 붙여넣고 곡 생성</div>
+        </div>
+      </li>
+    </ol>
+    <div class="workflow-tip">
+      <span data-i18n="wf.tip1">💡 <b>자동 정제</b> ─ Style 에서 한국어 · 아티스트명 · 언어 지시 (in English 등) 가 모두 자동 제거되어 Suno 영문 토큰화에 최적화. 가사는 섹션 사이에 빈 줄이 자동 삽입됩니다.</span><br>
+      <span data-i18n="wf.tip2">💡 <b>다른 기능</b> ─ 12곡 앨범 한번에 만들기 = <b>앨범</b> 탭 / 200 댄스 서브장르 + 태그 조합기 = <b>댄싱 머신</b> 탭 / 상세 매뉴얼 = <kbd>?</kbd> 키</span>
+    </div>
+  </div>
+
+<main class="px-7 py-6">
+
+<!-- ============ BUILDER ============ -->
+<section id="view-builder" class="view">
+  <!-- Song title — quiet, no Hero strip -->
+  <div class="hero-strip mb-5">
+    <div class="hero-title-row">
+      <input id="song-title" class="hero-input" data-i18n-placeholder="hero.title.ph" placeholder="노래 제목 (예: 첫눈에 / First Snow / 별의 노래)" autocomplete="off">
+      <button id="btn-skeleton" class="btn-ghost" data-i18n-title="btn.skeleton.tip" title="한국 가요 기본 가사 구조 골격을 가사 영역에 삽입합니다" data-i18n="btn.skeleton">기본 골격</button>
+      <button id="btn-clear" class="btn-ghost" data-i18n-title="btn.reset.tip" title="제목·가사·Style 칩·슬라이더·옵션·AI 프롬프트까지 모두 기본값으로 되돌립니다" style="color: var(--text-3);" data-i18n="btn.reset">초기화</button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-12 gap-5">
+    <!-- LEFT (8): Composer canvas -->
+    <div class="col-span-12 lg:col-span-8 space-y-5">
+      <!-- Style chips + textarea -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="panel.style">Style</h2>
+          <span class="text-xs ml-auto" style="color: var(--text-4);" data-i18n="style.subtitle">Suno Style 필드 · 권장 ~200자</span>
+        </div>
+        <div id="style-chips" class="chip-stack min-h-[3.5rem] mb-2"><span class="text-xs text-slate-500 px-1 py-0.5">아직 태그가 없습니다 — 팔레트/카탈로그/아티스트에서 추가하세요</span></div>
+        <div class="flex gap-2 mb-3">
+          <input id="style-add-input" class="input flex-1" data-i18n-placeholder="style.add.ph" placeholder="태그 직접 입력 후 Enter (예: 95 BPM, intimate piano)">
+          <button id="style-add-btn" class="btn-secondary" data-i18n="style.add.btn">＋ 추가</button>
+        </div>
+        <textarea id="style-out" class="input font-mono text-sm h-28" data-i18n-placeholder="style.out.ph" placeholder="스타일 태그가 콤마로 결합되어 표시됩니다"></textarea>
+        <div class="flex items-center gap-2 mt-2">
+          <button class="btn-secondary" data-copy="style-out" data-i18n="btn.copy.style">📋 Style 복사</button>
+          <button id="btn-save-preset" class="btn-primary ml-auto" data-i18n="btn.save.preset">💾 프리셋으로 저장</button>
+          <span id="style-stats" class="text-[11px] text-slate-400">0개 태그 · 0자</span>
+        </div>
+      </div>
+
+      <!-- Lyrics -->
+      <div class="panel lyrics-panel">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="panel.lyrics">Lyrics</h2>
+          <span class="text-xs ml-auto" style="color: var(--text-4);" id="lyrics-stats">0개 섹션 · 0줄 · 0자</span>
+        </div>
+        <div id="structure-palette" class="flex flex-wrap gap-1.5 mb-3"><button class="chip lyrics" data-action="add-structure" data-tag="[Intro]" title="도입부 (8~16마디) · 🟢">[Intro]</button><button class="chip lyrics" data-action="add-structure" data-tag="[Verse] / [Verse 1] / [Verse 2]" title="절 - 스토리텔링 구간 · 🟢">[Verse] / [Verse 1] / [Verse 2]</button><button class="chip lyrics" data-action="add-structure" data-tag="[Pre-Chorus]" title="후렴 직전 빌드업 · 🟢">[Pre-Chorus]</button><button class="chip lyrics" data-action="add-structure" data-tag="[Chorus]" title="후렴구 (가장 강력함) · 🟢">[Chorus]</button><button class="chip lyrics" data-action="add-structure" data-tag="[Bridge]" title="변주 구간 · 🟢">[Bridge]</button><button class="chip lyrics" data-action="add-structure" data-tag="[Outro]" title="마무리 · 🟢">[Outro]</button><button class="chip lyrics" data-action="add-structure" data-tag="[Instrumental]" title="보컬 없는 연주 구간 · 🟢">[Instrumental]</button><button class="chip lyrics" data-action="add-structure" data-tag="[Post-Chorus]" title="후렴 후 이어지는 훅 · 🟡">[Post-Chorus]</button><button class="chip lyrics" data-action="add-structure" data-tag="[Hook]" title="캐치한 멜로디 라인 · 🟡">[Hook]</button><button class="chip lyrics" data-action="add-structure" data-tag="[Break]" title="분위기 환기, 드럼만 남는 구간 · 🟡">[Break]</button><button class="chip lyrics" data-action="add-structure" data-tag="[Drop]" title="EDM/일렉의 클라이맥스 · 🟡">[Drop]</button><button class="chip lyrics" data-action="add-structure" data-tag="[Buildup]" title="긴장감 고조 · 🟡">[Buildup]</button><button class="chip lyrics" data-action="add-structure" data-tag="[Interlude]" title="짧은 간주 · 🟡">[Interlude]</button><button class="chip lyrics" data-action="add-structure" data-tag="[Solo] / [Guitar Solo]" title="악기 솔로 · 🟡">[Solo] / [Guitar Solo]</button><button class="chip lyrics" data-action="add-structure" data-tag="[Fade Out] / [Fade In]" title="페이드 효과 · 🟡">[Fade Out] / [Fade In]</button><button class="chip warn" data-action="add-structure" data-tag="[Big Finish]" title="웅장한 마무리 · 🔴">[Big Finish]</button><button class="chip warn" data-action="add-structure" data-tag="[Refrain]" title="후렴 변주 · 🔴">[Refrain]</button><button class="chip warn" data-action="add-structure" data-tag="[Key Change]" title="조성 변화 · 🔴">[Key Change]</button></div>
+        <textarea id="lyrics-out" class="input font-mono text-sm h-72" placeholder="[Intro]
+…
+
+[Verse 1]
+…
+
+[Chorus]
+…
+
+[Outro]"></textarea>
+        <div class="flex items-center gap-2 mt-2">
+          <button class="btn-secondary" data-copy="lyrics-out" data-i18n="btn.copy.lyrics">📋 Lyrics 복사</button>
+        </div>
+      </div>
+
+      <!-- AI 생성 -->
+      <div class="panel ai-panel">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="panel.ai">AI</h2>
+          <div id="ai-prov-tabs" class="flex gap-0.5 ml-auto">
+            <button class="ai-prov" data-prov="anthropic">Claude</button>
+            <button class="ai-prov active" data-prov="openai">GPT</button>
+            <button class="ai-prov" data-prov="google">Gemini</button>
+          </div>
+        </div>
+        <textarea id="ai-prompt" class="input h-20" data-i18n-placeholder="ai.prompt.ph" placeholder="어떤 곡을 만들고 싶나요? (예: 1980년대 신스웨이브 발라드, 첫사랑 회상)"></textarea>
+        <div class="ai-options-row">
+          <label class="check"><input type="checkbox" id="ai-fill-title" checked=""> <span data-i18n="ai.opt.title">제목</span></label>
+          <label class="check" id="ai-fill-style-label"><input type="checkbox" id="ai-fill-style" checked=""> Style</label>
+          <span id="ai-style-lock-badge" class="ai-lock-badge hidden" data-i18n-title="ai.lock.tip" title="프리셋의 Excel 원본 Style이 덮어써지지 않도록 잠긴 상태. 클릭하면 AI가 새로 작성." data-i18n="ai.lock">프리셋 보호 중</span>
+          <label class="check"><input type="checkbox" id="ai-fill-lyrics" checked=""> Lyrics</label>
+          <label class="check" data-i18n-title="ai.instr.tip" title="가사 없이 연주곡으로 생성. AI 가 Lyrics 칸에 sung/rap 없이 [Intro] · [Verse: 음악 큐] · [Chorus] · [Bridge] · [Outro] 같은 섹션 로드맵 + --- 마커만 작성 (Suno 의 권장 instrumental 패턴 — 빈 칸은 단조로운 루프가 되기 쉬움). Style 에 instrumental 태그 자동 삽입.">
+            <input type="checkbox" id="ai-instrumental"> <span data-i18n="ai.opt.instrumental">🎺 연주곡</span>
+          </label>
+          <label class="check ai-title-lang-wrap" data-i18n-title="ai.titlelang.tip" title="AI 가 만들 제목의 언어. Auto 는 가사 언어 페이더를 따름.">
+            <span data-i18n="ai.opt.title">제목</span>
+            <select id="ai-title-lang" class="input ai-title-lang">
+              <option value="auto" selected="">Auto</option>
+              <option value="ko" data-i18n="ai.title.lang.ko">한국어</option>
+              <option value="en">English</option>
+              <option value="ja" data-i18n="ai.title.lang.ja">日本語</option>
+              <option value="latin" data-i18n="ai.title.lang.latin">Latin·다국어</option>
+            </select>
+          </label>
+          <label class="check"><input type="checkbox" id="ai-use-context" checked=""> <span data-i18n="ai.opt.context">컨텍스트</span></label>
+          <span class="ai-mirrors">
+            <span id="ai-lang-mirror" class="ai-mirror">영문 100%</span>
+            <span id="ai-metaphor-mirror" class="ai-mirror">균형 50%</span>
+            <span id="ai-rap-mirror" class="ai-mirror">보컬 100%</span>
+          </span>
+          <button id="ai-generate" class="btn-primary ml-auto" data-i18n="ai.generate">생성</button>
+          <button id="ai-stop" class="btn-ghost hidden" data-i18n="ai.stop">중지</button>
+        </div>
+        <div id="ai-status" class="text-xs text-slate-400 mt-2 min-h-[1rem]"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT (4): Sidebar — 시작점 + 현재 선택 + Mix Console + 팔레트 -->
+    <aside class="col-span-12 lg:col-span-4 space-y-5">
+      <!-- 시작점 (in-builder quick picker) — only visible when the
+           chip stack is empty AND no preset is loaded yet. As soon as
+           chips arrive from 프리셋 / 태그 / 댄싱머신 / 검색 tabs (or
+           the user adds chips manually), this picker is auto-hidden
+           via #starting-point-panel.hidden so the 현재 선택 card
+           below takes over as the read-only status board. -->
+      <div id="starting-point-panel" class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="panel.startingpoint">시작점</h2>
+          <span class="text-xs ml-auto" style="color: var(--text-4);" data-i18n="startpoint.hint">분류 → 시대 → 프리셋</span>
+        </div>
+        <div class="cat-row mb-3" data-cat-scope="builder">
+          <button class="cat-chip active" data-cat="all" data-i18n="cat.all">전체</button>
+          <button class="cat-chip" data-cat="korean" data-i18n="cat.korean">한국</button>
+          <button class="cat-chip" data-cat="pop" data-i18n="cat.pop">POP</button>
+        </div>
+        <div class="space-y-2 mb-1">
+          <label class="field">
+            <span class="field-label" data-i18n="sp.era">🗓️ 시대</span>
+            <select id="filter-era" class="input"><option value="">— 시대 선택 —</option><option value="modern">현대 (Modern Korean Pop)</option><option value="2020s">2020s</option><option value="2010s">2010s</option><option value="2000s">2000s</option><option value="1990s">1990s</option><option value="1980s">1980s</option><option value="1970s">1970s</option><option value="1960s">1960s</option><option value="1950s">1950s</option><option value="1940s">1940s</option><option value="1930s">1930s</option><option value="1920s">1920s</option><option value="global">글로벌 (시대 무관)</option></select>
+          </label>
+          <label class="field">
+            <span class="field-label" data-i18n="sp.group">🎯 스타일 그룹</span>
+            <select id="filter-genre" class="input"><option value="">— 스타일 그룹 (선택) —</option><option value="1950~60년대 정통 트로트 (올드 트로트)">1950~60년대 정통 트로트 (올드 트로트)</option><option value="1950년대 재즈 가요 (패티김/현인 스타일)">1950년대 재즈 가요 (패티김/현인 스타일)</option><option value="1980년대 댄스 가요 (김완선/소방차/박남정)">1980년대 댄스 가요 (김완선/소방차/박남정)</option><option value="1980년대 팝 발라드 (이문세/이영훈)">1980년대 팝 발라드 (이문세/이영훈)</option><option value="1980년대 한국 록 (들국화/송골매/시나위)">1980년대 한국 록 (들국화/송골매/시나위)</option><option value="1980년대 한국 시티팝 (윤수일/빛과 소금/김현철)">1980년대 한국 시티팝 (윤수일/빛과 소금/김현철)</option><option value="1980년대 후반 트로트 부흥기 (주현미/현철/태진아)">1980년대 후반 트로트 부흥기 (주현미/현철/태진아)</option><option value="1990년대 한국 가요 (가요 르네상스)">1990년대 한국 가요 (가요 르네상스)</option><option value="1990년대 후반 1세대 K-Pop (H.O.T./S.E.S./핑클/젝키)">1990년대 후반 1세대 K-Pop (H.O.T./S.E.S./핑클/젝키)</option><option value="2000년대 2세대 K-Pop (동방신기/빅뱅/소녀시대)">2000년대 2세대 K-Pop (동방신기/빅뱅/소녀시대)</option><option value="2000년대 한국 발라드 / R&amp;B (성시경/박효신/휘성/거미)">2000년대 한국 발라드 / R&amp;B (성시경/박효신/휘성/거미)</option><option value="2000년대 한국 인디 / 홍대 음악 (장기하/브로콜리너마저/검정치마)">2000년대 한국 인디 / 홍대 음악 (장기하/브로콜리너마저/검정치마)</option><option value="2000년대 한국 힙합 (에픽하이/드렁큰타이거/다이나믹듀오)">2000년대 한국 힙합 (에픽하이/드렁큰타이거/다이나믹듀오)</option><option value="2010년대 3세대 K-Pop (BTS/EXO/TWICE/Red Velvet/MAMAMOO)">2010년대 3세대 K-Pop (BTS/EXO/TWICE/Red Velvet/MAMAMOO)</option><option value="2010년대 한국 인디 / 감성 음악 (아이유/10cm/볼빨간사춘기)">2010년대 한국 인디 / 감성 음악 (아이유/10cm/볼빨간사춘기)</option><option value="2010년대 한국 힙합 / R&amp;B (지코/박재범/자이언티/딘)">2010년대 한국 힙합 / R&amp;B (지코/박재범/자이언티/딘)</option><option value="2010년대 후반 4세대 K-Pop 태동 (스트레이키즈/ITZY/(여자)아이들)">2010년대 후반 4세대 K-Pop 태동 (스트레이키즈/ITZY/(여자)아이들)</option><option value="2010년대 후반 트로트 부흥 (송가인/임영웅)">2010년대 후반 트로트 부흥 (송가인/임영웅)</option><option value="70-80년대 디스코 가요 (윤수일/혜은이)">70-80년대 디스코 가요 (윤수일/혜은이)</option><option value="발라드 (Ballad)">발라드 (Ballad)</option><option value="트로트 (Trot)">트로트 (Trot)</option><option value="K-힙합 / 한국 랩">K-힙합 / 한국 랩</option><option value="K-POP (현대 케이팝)">K-POP (현대 케이팝)</option><option value="K-Pop/4th Gen">K-Pop/4th Gen</option><option value="K-Pop/Disco-Pop">K-Pop/Disco-Pop</option><option value="K-Pop/EDM Trap">K-Pop/EDM Trap</option><option value="Alternative Rock/Jangle Pop">Alternative Rock/Jangle Pop</option><option value="Alternative Rock/Pop Rock">Alternative Rock/Pop Rock</option><option value="Country Pop/Country">Country Pop/Country</option><option value="Crooner/Pop Standards">Crooner/Pop Standards</option><option value="Dance-Pop/Electronic">Dance-Pop/Electronic</option><option value="Dance-Pop/Electropop">Dance-Pop/Electropop</option><option value="Dance-Pop/Tropical House">Dance-Pop/Tropical House</option><option value="Dark Pop/Electropop">Dark Pop/Electropop</option><option value="Disco/Dance-Pop">Disco/Dance-Pop</option><option value="Eurodance/Pop">Eurodance/Pop</option><option value="Folk Rock/Sunshine Pop">Folk Rock/Sunshine Pop</option><option value="Funk/Pop/Retro Soul">Funk/Pop/Retro Soul</option><option value="Hair Metal/Pop Rock">Hair Metal/Pop Rock</option><option value="Hip-Hop/Funk/Pop">Hip-Hop/Funk/Pop</option><option value="Hip-Hop/Pop Rap">Hip-Hop/Pop Rap</option><option value="Indie Pop/Sadcore">Indie Pop/Sadcore</option><option value="J-POP / J-ROCK / ANIME (일본 음악)">J-POP / J-ROCK / ANIME (일본 음악)</option><option value="Latin Pop/Reggaeton">Latin Pop/Reggaeton</option><option value="New Wave/Pop">New Wave/Pop</option><option value="New Wave/Synth-Pop">New Wave/Synth-Pop</option><option value="Piano Pop Rock">Piano Pop Rock</option><option value="Pop">Pop</option><option value="POP (글로벌 팝)">POP (글로벌 팝)</option><option value="Pop Ballad/Bedroom Pop">Pop Ballad/Bedroom Pop</option><option value="Pop Punk/Emo">Pop Punk/Emo</option><option value="Pop Rap/Trap">Pop Rap/Trap</option><option value="Pop Rock">Pop Rock</option><option value="Pop Rock/Funk-Rock">Pop Rock/Funk-Rock</option><option value="Pop Rock/Pop Punk">Pop Rock/Pop Punk</option><option value="Pop Rock/Soft Rock">Pop Rock/Soft Rock</option><option value="Pop/Boy Band">Pop/Boy Band</option><option value="Pop/Crooner">Pop/Crooner</option><option value="Pop/Dance">Pop/Dance</option><option value="Pop/Dance-Pop">Pop/Dance-Pop</option><option value="Pop/Dance/R&amp;B">Pop/Dance/R&amp;B</option><option value="Pop/Dancehall">Pop/Dancehall</option><option value="Pop/Disco/Hip-Hop">Pop/Disco/Hip-Hop</option><option value="Pop/Funk/R&amp;B">Pop/Funk/R&amp;B</option><option value="Pop/Hip-Hop/Alternative">Pop/Hip-Hop/Alternative</option><option value="Pop/Indie Pop">Pop/Indie Pop</option><option value="Pop/R&amp;B/Trap-Pop">Pop/R&amp;B/Trap-Pop</option><option value="Pop/Soul">Pop/Soul</option><option value="Pop/Soul/Funk">Pop/Soul/Funk</option><option value="Pop/Soul/Rock">Pop/Soul/Rock</option><option value="Psychedelic Rock/Pop">Psychedelic Rock/Pop</option><option value="Punk Rock/Pop Punk">Punk Rock/Pop Punk</option><option value="R&amp;B/Crunk Pop">R&amp;B/Crunk Pop</option><option value="R&amp;B/Dance-Pop">R&amp;B/Dance-Pop</option><option value="R&amp;B/Pop/Dance">R&amp;B/Pop/Dance</option><option value="R&amp;B/Pop/Hip-Hop">R&amp;B/Pop/Hip-Hop</option><option value="R&amp;B/Synth-Pop">R&amp;B/Synth-Pop</option><option value="Rock/R&amp;B/Pop">Rock/R&amp;B/Pop</option><option value="Soft Rock/Pop Rock">Soft Rock/Pop Rock</option><option value="Soul/Pop">Soul/Pop</option><option value="Soul/Pop Crossover">Soul/Pop Crossover</option><option value="Sunshine Pop/Psychedelic">Sunshine Pop/Psychedelic</option><option value="Synth-Pop/Electronic Dance">Synth-Pop/Electronic Dance</option><option value="Synth-Pop/Industrial">Synth-Pop/Industrial</option><option value="Teen Pop/Dance-Pop">Teen Pop/Dance-Pop</option><option value="Teen Pop/R&amp;B">Teen Pop/R&amp;B</option><option value="Vaudeville/Pop">Vaudeville/Pop</option><option value="1920s - Jazz Age (재즈 시대)">1920s - Jazz Age (재즈 시대)</option><option value="1930s - Swing Era &amp; Depression Blues">1930s - Swing Era &amp; Depression Blues</option><option value="1940s - Bebop &amp; Wartime Music">1940s - Bebop &amp; Wartime Music</option><option value="1950s - Rock &amp; Roll Birth (록앤롤 탄생)">1950s - Rock &amp; Roll Birth (록앤롤 탄생)</option><option value="1960s - Revolution &amp; Diversification">1960s - Revolution &amp; Diversification</option><option value="1970년대 통기타 포크 (송창식/양희은/김민기)">1970년대 통기타 포크 (송창식/양희은/김민기)</option><option value="1970s - Diversification Era (다양화 시대)">1970s - Diversification Era (다양화 시대)</option><option value="1980s - MTV Era (MTV 시대)">1980s - MTV Era (MTV 시대)</option><option value="1990s - Alternative Boom (얼터너티브 폭발)">1990s - Alternative Boom (얼터너티브 폭발)</option><option value="2000s - Digital Revolution (디지털 혁명)">2000s - Digital Revolution (디지털 혁명)</option><option value="2010년대 OST 골든 에이지 (드라마/영화)">2010년대 OST 골든 에이지 (드라마/영화)</option><option value="2010s - Streaming Era (스트리밍 시대)">2010s - Streaming Era (스트리밍 시대)</option><option value="2020s - Current Era (현재)">2020s - Current Era (현재)</option><option value="60-70년대 사이키델릭 록 (신중현 스타일)">60-70년대 사이키델릭 록 (신중현 스타일)</option><option value="글로벌 장르 통합 골든 템플릿">글로벌 장르 통합 골든 템플릿</option><option value="동요 / CCM">동요 / CCM</option><option value="시대별 통합 골든 템플릿">시대별 통합 골든 템플릿</option><option value="시대별 통합 골든 템플릿 (1990s ~ 2010s)">시대별 통합 골든 템플릿 (1990s ~ 2010s)</option><option value="특수 카테고리 (게임/시네마틱/앰비언트/시즌)">특수 카테고리 (게임/시네마틱/앰비언트/시즌)</option><option value="Afrobeats">Afrobeats</option><option value="AFROBEATS (아프로비츠)">AFROBEATS (아프로비츠)</option><option value="Afrobeats/Alternative R&amp;B">Afrobeats/Alternative R&amp;B</option><option value="Alternative Rock">Alternative Rock</option><option value="Alternative Rock/Electropop">Alternative Rock/Electropop</option><option value="Alternative Rock/Post-Grunge">Alternative Rock/Post-Grunge</option><option value="Alternative Rock/Post-Punk">Alternative Rock/Post-Punk</option><option value="Alternative Rock/Progressive Rock">Alternative Rock/Progressive Rock</option><option value="Alternative Rock/Shoegaze">Alternative Rock/Shoegaze</option><option value="Alternative/Lo-Fi/Indie">Alternative/Lo-Fi/Indie</option><option value="American Folk">American Folk</option><option value="Bebop">Bebop</option><option value="Bebop/Afro-Cuban">Bebop/Afro-Cuban</option><option value="Bebop/Modern Jazz">Bebop/Modern Jazz</option><option value="Big Band Jazz">Big Band Jazz</option><option value="Blues Rock/Hard Rock">Blues Rock/Hard Rock</option><option value="Blues Rock/Rock">Blues Rock/Rock</option><option value="BRAZILIAN (브라질 음악)">BRAZILIAN (브라질 음악)</option><option value="Britpop">Britpop</option><option value="Chicago Electric Blues">Chicago Electric Blues</option><option value="Chicago Jazz/Cool">Chicago Jazz/Cool</option><option value="Classic Female Blues">Classic Female Blues</option><option value="Country">Country</option><option value="COUNTRY (컨트리)">COUNTRY (컨트리)</option><option value="Country Rock/Soft Rock">Country Rock/Soft Rock</option><option value="Country/Rockabilly">Country/Rockabilly</option><option value="Creole Jazz">Creole Jazz</option><option value="Delta Blues">Delta Blues</option><option value="Disco">Disco</option><option value="Disco/Electronic">Disco/Electronic</option><option value="Disco/Electronic/Funk">Disco/Electronic/Funk</option><option value="Disco/Soul">Disco/Soul</option><option value="Doo-Wop/Teen">Doo-Wop/Teen</option><option value="Doo-Wop/Vocal Group">Doo-Wop/Vocal Group</option><option value="Dubstep/Electronic">Dubstep/Electronic</option><option value="East Coast Hip-Hop">East Coast Hip-Hop</option><option value="EDM / ELECTRONIC (일렉트로닉 댄스)">EDM / ELECTRONIC (일렉트로닉 댄스)</option><option value="EDM/Folk Tronica">EDM/Folk Tronica</option><option value="EDM/House">EDM/House</option><option value="Folk Rock">Folk Rock</option><option value="Funk">Funk</option><option value="Funk/Disco/R&amp;B">Funk/Disco/R&amp;B</option><option value="Funk/P-Funk">Funk/P-Funk</option><option value="Funk/Soul">Funk/Soul</option><option value="G-Funk/West Coast Hip-Hop">G-Funk/West Coast Hip-Hop</option><option value="Garage Rock Revival">Garage Rock Revival</option><option value="Glam Rock">Glam Rock</option><option value="Gothic Rock/Alternative">Gothic Rock/Alternative</option><option value="Grunge">Grunge</option><option value="Grunge/Alternative Rock">Grunge/Alternative Rock</option><option value="Gypsy Jazz">Gypsy Jazz</option><option value="Hard Rock">Hard Rock</option><option value="Hard Rock/Blues Rock">Hard Rock/Blues Rock</option><option value="Hard Rock/Folk Rock">Hard Rock/Folk Rock</option><option value="Hard Rock/Glam">Hard Rock/Glam</option><option value="Harlem Swing/Scat">Harlem Swing/Scat</option><option value="Heartland Rock">Heartland Rock</option><option value="Heavy Metal">Heavy Metal</option><option value="Heavy Metal/NWOBHM">Heavy Metal/NWOBHM</option><option value="Hip-Hop">Hip-Hop</option><option value="HIP-HOP / RAP (힙합/랩)">HIP-HOP / RAP (힙합/랩)</option><option value="Hip-Hop/Conscious Rap">Hip-Hop/Conscious Rap</option><option value="Hip-Hop/Electronic">Hip-Hop/Electronic</option><option value="Hip-Hop/Funk">Hip-Hop/Funk</option><option value="Hip-Hop/G-Unit">Hip-Hop/G-Unit</option><option value="Hip-Hop/R&amp;B">Hip-Hop/R&amp;B</option><option value="Hip-Hop/Rap Rock">Hip-Hop/Rap Rock</option><option value="Hip-Hop/Rap-Rock">Hip-Hop/Rap-Rock</option><option value="Hip-Hop/Trap">Hip-Hop/Trap</option><option value="Honky Tonk Country">Honky Tonk Country</option><option value="Hot Jazz/Dixieland">Hot Jazz/Dixieland</option><option value="INDIAN / BOLLYWOOD (인도 음악)">INDIAN / BOLLYWOOD (인도 음악)</option><option value="INDIE / LO-FI (인디/로파이)">INDIE / LO-FI (인디/로파이)</option><option value="Indie Folk/Indie Rock">Indie Folk/Indie Rock</option><option value="Indie Rock/Garage Rock Revival">Indie Rock/Garage Rock Revival</option><option value="Indie Rock/New Wave Revival">Indie Rock/New Wave Revival</option><option value="JAZZ / BLUES / R&amp;B">JAZZ / BLUES / R&amp;B</option><option value="Jazz Fusion/Avant-Rock">Jazz Fusion/Avant-Rock</option><option value="Jazz Vocal/Blues">Jazz Vocal/Blues</option><option value="Jazz Vocal/Crooner">Jazz Vocal/Crooner</option><option value="Jump Blues/R&amp;B Precursor">Jump Blues/R&amp;B Precursor</option><option value="K-R&amp;B / K-인디 / 시티팝">K-R&amp;B / K-인디 / 시티팝</option><option value="Kansas City Swing">Kansas City Swing</option><option value="LATIN (라틴 음악)">LATIN (라틴 음악)</option><option value="MEXICAN (멕시코 음악)">MEXICAN (멕시코 음악)</option><option value="Mod Rock/Hard Rock">Mod Rock/Hard Rock</option><option value="Modal Jazz/Cool">Modal Jazz/Cool</option><option value="Motown Soul">Motown Soul</option><option value="Nashville Sound/Country">Nashville Sound/Country</option><option value="New Orleans Jazz">New Orleans Jazz</option><option value="New Orleans R&amp;B">New Orleans R&amp;B</option><option value="New Wave/Art Rock">New Wave/Art Rock</option><option value="New Wave/Rock">New Wave/Rock</option><option value="Noise Rock/Indie Rock">Noise Rock/Indie Rock</option><option value="Nu-Metal/Alternative Rock">Nu-Metal/Alternative Rock</option><option value="OTHER WORLD MUSIC (기타 월드 뮤직)">OTHER WORLD MUSIC (기타 월드 뮤직)</option><option value="Political Hip-Hop">Political Hip-Hop</option><option value="Post-Punk/Gothic Rock">Post-Punk/Gothic Rock</option><option value="Progressive Rock">Progressive Rock</option><option value="Progressive Rock/Operatic">Progressive Rock/Operatic</option><option value="Proto-Punk/Art Rock">Proto-Punk/Art Rock</option><option value="Psychedelic Rock">Psychedelic Rock</option><option value="Psychedelic Rock/Blues">Psychedelic Rock/Blues</option><option value="Psychedelic Soul/Blues Rock">Psychedelic Soul/Blues Rock</option><option value="Punk Rock">Punk Rock</option><option value="Punk Rock/Post-Punk">Punk Rock/Post-Punk</option><option value="R&amp;B/Alternative R&amp;B">R&amp;B/Alternative R&amp;B</option><option value="R&amp;B/Doo-Wop Revival">R&amp;B/Doo-Wop Revival</option><option value="R&amp;B/Future Funk">R&amp;B/Future Funk</option><option value="R&amp;B/Hip-Hop Soul">R&amp;B/Hip-Hop Soul</option><option value="R&amp;B/Hip-Hop/Neo-Soul">R&amp;B/Hip-Hop/Neo-Soul</option><option value="Rap Metal/Funk Metal">Rap Metal/Funk Metal</option><option value="Rap/Hip-Hop">Rap/Hip-Hop</option><option value="Reggae">Reggae</option><option value="Reggaeton/Latin Trap">Reggaeton/Latin Trap</option><option value="Rhythm &amp; Blues/Rock">Rhythm &amp; Blues/Rock</option><option value="ROCK (록)">ROCK (록)</option><option value="Rock and Roll">Rock and Roll</option><option value="Rock and Roll/Rockabilly">Rock and Roll/Rockabilly</option><option value="Rock and Roll/Western Swing">Rock and Roll/Western Swing</option><option value="Rockabilly Piano">Rockabilly Piano</option><option value="Rockabilly/Early Rock">Rockabilly/Early Rock</option><option value="Roots Rock/Swamp Rock">Roots Rock/Swamp Rock</option><option value="Singer-Songwriter/Folk">Singer-Songwriter/Folk</option><option value="Singer-Songwriter/Soft Rock">Singer-Songwriter/Soft Rock</option><option value="Soul">Soul</option><option value="Soul/Electronic/Neo-Soul">Soul/Electronic/Neo-Soul</option><option value="Soul/Jazz/R&amp;B Retro">Soul/Jazz/R&amp;B Retro</option><option value="Soul/R&amp;B Pioneer">Soul/R&amp;B Pioneer</option><option value="Soul/Stax">Soul/Stax</option><option value="Stride Piano/Jazz">Stride Piano/Jazz</option><option value="Swing/Big Band">Swing/Big Band</option><option value="Swing/Close Harmony">Swing/Close Harmony</option><option value="Swing/Jazz Vocal">Swing/Jazz Vocal</option><option value="Thrash Metal">Thrash Metal</option><option value="Vaudeville Blues">Vaudeville Blues</option><option value="West Coast Hip-Hop/G-Funk">West Coast Hip-Hop/G-Funk</option></select>
+          </label>
+          <label class="field">
+            <span class="field-label" data-i18n="sp.preset">🎵 프리셋 (템플릿·아티스트)</span>
+            <select id="filter-artist" class="input"><option value="">— 프리셋 (선택) —</option><option value="t-85">📜 ☕ 10cm (어쿠스틱 듀오/솔로) · 100 BPM</option><option value="t-43">📜 ⚡ 동방신기 (보이그룹) · 115 BPM</option><option value="t-98">📜 ⚡ ITZY (걸그룹) · 130 BPM</option><option value="t-39">📜 ✨ 핑클 (걸그룹 1세대) · 115 BPM</option><option value="t-75">📜 ✨ GFRIEND / Apink / OH MY GIRL (이노센트 걸그룹) · 125 BPM</option><option value="t-74">📜 ⭐ Wonder Girls 2.0 / SHINee / 2PM · 110 BPM</option><option value="t-22">📜 🌃 한국 시티팝 · 110 BPM</option><option value="t-79">📜 🌙 딘 / DEAN (얼터너티브 R&amp;B) · 80 BPM</option><option value="t-50">📜 🌙 성시경 (어쿠스틱 발라드) · 65 BPM</option><option value="t-88">📜 🌙 잔나비 (인디록) · 100 BPM</option><option value="t-69">📜 🌙 EXO (보이그룹) · 110 BPM</option><option value="t-68">📜 🌟 BTS 방탄소년단 (보이그룹) · 120 BPM</option><option value="t-41">📜 🌟 god (보이그룹) · 90 BPM</option><option value="t-5">📜 🌧️ 어쿠스틱 발라드 (성시경/김광석) · 65 BPM</option><option value="t-45">📜 🌸 소녀시대 (걸그룹) · 130 BPM</option><option value="t-84">📜 🌸 아이유 (싱어송라이터) · 80 BPM</option><option value="t-99">📜 🌹 (여자)아이들 (걸그룹) · 110 BPM</option><option value="t-55">📜 🌹 바이브 (감성 듀오) · 80 BPM</option><option value="t-77">📜 🌹 박재범 / Jay Park (R&amp;B/힙합) · 85 BPM</option><option value="t-102">📜 🌹 임영웅 (모던 세미 트로트) · 95 BPM</option><option value="t-60">📜 🌿 노브레인 / 크라잉넛 (펑크/조선펑크) · 170 BPM</option><option value="t-89">📜 🌿 한로로 / 새소년 (얼터너티브 인디) · 110 BPM</option><option value="t-86">📜 🍓 볼빨간사춘기 (인디팝) · 105 BPM</option><option value="t-71">📜 🍓 Red Velvet (걸그룹) · 120 BPM</option><option value="t-47">📜 🍬 원더걸스 (걸그룹) · 130 BPM</option><option value="t-70">📜 🍭 TWICE (걸그룹) · 120 BPM</option><option value="t-0">📜 🎀 걸그룹 · 128 BPM</option><option value="t-26">📜 🎤 80년대 후반 트로트 · 115 BPM</option><option value="t-30">📜 🎤 서태지와 아이들 · 120 BPM</option><option value="t-83">📜 🎤 쇼미더머니 / 언프리티 시대 · 140 BPM</option><option value="t-46">📜 🎤 슈퍼주니어 (보이그룹) · 110 BPM</option><option value="t-62">📜 🎤 에픽하이 (힙합 트리오) · 90 BPM</option><option value="t-59">📜 🎤 이상은 / 자우림 (얼터너티브) · 120 BPM</option><option value="t-16">📜 🎤 정통 올드 트로트 · 95 BPM</option><option value="t-7">📜 🎤 정통 트로트 (송가인/장윤정) · 110 BPM</option><option value="t-40">📜 🎤 젝키 (보이그룹) · 105 BPM</option><option value="t-76">📜 🎤 지코 (Block B / 솔로) · 95 BPM</option><option value="t-13">📜 🎤 한국 힙합 · 90 BPM</option><option value="t-52">📜 🎤 휘성/거미 (모던 R&amp;B) · 80 BPM</option><option value="t-66">📜 🎤 MC몽 / 리쌍 (대중적 힙합) · 90 BPM</option><option value="t-100">📜 🎤 TXT 투모로우바이투게더 (보이그룹) · 110 BPM</option><option value="t-78">📜 🎨 자이언티 (네오소울) · 90 BPM</option><option value="t-64">📜 🎯 다이나믹듀오 (힙합 듀오) · 90 BPM</option><option value="t-48">📜 🎯 카라 (걸그룹) · 130 BPM</option><option value="t-33">📜 🎵 김건모 (댄스/레게) · 110 BPM</option><option value="t-32">📜 🎵 신승훈/김건모 (발라드/댄스) · 75 BPM</option><option value="t-87">📜 🎵 어반자카파 (어반 발라드) · 85 BPM</option><option value="t-103">📜 🎵 영탁 / 장윤정 / 홍진영 (트로트 다양화) · 120 BPM</option><option value="t-61">📜 🎵 옥상달빛 / 페퍼톤스 (감성 인디) · 100 BPM</option><option value="t-90">📜 🎵 폴킴 / 김나영 / 멜로망스 (감성 보컬) · 80 BPM</option><option value="t-82">📜 🎵 헤이즈 (R&amp;B 보컬) · 90 BPM</option><option value="t-54">📜 🎵 SG워너비/씨야 (드라마틱 발라드) · 70 BPM</option><option value="t-25">📜 🎸 80년대 한국 록 · 110 BPM</option><option value="t-56">📜 🎸 장기하와 얼굴들 (인디록) · 100 BPM</option><option value="t-36">📜 🎸 토이/이승환 (자작곡 발라드) · 70 BPM</option><option value="t-17">📜 🎺 1950년대 재즈 가요 · 110 BPM</option><option value="t-9">📜 🎺 댄스 트로트 (홍진영) · 130 BPM</option><option value="t-6">📜 🎻 OST 발라드 (K-Drama) · 72 BPM</option><option value="t-42">📜 🎼 NRG/신화 (보이그룹) · 125 BPM</option><option value="t-63">📜 🐯 드렁큰타이거 (힙합 파이어니어) · 95 BPM</option><option value="t-101">📜 👑 송가인 (정통 트로트) · 110 BPM</option><option value="t-65">📜 👑 윤미래 / Tasha (R&amp;B/랩) · 95 BPM</option><option value="t-80">📜 👑 크러쉬 (R&amp;B) · 90 BPM</option><option value="t-73">📜 👑 BIGBANG 2010s (보이그룹) · 125 BPM</option><option value="t-49">📜 💎 2NE1 (걸그룹) · 110 BPM</option><option value="t-2">📜 💎 4세대 (NewJeans/IVE/aespa)</option><option value="t-67">📜 💎 빈지노 / 도끼 (얼터너티브 힙합) · 88 BPM</option><option value="t-35">📜 💎 솔리드/듀스 (R&amp;B/힙합) · 95 BPM</option><option value="t-91">📜 💎 적재 / 김필 (싱어송라이터) · 85 BPM</option><option value="t-31">📜 💔 김광석 (포크/발라드) · 75 BPM</option><option value="t-51">📜 💔 박효신/김범수 (파워 발라드) · 72 BPM</option><option value="t-4">📜 💔 정통 한국 발라드 (90-2000년대) · 70 BPM</option><option value="t-23">📜 💕 80년대 팝 발라드 · 75 BPM</option><option value="t-53">📜 💕 이수영 (감성 발라드) · 75 BPM</option><option value="t-38">📜 💖 S.E.S. (걸그룹 1세대) · 110 BPM</option><option value="t-3">📜 💥 3세대 (BLACKPINK/BTS)</option><option value="t-44">📜 💥 빅뱅 (보이그룹) · 105 BPM</option><option value="t-72">📜 💪 MAMAMOO (걸그룹/보컬) · 110 BPM</option><option value="t-1">📜 🔥 보이그룹 · 95 BPM</option><option value="t-81">📜 🔥 빈지노 / Beenzino 2010s · 85 BPM</option><option value="t-37">📜 🔥 H.O.T. (보이그룹 1세대) · 125 BPM</option><option value="t-97">📜 🔥 Stray Kids (보이그룹) · 130 BPM</option><option value="t-24">📜 🕺 80년대 댄스 가요 · 118 BPM</option><option value="t-34">📜 🕺 룰라/R.ef/DJ DOC (댄스) · 130 BPM</option><option value="t-8">📜 🕺 세미 트로트 (영탁/임영웅) · 120 BPM</option><option value="t-58">📜 🖤 검정치마 (인디록) · 115 BPM</option><option value="t-57">📜 🥦 브로콜리너마저 (인디팝) · 90 BPM</option><option value="t-21">📜 🪩 한국 디스코 가요 · 120 BPM</option><option value="t-120">📜 ☀️ Bedroom Pop · 100 BPM</option><option value="t-155">📜 🇯🇵 J-Pop (YOASOBI) · 130 BPM</option><option value="t-119">📜 🌃 다크 팝 (Billie Eilish) · 95 BPM</option><option value="t-158">📜 🌆 City Pop (Tatsuro Yamashita) · 112 BPM</option><option value="t-159">📜 🌸 Studio Ghibli Style · 80 BPM</option><option value="t-118">📜 🎀 모던 팝 (2026) · 110 BPM</option><option value="t-156">📜 🎸 Anime Opening (J-Rock) · 175 BPM</option><option value="t-157">📜 💕 Anime Ending Ballad · 75 BPM</option><option value="t-160">📜 🥁 Traditional Japanese · 90 BPM</option><option value="t-234">📜 ☎️ Bling Era R&amp;B (Usher) · 95 BPM</option><option value="t-11">📜 ☕ 인디/시티팝 (잔나비/검정치마) · 100 BPM</option><option value="t-184">📜 ☕ Lo-Fi 템플릿 · 85 BPM</option><option value="t-147">📜 ☕ Lo-Fi Hip-Hop (스터디 BGM) · 85 BPM</option><option value="t-131">📜 ⚙️ Tech House · 126 BPM</option><option value="t-228">📜 ⚡ 90s Eurodance · 135 BPM</option><option value="t-133">📜 ⚡ Trance · 138 BPM</option><option value="t-198">📜 ⛪ Black Gospel · 100 BPM</option><option value="t-173">📜 🇪🇸 Flamenco · 120 BPM</option><option value="t-206">📜 🇬🇧 British Invasion (Beatles) · 130 BPM</option><option value="t-225">📜 🇬🇧 Britpop (Oasis) · 120 BPM</option><option value="t-170">📜 🇮🇪 Celtic / Irish · 110 BPM</option><option value="t-188">📜 🇯🇵 J-Pop 템플릿 · 130 BPM</option><option value="t-172">📜 🇲🇦 Arabic Pop · 110 BPM</option><option value="t-137">📜 🇿🇦 Amapiano (남아공) · 112 BPM</option><option value="t-171">📜 🇿🇦 Kwaito (South African) · 105 BPM</option><option value="t-217">📜 ✈️ Yacht Rock · 100 BPM</option><option value="t-15">📜 ✝️ CCM/찬양 · 72 BPM</option><option value="t-130">📜 🌃 Deep House · 122 BPM</option><option value="t-218">📜 🌃 Synth-Pop · 120 BPM</option><option value="t-241">📜 🌃 Tropical House (Kygo) · 110 BPM</option><option value="t-207">📜 🌈 Psychedelic Rock · 110 BPM</option><option value="t-135">📜 🌊 Future Bass · 150 BPM</option><option value="t-153">📜 🌊 Neo-Soul (Erykah Badu) · 85 BPM</option><option value="t-219">📜 🌊 New Wave · 130 BPM</option><option value="t-181">📜 🌍 아프로비츠 템플릿 · 110 BPM</option><option value="t-136">📜 🌍 Afrobeats (Burna Boy/Wizkid) · 110 BPM</option><option value="t-246">📜 🌍 Afrobeats Global (Burna Boy) · 110 BPM</option><option value="t-123">📜 🌑 드릴 (UK/Chicago Drill) · 140 BPM</option><option value="t-245">📜 🌑 Dark Pop (Billie Eilish) · 95 BPM</option><option value="t-146">📜 🌑 Metalcore · 145 BPM</option><option value="t-232">📜 🌑 Nu-Metal (Linkin Park) · 100 BPM</option><option value="t-132">📜 🌑 Techno (Berlin) · 130 BPM</option><option value="t-95">📜 🌙 미스터리/스릴러 OST · 70 BPM</option><option value="t-149">📜 🌙 Dream Pop (Beach House) · 95 BPM</option><option value="t-10">📜 🌙 K-R&amp;B (딘/Crush/태연) · 85 BPM</option><option value="t-224">📜 🌧️ Grunge (Nirvana) · 110 BPM</option><option value="t-164">📜 🌴 Bossa Nova (João Gilberto) · 100 BPM</option><option value="t-125">📜 🌶️ 라틴 트랩 · 130 BPM</option><option value="t-126">📜 🌹 바차타 (Bachata) · 130 BPM</option><option value="t-214">📜 🌹 Singer-Songwriter · 90 BPM</option><option value="t-141">📜 🌾 Bluegrass · 130 BPM</option><option value="t-209">📜 🌿 Folk Revival · 85 BPM</option><option value="t-148">📜 🌿 Indie Folk (Bon Iver) · 80 BPM</option><option value="t-240">📜 🌿 Indie Folk Revival · 110 BPM</option><option value="t-178">📜 🎀 모던 팝 템플릿 · 110 BPM</option><option value="t-177">📜 🎄 Classic Christmas · 110 BPM</option><option value="t-129">📜 🎉 Big Room EDM · 128 BPM</option><option value="t-183">📜 🎉 EDM 빅룸 템플릿 · 128 BPM</option><option value="t-237">📜 🎉 EDM Peak (Avicii) · 128 BPM</option><option value="t-201">📜 🎙️ Crooner (Sinatra) · 80 BPM</option><option value="t-195">📜 🎤 1920s Vaudeville · 105 BPM</option><option value="t-122">📜 🎤 90년대 붐백 · 90 BPM</option><option value="t-226">📜 🎤 90s G-Funk Hip-Hop · 90 BPM</option><option value="t-221">📜 🎤 Early Hip-Hop · 95 BPM</option><option value="t-200">📜 🎤 Jump Blues (Louis Jordan) · 140 BPM</option><option value="t-96">📜 🎤 OST 인기 가수 영입 · 75 BPM</option><option value="t-236">📜 🎤 Y2K Pop · 110 BPM</option><option value="t-247">📜 🎧 Lo-fi Revival · 85 BPM</option><option value="t-192">📜 🎬 발리우드 템플릿 · 130 BPM</option><option value="t-185">📜 🎬 시네마틱 템플릿 · 110 BPM</option><option value="t-189">📜 🎬 아니메 오프닝 템플릿 · 175 BPM</option><option value="t-161">📜 🎬 Bollywood Dance · 130 BPM</option><option value="t-175">📜 🎬 Cinematic Trailer · 110 BPM</option><option value="t-92">📜 🎬 OST 발라드 (감정 절정) · 72 BPM</option><option value="t-248">📜 🎬 Phonk Revival · 130 BPM</option><option value="t-216">📜 🎭 Progressive Rock</option><option value="t-242">📜 🎮 Future Bass (Flume) · 150 BPM</option><option value="t-94">📜 🎵 첫사랑 / 청춘 OST · 80 BPM</option><option value="t-223">📜 🎵 Quiet Storm R&amp;B · 75 BPM</option><option value="t-12">📜 🎷 한국 시티팝 (윤수일/김현철) · 112 BPM</option><option value="t-150">📜 🎷 Smooth Jazz · 95 BPM</option><option value="t-18">📜 🎸 신중현 사이키델릭 록 · 100 BPM</option><option value="t-186">📜 🎸 인디 록 템플릿 · 130 BPM</option><option value="t-19">📜 🎸 정통 통기타 포크 · 80 BPM</option><option value="t-229">📜 🎸 Alternative Rock · 100 BPM</option><option value="t-142">📜 🎸 Indie Rock (Arctic Monkeys) · 130 BPM</option><option value="t-231">📜 🎸 Pop Punk (Blink-182) · 160 BPM</option><option value="t-202">📜 🎸 Rock &amp; Roll (Elvis) · 120 BPM</option><option value="t-194">📜 🎹 Ragtime · 100 BPM</option><option value="t-190">📜 🎺 마리아치 템플릿 · 120 BPM</option><option value="t-199">📜 🎺 Bebop (Charlie Parker) · 180 BPM</option><option value="t-151">📜 🎺 Bebop / Classic Jazz · 180 BPM</option><option value="t-193">📜 🎺 Dixieland Jazz · 110 BPM</option><option value="t-167">📜 🎺 Mariachi · 120 BPM</option><option value="t-166">📜 🎺 Samba · 100 BPM</option><option value="t-20">📜 🎼 가요제 풍 (대학가요제) · 80 BPM</option><option value="t-210">📜 🏖️ Surf Rock · 130 BPM</option><option value="t-233">📜 🏙️ Crunk (Lil Jon) · 80 BPM</option><option value="t-213">📜 🏟️ Stadium Rock · 120 BPM</option><option value="t-230">📜 🏠 90s Trance · 138 BPM</option><option value="t-140">📜 🐎 Outlaw Country · 85 BPM</option><option value="t-205">📜 🐎 Rockabilly · 130 BPM</option><option value="t-203">📜 👯 Doo-Wop · 90 BPM</option><option value="t-197">📜 💀 Delta Blues · 80 BPM</option><option value="t-145">📜 💀 Heavy Metal (Iron Maiden) · 160 BPM</option><option value="t-124">📜 💃 레게톤 (Bad Bunny) · 95 BPM</option><option value="t-180">📜 💃 레게톤 템플릿 · 95 BPM</option><option value="t-127">📜 💃 살사 (Salsa) · 100 BPM</option><option value="t-222">📜 💃 Madonna-era Pop · 120 BPM</option><option value="t-249">📜 💃 Modern Country Pop (Morgan Wallen) · 95 BPM</option><option value="t-169">📜 💃 Norteño Cumbia · 100 BPM</option><option value="t-220">📜 💄 Hair Metal · 140 BPM</option><option value="t-227">📜 💎 90s R&amp;B (Mariah/Boyz II Men) · 75 BPM</option><option value="t-238">📜 💎 Modern Trap (Future) · 140 BPM</option><option value="t-154">📜 💔 Chicago Blues · 100 BPM</option><option value="t-93">📜 💕 사극 OST (전통적 감성) · 75 BPM</option><option value="t-208">📜 💖 Motown Soul · 120 BPM</option><option value="t-187">📜 💙 모던 R&amp;B 템플릿 · 80 BPM</option><option value="t-152">📜 💙 Modern R&amp;B (The Weeknd/SZA) · 80 BPM</option><option value="t-134">📜 💥 Dubstep · 140 BPM</option><option value="t-244">📜 💥 Hyperpop (100 gecs) · 160 BPM</option><option value="t-235">📜 💻 Electroclash · 120 BPM</option><option value="t-243">📜 📲 Mumble Rap · 140 BPM</option><option value="t-121">📜 🔥 모던 트랩 (Drake/Future) · 140 BPM</option><option value="t-179">📜 🔥 모던 트랩 템플릿 · 140 BPM</option><option value="t-165">📜 🔥 Baile Funk · 130 BPM</option><option value="t-212">📜 🔥 Funk (James Brown) · 105 BPM</option><option value="t-144">📜 🔥 Hard Rock · 110 BPM</option><option value="t-215">📜 🔨 Punk Rock (Sex Pistols) · 180 BPM</option><option value="t-174">📜 🕹️ Chiptune (8-bit 게임) · 150 BPM</option><option value="t-211">📜 🕺 Disco · 120 BPM</option><option value="t-196">📜 🕺 Swing/Big Band · 130 BPM</option><option value="t-143">📜 🖤 Post-Punk · 120 BPM</option><option value="t-250">📜 🤖 SoundCloud Indie 2024 · 120 BPM</option><option value="t-182">📜 🤠 모던 컨트리 템플릿 · 95 BPM</option><option value="t-139">📜 🤠 모던 컨트리 팝 · 95 BPM</option><option value="t-168">📜 🤠 Corrido Tumbado (Peso Pluma) · 110 BPM</option><option value="t-204">📜 🤠 Honky Tonk Country · 110 BPM</option><option value="t-163">📜 🥁 Punjabi Bhangra · 120 BPM</option><option value="t-14">📜 🧒 동요 · 100 BPM</option><option value="t-176">📜 🧘 Ambient Meditation · 60 BPM</option><option value="t-128">📜 🪕 메렝게 (Merengue) · 120 BPM</option><option value="t-191">📜 🪕 보사노바 템플릿 · 100 BPM</option><option value="t-162">📜 🪕 Indian Classical / Raga · 80 BPM</option><option value="t-138">📜 🪘 Afrobeat (Fela Kuti) · 110 BPM</option><option value="t-239">📜 🛌 Bedroom Pop (Clairo) · 100 BPM</option><option value="t-251">📜 1920s 템플릿 · 110 BPM</option><option value="t-252">📜 1930s 템플릿 · 130 BPM</option><option value="t-253">📜 1950s 템플릿 · 130 BPM</option><option value="t-254">📜 1960s 템플릿 · 110 BPM</option><option value="t-27">📜 1970년대 포크 (송창식 스타일) · 75 BPM</option><option value="t-255">📜 1970s 템플릿 · 122 BPM</option><option value="t-29">📜 1980년대 발라드 (이문세 스타일) · 75 BPM</option><option value="t-28">📜 1980년대 시티팝 (빛과 소금 스타일) · 110 BPM</option><option value="t-256">📜 1980s 템플릿 · 118 BPM</option><option value="t-257">📜 1990s 템플릿 · 110 BPM</option><option value="t-104">📜 1992 서태지 풍 · 120 BPM</option><option value="t-105">📜 1995 김건모 풍 댄스 · 110 BPM</option><option value="t-106">📜 1998 H.O.T. 풍 1세대 K-Pop · 125 BPM</option><option value="t-258">📜 2000s 템플릿 · 160 BPM</option><option value="t-107">📜 2007 동방신기 풍 2세대 · 115 BPM</option><option value="t-109">📜 2007 성시경 풍 어쿠스틱 발라드 · 65 BPM</option><option value="t-108">📜 2008 소녀시대 풍 걸그룹 · 130 BPM</option><option value="t-110">📜 2009 에픽하이 풍 힙합 · 90 BPM</option><option value="t-259">📜 2010s 템플릿 · 128 BPM</option><option value="t-112">📜 2016 트와이스 풍 3세대 걸그룹 · 120 BPM</option><option value="t-114">📜 2017 아이유 풍 싱어송라이터 · 80 BPM</option><option value="t-113">📜 2017 자이언티 풍 K-R&amp;B · 90 BPM</option><option value="t-111">📜 2017 BTS 풍 3세대 · 120 BPM</option><option value="t-116">📜 2018 Stray Kids 풍 4세대 · 130 BPM</option><option value="t-117">📜 2019 임영웅 풍 모던 트로트 · 95 BPM</option><option value="t-115">📜 2019 잔나비 풍 인디 록 · 100 BPM</option><option value="t-260">📜 2020s 템플릿 · 95 BPM</option><option value="a-182">🎤 BLACKPINK · 130 BPM</option><option value="a-181">🎤 BTS · 114 BPM</option><option value="a-197">🎤 IVE · 110 BPM</option><option value="a-196">🎤 NewJeans · 102 BPM</option><option value="a-198">🎤 Ace of Base · 100 BPM</option><option value="a-159">🎤 Adele · 105 BPM</option><option value="a-7">🎤 Al Jolson · 110 BPM</option><option value="a-192">🎤 Ariana Grande · 140 BPM</option><option value="a-148">🎤 Avril Lavigne · 78 BPM</option><option value="a-115">🎤 Backstreet Boys · 99 BPM</option><option value="a-136">🎤 Beyoncé · 196 BPM</option><option value="a-180">🎤 Billie Eilish · 135 BPM</option><option value="a-21">🎤 Bing Crosby · 80 BPM</option><option value="a-151">🎤 Black Eyed Peas · 128 BPM</option><option value="a-92">🎤 Bon Jovi · 122 BPM</option><option value="a-131">🎤 Britney Spears · 93 BPM</option><option value="a-160">🎤 Bruno Mars · 115 BPM</option><option value="a-132">🎤 Christina Aguilera · 90 BPM</option><option value="a-138">🎤 Coldplay · 138 BPM</option><option value="a-105">🎤 Cyndi Lauper · 120 BPM</option><option value="a-97">🎤 Depeche Mode · 117 BPM</option><option value="a-184">🎤 Doja Cat · 110 BPM</option><option value="a-186">🎤 Dua Lipa · 124 BPM</option><option value="a-98">🎤 Duran Duran · 125 BPM</option><option value="a-163">🎤 Ed Sheeran · 96 BPM</option><option value="a-78">🎤 Elton John · 80 BPM</option><option value="a-157">🎤 Fall Out Boy · 100 BPM</option><option value="a-70">🎤 Fleetwood Mac · 120 BPM</option><option value="a-20">🎤 Frank Sinatra · 70 BPM</option><option value="a-104">🎤 George Michael · 96 BPM</option><option value="a-140">🎤 Green Day · 189 BPM</option><option value="a-187">🎤 Harry Styles · 174 BPM</option><option value="a-164">🎤 Justin Bieber · 100 BPM</option><option value="a-146">🎤 Justin Timberlake · 117 BPM</option><option value="a-166">🎤 Katy Perry · 180 BPM</option><option value="a-165">🎤 Lady Gaga · 119 BPM</option><option value="a-168">🎤 Lana Del Rey · 75 BPM</option><option value="a-190">🎤 Lil Nas X · 178 BPM</option><option value="a-87">🎤 Madonna · 110 BPM</option><option value="a-114">🎤 Mariah Carey · 102 BPM</option><option value="a-152">🎤 Maroon 5 · 91 BPM</option><option value="a-86">🎤 Michael Jackson · 117 BPM</option><option value="a-107">🎤 New Order · 130 BPM</option><option value="a-172">🎤 Nicki Minaj · 127 BPM</option><option value="a-183">🎤 Olivia Rodrigo · 144 BPM</option><option value="a-141">🎤 Outkast · 160 BPM</option><option value="a-173">🎤 Pharrell Williams · 160 BPM</option><option value="a-103">🎤 Phil Collins · 87 BPM</option><option value="a-147">🎤 Pink · 130 BPM</option><option value="a-193">🎤 Post Malone · 120 BPM</option><option value="a-88">🎤 Prince · 60 BPM</option><option value="a-100">🎤 R.E.M. · 165 BPM</option><option value="a-162">🎤 Rihanna · 128 BPM</option><option value="a-41">🎤 Sam Cooke · 90 BPM</option><option value="a-174">🎤 Sam Smith · 84 BPM</option><option value="a-150">🎤 Shakira · 100 BPM</option><option value="a-125">🎤 Shania Twain · 60 BPM</option><option value="a-116">🎤 Spice Girls · 110 BPM</option><option value="a-158">🎤 Taylor Swift · 160 BPM</option><option value="a-46">🎤 The Beach Boys · 130 BPM</option><option value="a-43">🎤 The Beatles · 80 BPM</option><option value="a-55">🎤 The Mamas &amp; The Papas · 116 BPM</option><option value="a-167">🎤 The Weeknd · 108 BPM</option><option value="a-102">🎤 Tina Turner · 100 BPM</option><option value="a-145">🎤 Usher · 105 BPM</option><option value="a-91">🎤 Whitney Houston · 119 BPM</option><option value="a-144">🎤 50 Cent · 90 BPM</option><option value="a-130">🎤 Aaliyah · 110 BPM</option><option value="a-82">🎤 AC/DC · 116 BPM</option><option value="a-80">🎤 Aerosmith · 110 BPM</option><option value="a-126">🎤 Alanis Morissette · 105 BPM</option><option value="a-149">🎤 Amy Winehouse · 117 BPM</option><option value="a-156">🎤 Arctic Monkeys · 184 BPM</option><option value="a-48">🎤 Aretha Franklin · 115 BPM</option><option value="a-176">🎤 Avicii · 124 BPM</option><option value="a-185">🎤 Bad Bunny · 105 BPM</option><option value="a-110">🎤 Beastie Boys · 110 BPM</option><option value="a-127">🎤 Beck · 110 BPM</option><option value="a-62">🎤 Bee Gees · 104 BPM</option><option value="a-8">🎤 Benny Goodman · 130 BPM</option><option value="a-1">🎤 Bessie Smith · 75 BPM</option><option value="a-33">🎤 Bill Haley · 180 BPM</option><option value="a-9">🎤 Billie Holiday · 60 BPM</option><option value="a-3">🎤 Bix Beiderbecke · 110 BPM</option><option value="a-79">🎤 Black Sabbath · 80 BPM</option><option value="a-40">🎤 Bo Diddley · 130 BPM</option><option value="a-45">🎤 Bob Dylan · 96 BPM</option><option value="a-74">🎤 Bob Marley · 76 BPM</option><option value="a-123">🎤 Boyz II Men · 70 BPM</option><option value="a-89">🎤 Bruce Springsteen · 125 BPM</option><option value="a-31">🎤 Buddy Holly · 160 BPM</option><option value="a-194">🎤 Burna Boy · 109 BPM</option><option value="a-13">🎤 Cab Calloway · 110 BPM</option><option value="a-175">🎤 Calvin Harris · 128 BPM</option><option value="a-77">🎤 Carole King · 85 BPM</option><option value="a-18">🎤 Charlie Parker · 200 BPM</option><option value="a-179">🎤 Childish Gambino · 120 BPM</option><option value="a-29">🎤 Chuck Berry · 175 BPM</option><option value="a-12">🎤 Count Basie · 140 BPM</option><option value="a-60">🎤 Cream · 110 BPM</option><option value="a-58">🎤 Creedence Clearwater Revival · 134 BPM</option><option value="a-170">🎤 Daft Punk · 116 BPM</option><option value="a-65">🎤 David Bowie · 100 BPM</option><option value="a-85">🎤 Diana Ross · 100 BPM</option><option value="a-19">🎤 Dizzy Gillespie · 130 BPM</option><option value="a-15">🎤 Django Reinhardt · 180 BPM</option><option value="a-63">🎤 Donna Summer · 125 BPM</option><option value="a-120">🎤 Dr. Dre · 95 BPM</option><option value="a-161">🎤 Drake · 135 BPM</option><option value="a-2">🎤 Duke Ellington · 100 BPM</option><option value="a-69">🎤 Eagles · 75 BPM</option><option value="a-75">🎤 Earth, Wind &amp; Fire · 126 BPM</option><option value="a-14">🎤 Ella Fitzgerald · 130 BPM</option><option value="a-28">🎤 Elvis Presley · 175 BPM</option><option value="a-137">🎤 Eminem · 87 BPM</option><option value="a-34">🎤 Fats Domino · 80 BPM</option><option value="a-16">🎤 Fats Waller · 110 BPM</option><option value="a-135">🎤 Foo Fighters · 158 BPM</option><option value="a-178">🎤 Frank Ocean · 90 BPM</option><option value="a-61">🎤 Frank Zappa · 120 BPM</option><option value="a-39">🎤 Frankie Lymon · 165 BPM</option><option value="a-124">🎤 Garth Brooks · 117 BPM</option><option value="a-11">🎤 Glenn Miller · 120 BPM</option><option value="a-154">🎤 Gnarls Barkley · 112 BPM</option><option value="a-99">🎤 Guns N' Roses · 125 BPM</option><option value="a-22">🎤 Hank Williams · 130 BPM</option><option value="a-169">🎤 Imagine Dragons · 137 BPM</option><option value="a-108">🎤 Iron Maiden · 175 BPM</option><option value="a-153">🎤 Jack White / White Stripes · 124 BPM</option><option value="a-53">🎤 James Brown · 110 BPM</option><option value="a-59">🎤 Janis Joplin · 100 BPM</option><option value="a-142">🎤 Jay-Z · 100 BPM</option><option value="a-4">🎤 Jelly Roll Morton · 120 BPM</option><option value="a-32">🎤 Jerry Lee Lewis · 170 BPM</option><option value="a-47">🎤 Jimi Hendrix · 110 BPM</option><option value="a-36">🎤 Johnny Cash · 105 BPM</option><option value="a-76">🎤 Joni Mitchell · 100 BPM</option><option value="a-109">🎤 Joy Division · 145 BPM</option><option value="a-143">🎤 Kanye West · 104 BPM</option><option value="a-171">🎤 Kendrick Lamar · 150 BPM</option><option value="a-6">🎤 King Oliver · 105 BPM</option><option value="a-81">🎤 Kiss · 130 BPM</option><option value="a-133">🎤 Lauryn Hill · 100 BPM</option><option value="a-67">🎤 Led Zeppelin · 100 BPM</option><option value="a-139">🎤 Linkin Park · 105 BPM</option><option value="a-30">🎤 Little Richard · 170 BPM</option><option value="a-0">🎤 Louis Armstrong · 110 BPM</option><option value="a-23">🎤 Louis Jordan · 150 BPM</option><option value="a-5">🎤 Ma Rainey · 70 BPM</option><option value="a-57">🎤 Marvin Gaye · 115 BPM</option><option value="a-189">🎤 Megan Thee Stallion · 80 BPM</option><option value="a-93">🎤 Metallica · 220 BPM</option><option value="a-42">🎤 Miles Davis · 130 BPM</option><option value="a-27">🎤 Muddy Waters · 90 BPM</option><option value="a-25">🎤 Nat King Cole · 70 BPM</option><option value="a-111">🎤 Nirvana · 117 BPM</option><option value="a-117">🎤 Oasis · 87 BPM</option><option value="a-51">🎤 Otis Redding · 100 BPM</option><option value="a-83">🎤 Parliament-Funkadelic · 100 BPM</option><option value="a-37">🎤 Patsy Cline · 80 BPM</option><option value="a-119">🎤 Pearl Jam · 78 BPM</option><option value="a-191">🎤 Phoebe Bridgers · 125 BPM</option><option value="a-68">🎤 Pink Floyd · 120 BPM</option><option value="a-95">🎤 Public Enemy · 110 BPM</option><option value="a-66">🎤 Queen · 144 BPM</option><option value="a-118">🎤 Radiohead · 132 BPM</option><option value="a-134">🎤 Rage Against the Machine · 100 BPM</option><option value="a-35">🎤 Ray Charles · 130 BPM</option><option value="a-10">🎤 Robert Johnson · 90 BPM</option><option value="a-94">🎤 Run-DMC · 105 BPM</option><option value="a-72">🎤 Sex Pistols · 150 BPM</option><option value="a-54">🎤 Simon &amp; Garfunkel · 110 BPM</option><option value="a-177">🎤 Skrillex · 110 BPM</option><option value="a-84">🎤 Sly &amp; The Family Stone · 96 BPM</option><option value="a-128">🎤 Smashing Pumpkins · 145 BPM</option><option value="a-121">🎤 Snoop Dogg · 95 BPM</option><option value="a-101">🎤 Sonic Youth · 100 BPM</option><option value="a-64">🎤 Stevie Wonder · 105 BPM</option><option value="a-188">🎤 SZA · 89 BPM</option><option value="a-106">🎤 Talking Heads · 105 BPM</option><option value="a-195">🎤 Tems · 80 BPM</option><option value="a-24">🎤 The Andrews Sisters · 140 BPM</option><option value="a-73">🎤 The Clash · 135 BPM</option><option value="a-96">🎤 The Cure · 130 BPM</option><option value="a-50">🎤 The Doors · 130 BPM</option><option value="a-155">🎤 The Killers · 148 BPM</option><option value="a-113">🎤 The Notorious B.I.G. · 95 BPM</option><option value="a-38">🎤 The Platters · 70 BPM</option><option value="a-199">🎤 The Police · 117 BPM</option><option value="a-71">🎤 The Ramones · 175 BPM</option><option value="a-44">🎤 The Rolling Stones · 130 BPM</option><option value="a-52">🎤 The Supremes · 165 BPM</option><option value="a-56">🎤 The Velvet Underground · 120 BPM</option><option value="a-49">🎤 The Who · 165 BPM</option><option value="a-26">🎤 Thelonious Monk · 60 BPM</option><option value="a-122">🎤 TLC · 87 BPM</option><option value="a-112">🎤 Tupac Shakur · 91 BPM</option><option value="a-90">🎤 U2 · 110 BPM</option><option value="a-17">🎤 Woody Guthrie · 100 BPM</option><option value="a-129">🎤 Wu-Tang Clan · 71 BPM</option></select>
+          </label>
+        </div>
+        <p class="text-xs mt-2" style="color: var(--text-4);" data-i18n="sp.altsource">또는 좌측 <b>프리셋</b> · <b>댄싱머신</b> · <b>검색</b> 탭에서 가져오기</p>
+      </div>
+
+      <!-- 현재 선택 — read-only display + Variant switcher. -->
+      <div class="panel current-selection-panel">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="panel.current">현재 선택</h2>
+          <span class="text-xs ml-auto" style="color: var(--text-4);" data-i18n="cs.readonly">읽기 전용</span>
+        </div>
+        <div id="current-meta" class="meta-card text-xs text-slate-300"><p class="text-slate-500">위 <b class="text-accent-400">시작점</b> 패널이나 좌측 사이드바의 <b class="text-accent-400">프리셋</b> / <b class="text-accent-400">태그</b> / <b class="text-accent-400">댄싱머신</b> / <b class="text-accent-400">검색</b> 탭에서 스타일을 골라 <b>빌더에 로드 / 빌더로 전송</b> 버튼을 누르면 여기에 표시됩니다.</p></div>
+        <span id="artist-summary" class="hidden"></span>
+      </div>
+
+      <!-- Mix Console: 모든 가사 옵션 통합 -->
+      <div class="panel mix-console console-panel">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="panel.control">제어</h2>
+          <span class="text-xs ml-auto" style="color: var(--text-4);" data-i18n="ctl.subtitle">가사 생성 설정</span>
+        </div>
+
+        <div class="lang-row mb-2">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="field-label" data-i18n="ctl.lang">가사 언어</span>
+            <span id="lang-readout" class="text-xs font-mono" style="color: var(--text-3);">영문 100%</span>
+          </div>
+          <input id="lang-slider" type="range" min="0" max="100" step="5" value="0" class="lang-slider" style="--pct: 100%;">
+          <div class="flex justify-between text-[10px] mt-1 px-0.5" style="color: var(--text-4);">
+            <span data-i18n="ctl.lang.ko">한글</span><span>50/50</span><span data-i18n="ctl.lang.en">EN</span>
+          </div>
+        </div>
+
+        <div class="lang-row mb-2">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="field-label" data-i18n="ctl.metaphor">시적 비유</span>
+            <span id="metaphor-readout" class="text-xs font-mono" style="color: var(--text-3);">균형 50%</span>
+          </div>
+          <input id="metaphor-slider" type="range" min="0" max="100" step="5" value="50" class="lang-slider" style="--pct: 50%;">
+          <div class="flex justify-between text-[10px] mt-1 px-0.5" style="color: var(--text-4);">
+            <span data-i18n="ctl.metaphor.direct">직설</span><span data-i18n="ctl.metaphor.balanced">균형</span><span data-i18n="ctl.metaphor.poetic">시적</span>
+          </div>
+        </div>
+
+        <div class="lang-row mb-2">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="field-label" data-i18n="ctl.rap">보컬 ↔ 랩</span>
+            <span id="rap-readout" class="text-xs font-mono" style="color: var(--text-3);">보컬 100%</span>
+          </div>
+          <input id="rap-slider" type="range" min="0" max="100" step="5" value="0" class="lang-slider" style="--pct: 0%;">
+          <div class="flex justify-between text-[10px] mt-1 px-0.5" style="color: var(--text-4);">
+            <span data-i18n="ctl.rap.vocal">보컬</span><span data-i18n="ctl.rap.mix">혼합</span><span data-i18n="ctl.rap.rap">랩</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-2 mt-3">
+          <label class="check"><input type="checkbox" id="opt-bpm-hint" checked=""> <span data-i18n="ctl.bpm">BPM 자동 감지 표시</span></label>
+          <label class="check"><input type="checkbox" id="opt-section-cues" checked=""> <span data-i18n="ctl.cues">섹션별 음악 지시 포함</span></label>
+          <label class="check"><input type="checkbox" id="opt-call-response"> <span data-i18n="ctl.cr">콜 앤 리스폰스 (Lead↔Crowd)</span></label>
+          <label class="check"><input type="checkbox" id="opt-harmonies"> <span data-i18n="ctl.harm">화음·코러스 (layered)</span></label>
+          <label class="check" data-i18n-title="ctl.pitch.tip" title="cinematic·epic·emotional 같은 고음 유발 태그를 빼고 restrained·intimate·controlled·low-register 를 더해 저음역·차분한 보컬로 유도"><input type="checkbox" id="opt-pitch-restraint"> <span data-i18n="ctl.pitch">🎚️ 고음 억제 (저음역·차분)</span></label>
+        </div>
+
+        <div id="arrangement-style-row" class="lang-row mt-3 hidden">
+          <span class="field-label" data-i18n="ctl.arrange">보컬 편곡 스타일</span>
+          <select id="opt-arrangement-style" class="input mt-1.5">
+            <option value="auto" data-i18n="ctl.arrange.auto">Auto (현재 Style에 맞춤)</option>
+            <option value="kpop" data-i18n="ctl.arrange.kpop">K-Pop 화음 — 에어리 레이어</option>
+            <option value="idol" data-i18n="ctl.arrange.idol">K-Pop 아이돌 떼창</option>
+            <option value="stadium-rock" data-i18n="ctl.arrange.stadium">Stadium Rock (Coldplay · U2)</option>
+            <option value="gospel" data-i18n="ctl.arrange.gospel">Black Gospel</option>
+            <option value="edm-festival" data-i18n="ctl.arrange.edm">EDM Festival</option>
+            <option value="anison" data-i18n="ctl.arrange.anison">J-Pop · Anison Unison</option>
+            <option value="punk-gang" data-i18n="ctl.arrange.punk">Punk Gang Vocals</option>
+          </select>
+        </div>
+
+        <div class="load-handoff mt-4">
+          <p class="text-xs mb-2" style="color: var(--text-secondary);" data-i18n="ctl.handoff">시작점 프리셋 + 제어 설정을 한 번에 적용 — 외부 탭 (검색·댄싱머신·태그) 에서 가져온 칩에는 <b>제어 옵션만 머지</b></p>
+          <button id="btn-load-artist" class="btn-load-builder w-full" data-i18n-title="btn.load.tip" title="시작점 프리셋이 선택돼 있으면 프리셋 Style + 곡 구조 + 제어 옵션을 모두 적용. 없으면 현재 칩에 콜앤리스폰스·화음·코러스·보컬 편곡 키워드만 머지." data-i18n="btn.load.merge">빌더에 로드 · 제어 옵션 머지</button>
+        </div>
+      </div>
+
+      <!-- Palette -->
+      <div class="panel palette-panel">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="panel.palette">팔레트</h2>
+          <div class="flex flex-wrap gap-0.5 ml-auto">
+            <button class="palette-tab active" data-pal="genre" data-i18n="pal.tab.genre">🎸 장르</button>
+            <button class="palette-tab" data-pal="mood" data-i18n="pal.tab.mood">🎭 분위기</button>
+            <button class="palette-tab" data-pal="instrument" data-i18n="pal.tab.instr">🥁 악기</button>
+            <button class="palette-tab" data-pal="vocal" data-i18n="pal.tab.vocal">🎤 보컬</button>
+            <button class="palette-tab" data-pal="tempo" data-i18n="pal.tab.tempo">⏱ 템포</button>
+            <button class="palette-tab" data-pal="search" data-i18n="pal.tab.search">🔍 검색</button>
+          </div>
+        </div>
+        <div class="legend mb-2">
+          <span class="legend-item"><span class="legend-dot dot-style"></span>Style</span>
+          <span class="legend-item"><span class="legend-dot dot-lyrics"></span>[Section]</span>
+          <span class="legend-item"><span class="legend-reflect">🟢</span><span data-i18n="reflect.always">무조건</span></span>
+          <span class="legend-item"><span class="legend-reflect">🟡</span><span data-i18n="reflect.maybe">비교적</span></span>
+          <span class="legend-item"><span class="legend-reflect">🔴</span><span data-i18n="reflect.rare">잘 안됨</span></span>
+        </div>
+        <input id="palette-search" class="input mb-2 hidden" data-i18n-placeholder="pal.search.ph" placeholder="태그·설명 검색…">
+        <div id="palette-list" class="palette-list"><div class="pal-item " data-tag="[Trance]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Trance]</span>
+        <span class="ko">환상적 일렉트로닉</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Lo-fi]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Lo-fi]</span>
+        <span class="ko">저음질 따뜻함</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Trap]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Trap]</span>
+        <span class="ko">힙합 영향 EDM</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Hip Hop]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Hip Hop]</span>
+        <span class="ko">클래식 힙합</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[R&amp;B]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[R&amp;B]</span>
+        <span class="ko">리듬 앤 블루스</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Soul]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Soul]</span>
+        <span class="ko">클래식 소울</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Punk Rock]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Punk Rock]</span>
+        <span class="ko">빠르고 공격적</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Metal]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Metal]</span>
+        <span class="ko">헤비 메탈</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Indie Rock]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Indie Rock]</span>
+        <span class="ko">인디 록</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Grunge]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Grunge]</span>
+        <span class="ko">시애틀 사운드</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Hard Rock]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Hard Rock]</span>
+        <span class="ko">헤비 록</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Pop]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Pop]</span>
+        <span class="ko">대중 음악</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[K-Pop]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[K-Pop]</span>
+        <span class="ko">한국 팝</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Jazz]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Jazz]</span>
+        <span class="ko">일반 재즈</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Smooth Jazz]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Smooth Jazz]</span>
+        <span class="ko">접근성 좋은 재즈</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Blues]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Blues]</span>
+        <span class="ko">아메리칸 블루스</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Bossa Nova]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Bossa Nova]</span>
+        <span class="ko">브라질 재즈</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Four-on-the-floor]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Four-on-the-floor]</span>
+        <span class="ko">4/4 댄스 비트</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Halftime]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Halftime]</span>
+        <span class="ko">하프타임 그루브</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Shuffle]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Shuffle]</span>
+        <span class="ko">셔플 그루브</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Swing]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Swing]</span>
+        <span class="ko">스윙 리듬</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Boy] / [Girl]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Boy] / [Girl]</span>
+        <span class="ko">어린이 보컬</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Man] / [Woman]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Man] / [Woman]</span>
+        <span class="ko">성인 내레이터</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="GMIV 포뮬러" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">GMIV 포뮬러</span>
+        <span class="ko">Genre + Mood + Instruments + Vocals</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Limit Instruments" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Limit Instruments</span>
+        <span class="ko">악기 2-3개로 제한</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Genre 태그" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Genre 태그</span>
+        <span class="ko">예: K-Pop, Synthwave</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag=", emotive storytelling" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">, emotive storytelling</span>
+        <span class="ko">한국어 가사 명시</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag=", authentic delivery" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">, authentic delivery</span>
+        <span class="ko">한국어 발음 강제</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Clear, authentic delivery]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Clear, authentic delivery]</span>
+        <span class="ko">명확한 한국어 발음</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Polished Mix]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Polished Mix]</span>
+        <span class="ko">K-pop 특유의 광택감</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Korean Trot / 트로트" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Korean Trot / 트로트</span>
+        <span class="ko">핵심 장르 태그</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="[Bouncy Rhythm]" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">[Bouncy Rhythm]</span>
+        <span class="ko">통통 튀는 박자</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="vintage / 1960s" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">vintage / 1960s</span>
+        <span class="ko">빈티지 사운드 강제</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="mono recording" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">mono recording</span>
+        <span class="ko">옛날 녹음 질감</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="vinyl crackle" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">vinyl crackle</span>
+        <span class="ko">LP 잡음</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="tape saturation" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">tape saturation</span>
+        <span class="ko">테이프 따뜻함</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="big band arrangement" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">big band arrangement</span>
+        <span class="ko">빅밴드 편곡</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="swing rhythm" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">swing rhythm</span>
+        <span class="ko">스윙 리듬</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="theatrical delivery" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">theatrical delivery</span>
+        <span class="ko">극장식 전달</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="garage rock" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">garage rock</span>
+        <span class="ko">거친 60년대 록</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="reverb-soaked" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">reverb-soaked</span>
+        <span class="ko">공간감 가득</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="four-on-the-floor" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">four-on-the-floor</span>
+        <span class="ko">디스코 기본 비트</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="string section" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">string section</span>
+        <span class="ko">디스코 스트링</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="lush strings" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">lush strings</span>
+        <span class="ko">풍성한 스트링</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="melodic" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">melodic</span>
+        <span class="ko">멜로디 중심</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="analog / tape / vinyl" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">analog / tape / vinyl</span>
+        <span class="ko">아날로그 매체</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="pre-digital era" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">pre-digital era</span>
+        <span class="ko">디지털 이전 시대</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Korean 1990s pop" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Korean 1990s pop</span>
+        <span class="ko">90년대 한국 가요 시대 키워드</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="mid-90s Korean production" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">mid-90s Korean production</span>
+        <span class="ko">90년대 중반 프로덕션</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="new jack swing influence" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">new jack swing influence</span>
+        <span class="ko">뉴잭스윙 영향</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Korean ballad golden era" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Korean ballad golden era</span>
+        <span class="ko">한국 발라드 황금기</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="first generation K-pop" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">first generation K-pop</span>
+        <span class="ko">1세대 K-Pop</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="late-90s Korean major label idol pop" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">late-90s Korean major label idol pop</span>
+        <span class="ko">90년대 후반 메이저 레이블 아이돌</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="idol industry birth" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">idol industry birth</span>
+        <span class="ko">아이돌 시스템 탄생</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="1998 Korean idol pop" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">1998 Korean idol pop</span>
+        <span class="ko">1998년 아이돌 팝</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="second generation K-pop" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">second generation K-pop</span>
+        <span class="ko">2세대 K-Pop</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Hallyu wave Korean pop" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Hallyu wave Korean pop</span>
+        <span class="ko">한류 K-Pop</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="2008 Korean idol pop" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">2008 Korean idol pop</span>
+        <span class="ko">2008년 아이돌 팝</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="third generation K-pop" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">third generation K-pop</span>
+        <span class="ko">3세대 K-Pop</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="2015-2019 global K-pop" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">2015-2019 global K-pop</span>
+        <span class="ko">2015-2019 글로벌 K-Pop</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="2017 Korean idol pop" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">2017 Korean idol pop</span>
+        <span class="ko">2017년 아이돌 팝</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="K-pop EDM trap fusion" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">K-pop EDM trap fusion</span>
+        <span class="ko">EDM-트랩 융합</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="fourth generation K-pop" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">fourth generation K-pop</span>
+        <span class="ko">4세대 K-Pop</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="maximalist K-pop concept" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">maximalist K-pop concept</span>
+        <span class="ko">맥시멀리스트 컨셉</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="self-producing idol group" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">self-producing idol group</span>
+        <span class="ko">자체 프로듀싱 아이돌</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Korean trot revival 2019" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Korean trot revival 2019</span>
+        <span class="ko">트로트 부흥 2019</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="hi-hat rolls" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">hi-hat rolls</span>
+        <span class="ko">빠른 하이햇</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="chopped samples" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">chopped samples</span>
+        <span class="ko">잘게 자른 샘플</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="skippy hi-hats" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">skippy hi-hats</span>
+        <span class="ko">스킵 하이햇</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Dembow rhythm" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Dembow rhythm</span>
+        <span class="ko">레게톤 비트</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Clave rhythm" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Clave rhythm</span>
+        <span class="ko">살사/라틴 백본</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="accordion" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">accordion</span>
+        <span class="ko">아코디언</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Afrobeats" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Afrobeats</span>
+        <span class="ko">모던 아프리카 팝</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="polyrhythmic percussion" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">polyrhythmic percussion</span>
+        <span class="ko">폴리리듬 퍼커션</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="pedal steel" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">pedal steel</span>
+        <span class="ko">페달 스틸 기타</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="banjo" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">banjo</span>
+        <span class="ko">밴조</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Nashville production" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Nashville production</span>
+        <span class="ko">내슈빌 프로덕션</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="fiddle" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">fiddle</span>
+        <span class="ko">바이올린 (피들)</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="mandolin" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">mandolin</span>
+        <span class="ko">만돌린</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="breakdown" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">breakdown</span>
+        <span class="ko">브레이크다운</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="koto" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">koto</span>
+        <span class="ko">고토</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="erhu" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">erhu</span>
+        <span class="ko">얼후</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="guzheng" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">guzheng</span>
+        <span class="ko">구정</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="oud" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">oud</span>
+        <span class="ko">우드</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="tin whistle" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">tin whistle</span>
+        <span class="ko">틴 휘슬</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="speakeasy" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">speakeasy</span>
+        <span class="ko">주류 밀매점</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="shellac sound" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">shellac sound</span>
+        <span class="ko">셸락 음반 사운드</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="reed-led big band arrangement" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">reed-led big band arrangement</span>
+        <span class="ko">글렌 밀러 빅밴드 풍</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="jukebox era" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">jukebox era</span>
+        <span class="ko">주크박스 시대</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="mid-50s Memphis recording sound" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">mid-50s Memphis recording sound</span>
+        <span class="ko">선 레코드 시대</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="greaser culture" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">greaser culture</span>
+        <span class="ko">그리저 문화</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Mersey beat" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Mersey beat</span>
+        <span class="ko">머지 비트</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Summer of Love" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Summer of Love</span>
+        <span class="ko">사랑의 여름 1967</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Detroit soul rhythm section sound" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Detroit soul rhythm section sound</span>
+        <span class="ko">모타운 사운드</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="glamorous NYC disco club era" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">glamorous NYC disco club era</span>
+        <span class="ko">뉴욕 디스코 클럽</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="NYC punk club" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">NYC punk club</span>
+        <span class="ko">뉴욕 펑크 본거지</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="MTV era" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">MTV era</span>
+        <span class="ko">MTV 시대</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="neon-lit" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">neon-lit</span>
+        <span class="ko">네온 빛</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Seattle sound" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Seattle sound</span>
+        <span class="ko">시애틀 사운드</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Manchester sound" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Manchester sound</span>
+        <span class="ko">맨체스터 사운드</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Y2K" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Y2K</span>
+        <span class="ko">Y2K 시대</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Warped Tour era" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Warped Tour era</span>
+        <span class="ko">워프드 투어 시대</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="MTV TRL era" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">MTV TRL era</span>
+        <span class="ko">MTV TRL 시대</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="DIY internet release aesthetic" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">DIY internet release aesthetic</span>
+        <span class="ko">사운드클라우드 미학</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="short-form video viral trend" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">short-form video viral trend</span>
+        <span class="ko">TikTok 바이럴</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="Nashville-trap fusion" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">Nashville-trap fusion</span>
+        <span class="ko">내슈빌-트랩 융합</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="1920s" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">1920s</span>
+        <span class="ko">Roaring Twenties, Jazz Age, Dixieland</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="1930s" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">1930s</span>
+        <span class="ko">Swing Era, Big Band, Depression-era</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="1940s" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">1940s</span>
+        <span class="ko">Bebop, Wartime, Crooner</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="1950s" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">1950s</span>
+        <span class="ko">Rock and Roll, Doo-Wop, Greaser</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="1960s" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">1960s</span>
+        <span class="ko">British Invasion, Motown, Summer of Love</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="1970s" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">1970s</span>
+        <span class="ko">Disco, Funk, CBGB, Studio 54</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="1980s" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">1980s</span>
+        <span class="ko">MTV era, Gated reverb, Synth-Pop</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="1990s" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">1990s</span>
+        <span class="ko">Grunge, Britpop, G-Funk</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="2000s" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">2000s</span>
+        <span class="ko">Y2K, Crunk, Pop Punk, Nu-Metal</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="2010s" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">2010s</span>
+        <span class="ko">EDM, Trap, Tropical House</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="2020s" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">2020s</span>
+        <span class="ko">Hyperpop, Dark Pop, Phonk</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="1977 Punk Rock" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">1977 Punk Rock</span>
+        <span class="ko">특정 연도 펑크</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="1969 Psychedelic" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">1969 Psychedelic</span>
+        <span class="ko">특정 연도 사이키델릭</span>
+        <span class="add">＋</span>
+      </div><div class="pal-item " data-tag="1995 Britpop" data-lyrics="0" data-reflect="green" title="Suno 적용도: 🟢 잘 됨">
+        <span class="reflect-dot" aria-hidden="true"></span>
+        <span class="tag">1995 Britpop</span>
+        <span class="ko">특정 연도 브릿팝</span>
+        <span class="add">＋</span>
+      </div></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ ALBUM ============ -->
+<section id="view-album" class="view hidden">
+  <div class="grid grid-cols-12 gap-5">
+    <!-- LEFT: concept input -->
+    <aside class="col-span-12 lg:col-span-5 space-y-4">
+      <div class="panel">
+        <h2 class="panel-title mb-3" data-i18n="panel.album.concept">💿 앨범 컨셉</h2>
+
+        <label class="field mb-3">
+          <span class="field-label" data-i18n="album.concept">📝 앨범 주제 / 컨셉 (필수)</span>
+          <textarea id="album-concept" class="input h-24" data-i18n-placeholder="album.concept.ph" placeholder="예: 도시 청춘의 사계절 — 봄에 만나 겨울에 헤어진 사랑의 12장면"></textarea>
+        </label>
+
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <label class="field">
+            <span class="field-label" data-i18n="album.cat">🏷️ 분류</span>
+            <select id="album-cat" class="input">
+              <option value="all" data-i18n="album.cat.all">전체</option>
+              <option value="korean" data-i18n="album.cat.kr">🇰🇷 한국 가요</option>
+              <option value="pop" data-i18n="album.cat.pop">🌍 POP</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label" data-i18n="album.era">🗓️ 시대 / 톤</span>
+            <select id="album-era" class="input"></select>
+          </label>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+          <label class="field">
+            <span class="field-label" data-i18n="album.group">🎯 스타일 그룹 (옵션)</span>
+            <select id="album-style-group" class="input"></select>
+          </label>
+          <label class="field">
+            <span class="field-label" data-i18n="album.preset">🎵 레퍼런스 프리셋 (선택)</span>
+            <select id="album-preset" class="input"></select>
+          </label>
+        </div>
+        <button id="btn-album-from-builder" class="btn-ghost text-xs mb-3" data-i18n="album.frombuilder">📥 현재 빌더 선택 가져오기</button>
+        <div id="album-preset-meta" class="text-xs text-slate-400 mb-3 hidden"></div>
+
+        <div class="mb-3">
+          <span class="field-label" data-i18n="album.mood">😶 무드 (다중)</span>
+          <div id="album-mood-chips" class="cat-row mt-1"></div>
+        </div>
+
+        <label class="field mb-3">
+          <span class="field-label" data-i18n="album.arc">📚 앨범 흐름 (Concept Arc)</span>
+          <select id="album-arc" class="input">
+            <option value="journey" data-i18n="album.arc.journey">감정 여정 (만남 → 절정 → 이별 → 회복)</option>
+            <option value="story" data-i18n="album.arc.story">스토리 아크 (시간 순 12장면)</option>
+            <option value="thematic" data-i18n="album.arc.thematic">테마 통일 (하나의 무드)</option>
+            <option value="variety" data-i18n="album.arc.variety">버라이어티 (장르·무드 다양)</option>
+            <option value="seasons" data-i18n="album.arc.seasons">사계절 (봄 3 · 여름 3 · 가을 3 · 겨울 3)</option>
+            <option value="day" data-i18n="album.arc.day">하루의 흐름 (새벽 → 낮 → 저녁 → 밤)</option>
+          </select>
+        </label>
+
+        <div class="lang-row mb-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="field-label" data-i18n="album.lang">🌐 가사 언어</span>
+            <span id="album-lang-readout" class="text-xs text-mint-400 font-mono">한글 100%</span>
+          </div>
+          <input id="album-lang-slider" type="range" min="0" max="100" step="5" value="0" class="lang-slider">
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button id="btn-album-generate" class="btn-primary" data-i18n="album.btn.generate">🎵 앨범 기획 생성 (12곡)</button>
+          <button id="btn-album-clear" class="btn-ghost text-red-300" data-i18n-title="album.btn.reset.tip" title="앨범 컨셉·프리셋·옵션·12곡 트랙·가사까지 모두 기본값으로 되돌립니다" data-i18n="album.btn.reset">🗑️ 전체 초기화</button>
+        </div>
+        <div id="album-status" class="text-xs text-slate-400 mt-2 min-h-[1rem]"></div>
+      </div>
+
+      <div class="panel">
+        <div class="flex items-center gap-2 mb-2">
+          <h2 class="panel-title" data-i18n="panel.album.saved">💾 저장된 앨범</h2>
+          <label class="btn-ghost cursor-pointer ml-auto text-xs" data-i18n-title="album.import.tip" title="앨범 JSON 가져오기"><span data-i18n="album.import">📥 가져오기</span><input id="album-file-import" type="file" accept=".json" class="hidden"></label>
+          <button id="btn-album-clear-saved" class="btn-ghost text-xs" data-i18n-title="album.clear.tip" title="저장된 앨범 전체 삭제" data-i18n="album.clear.all">🗑️ 전체</button>
+        </div>
+        <div class="backup-warning-inline mb-2" data-i18n="album.backup.warn">⚠️ 브라우저 데이터 삭제 시 사라집니다. 작업 완료 후 <b>📤 JSON 내보내기</b> 로 <code>Downloads/suno_prompt_manager/&lt;앨범명&gt;/</code> 에 백업하세요.</div>
+        <div id="album-saved-list" class="space-y-1 text-sm text-slate-400"><p class="text-xs text-slate-500">저장된 앨범이 없습니다.</p></div>
+      </div>
+    </aside>
+
+    <!-- RIGHT: tracklist + actions -->
+    <div class="col-span-12 lg:col-span-7 space-y-4">
+      <div id="album-empty" class="panel text-center text-slate-500 text-sm py-12" data-i18n="album.empty">좌측에서 앨범 컨셉을 입력하고 <b class="text-slate-300">"앨범 기획 생성"</b>을 누르면 여기에 12곡 트랙리스트가 표시됩니다.</div>
+
+      <div id="album-result" class="hidden space-y-3">
+        <div class="panel">
+          <div class="flex items-start justify-between gap-3 mb-2">
+            <div>
+              <div class="text-xs text-accent-400 mb-1">💿 ALBUM</div>
+              <h3 id="album-title" class="text-lg font-semibold" data-i18n="album.titlePh">앨범 제목</h3>
+            </div>
+            <span id="album-meta" class="text-xs text-slate-400 self-center"></span>
+          </div>
+          <p id="album-summary" class="text-sm text-slate-300 leading-relaxed"></p>
+          <div class="flex flex-wrap gap-2 mt-3 text-xs">
+            <button id="btn-album-save" class="btn-primary" data-i18n="album.btn.save">💾 앨범 승인 · 저장</button>
+            <button id="btn-album-regen" class="btn-secondary" data-i18n="album.btn.regen">🔄 다시 기획</button>
+            <button id="btn-album-lyrics-all" class="btn-secondary" data-i18n="album.btn.lyrics12">📝 12곡 가사 일괄 생성</button>
+            <button id="btn-album-export" class="btn-ghost ml-auto" data-i18n="album.btn.export">📤 JSON 내보내기</button>
+          </div>
+        </div>
+
+        <details class="panel" open="">
+          <summary class="cursor-pointer text-sm font-semibold"><span data-i18n="album.opts">🎚️ 가사 생성 옵션</span>
+            <span class="text-xs text-slate-400 ml-2" data-i18n="album.opts.note">— 일괄·개별 생성 모두에 적용</span>
+          </summary>
+          <div class="mt-3 space-y-2">
+            <div class="lang-row">
+              <div class="flex items-center justify-between mb-1">
+                <span class="field-label" data-i18n="album.lang">🌐 가사 언어</span>
+                <span id="album-opt-lang-readout" class="text-xs text-mint-400 font-mono">한글 100%</span>
+              </div>
+              <input id="album-opt-lang" type="range" min="0" max="100" step="5" value="0" class="lang-slider">
+            </div>
+            <div class="lang-row">
+              <div class="flex items-center justify-between mb-1">
+                <span class="field-label" data-i18n="album.meta">🎭 시적 비유 · 은유 강도</span>
+                <span id="album-opt-meta-readout" class="text-xs text-mint-400 font-mono">⚖️ 균형 50%</span>
+              </div>
+              <input id="album-opt-meta" type="range" min="0" max="100" step="5" value="50" class="lang-slider">
+            </div>
+            <div class="lang-row">
+              <div class="flex items-center justify-between mb-1">
+                <span class="field-label" data-i18n="album.rap">🎤 보컬 ↔ 랩 비율</span>
+                <span id="album-opt-rap-readout" class="text-xs text-mint-400 font-mono">🎵 보컬 100%</span>
+              </div>
+              <input id="album-opt-rap" type="range" min="0" max="100" step="5" value="0" class="lang-slider">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs pt-1">
+              <label class="check"><input type="checkbox" id="album-opt-cues" checked=""> <span data-i18n="album.opt.cues">🎬 섹션별 음악 지시 포함</span></label>
+              <label class="check"><input type="checkbox" id="album-opt-cr"> <span data-i18n="album.opt.cr">🎙️ 콜 앤 리스폰스</span></label>
+              <label class="check"><input type="checkbox" id="album-opt-harm"> <span data-i18n="album.opt.harm">🎶 메인 보컬 + 화음·코러스</span></label>
+            </div>
+
+            <div id="album-arr-row" class="lang-row hidden">
+              <span class="field-label" data-i18n="album.arr">🎤 보컬 편곡 스타일</span>
+              <select id="album-opt-arr" class="input mt-1">
+                <option value="auto" data-i18n="album.arr.auto">자동 (현재 Style에 맞춤)</option>
+                <option value="kpop" data-i18n="album.arr.kpop">🇰🇷 K-Pop 화음</option>
+                <option value="idol" data-i18n="album.arr.idol">🪩 K-Pop 아이돌 떼창</option>
+                <option value="stadium-rock" data-i18n="album.arr.stadium">🏟️ 스타디움 록 (Coldplay·U2)</option>
+                <option value="gospel" data-i18n="album.arr.gospel">⛪ 블랙 가스펠 합창</option>
+                <option value="edm-festival" data-i18n="album.arr.edm">🎉 EDM 페스티벌</option>
+                <option value="anison" data-i18n="album.arr.anison">🎌 일본 애니송 유니즌</option>
+                <option value="punk-gang" data-i18n="album.arr.punk">🤘 펑크 갱 보컬</option>
+              </select>
+              <button id="btn-album-add-vocal-vocab" class="btn-ghost text-xs mt-2" data-i18n-title="album.arr.inject.tip" title="12곡 전체의 Style 필드에 선택된 편곡 스타일의 Suno-tested 키워드를 추가합니다" data-i18n="album.arr.inject">💡 12곡 전체 Style에 보컬 편곡 키워드 추가</button>
+            </div>
+          </div>
+        </details>
+
+        <div id="album-tracks" class="space-y-2"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DANCING MACHINE ============ -->
+<section id="view-dance" class="view hidden">
+  <div class="grid grid-cols-12 gap-5">
+    <!-- LEFT: 200 dance style guide library -->
+    <div class="col-span-12 lg:col-span-8 space-y-4">
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="panel.dance.styles">200 댄스 스타일 가이드</h2>
+          <span class="text-xs ml-auto" style="color: var(--text-secondary);" data-i18n="dance.subtitle">PDF 108 + 확장 92 = 200</span>
+        </div>
+        <div class="cat-row mb-2" id="dance-fam-row"></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
+          <input id="dance-q" class="input md:col-span-2" data-i18n-placeholder="dance.q.ph" placeholder="🔍 스타일·한글·영문·BPM 검색">
+          <select id="dance-bpm" class="input">
+            <option value="" data-i18n="dance.bpm.all">BPM (전체)</option>
+            <option value="0-110" data-i18n="dance.bpm.110">~110 BPM (다운템포)</option>
+            <option value="110-125" data-i18n="dance.bpm.125">110-125 (트로피컬·디스코)</option>
+            <option value="125-135" data-i18n="dance.bpm.135">125-135 (하우스·테크노)</option>
+            <option value="135-145" data-i18n="dance.bpm.145">135-145 (트랜스·하드)</option>
+            <option value="145-160" data-i18n="dance.bpm.160">145-160 (하드스타일·해피하드)</option>
+            <option value="160-200" data-i18n="dance.bpm.200">160-200+ (D&amp;B·하드코어)</option>
+          </select>
+        </div>
+        <div class="text-xs mb-2" style="color: var(--text-secondary);">
+          <span id="dance-count"></span> <span data-i18n="dance.cardhint">카드 클릭 시 우측의 빌더에 자동 로드 / Style 복사</span>
+        </div>
+        <div id="dance-list" class="dance-grid"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: dance-specific tag combiner -->
+    <aside class="col-span-12 lg:col-span-4 space-y-4">
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="panel.dance.tags">댄스 태그 조합기</h2>
+        </div>
+        <div class="text-xs mb-3" style="color: var(--text-secondary);" data-i18n="dance.combinerhint">카테고리별 태그를 클릭해 Style을 즉시 조립. 좌측 스타일 가이드 카드를 클릭하면 베이스 스타일이 자동으로 시드됩니다.</div>
+
+        <label class="field mb-3">
+          <span class="field-label" data-i18n="dance.seed">베이스 스타일 (시드)</span>
+          <textarea id="dance-seed-style" class="input font-mono text-xs h-16" data-i18n-placeholder="dance.seed.ph" placeholder="좌측에서 댄스 스타일을 클릭하거나 직접 입력"></textarea>
+        </label>
+
+        <div class="dance-tag-tabs" id="dance-tag-cats"></div>
+        <div id="dance-tag-list" class="dance-tag-list"></div>
+
+        <div class="mt-3">
+          <span class="field-label" data-i18n="dance.picked">선택된 태그</span>
+          <div id="dance-picked" class="chip-stack mt-1.5 min-h-[3rem]"></div>
+        </div>
+
+        <label class="field mt-3">
+          <span class="field-label" data-i18n="dance.final">조합된 최종 Style</span>
+          <textarea id="dance-output" class="input font-mono text-xs h-24" data-i18n-placeholder="dance.final.ph" placeholder="베이스 시드 + 선택한 태그가 콤마로 결합되어 표시됩니다"></textarea>
+        </label>
+
+        <div class="flex items-center gap-2 mt-2 flex-wrap">
+          <button id="dance-copy" class="btn-secondary" data-i18n="btn.copy.style">📋 Style 복사</button>
+          <button id="dance-send" class="btn-load-builder" data-i18n="dance.send">빌더로 보내기</button>
+          <button id="dance-reset" class="btn-ghost ml-auto" data-i18n-title="dance.reset.tip" title="시드와 선택된 태그를 모두 비웁니다" data-i18n="btn.reset">초기화</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ ARTISTS ============ -->
+<section id="view-artists" class="view hidden">
+  <div class="panel">
+    <div class="cat-row mb-3" data-cat-scope="artists">
+      <span class="text-xs text-slate-400 mr-1" data-i18n="cat.label">분류:</span>
+      <button class="cat-chip active" data-cat="all" data-i18n="cat.all">전체</button>
+      <button class="cat-chip" data-cat="korean" data-i18n="cat.kpop">🇰🇷 한국 가요</button>
+      <button class="cat-chip" data-cat="pop" data-i18n="cat.gpop">🌍 POP</button>
+      <span id="art-cat-count" class="text-xs text-slate-400 ml-auto"></span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4">
+      <input id="art-q" class="input md:col-span-2" data-i18n-placeholder="art.q.ph" placeholder="🔍 제목 / 스타일 / 대표곡 / 태그 검색">
+      <select id="art-era" class="input"></select>
+      <select id="art-genre" class="input"></select>
+      <!-- art-type is injected dynamically by renderArtists() -->
+    </div>
+    <div id="artist-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+  </div>
+</section>
+
+<!-- ============ SEARCH (AI-powered free-text discovery) ============ -->
+<section id="view-search" class="view hidden">
+  <div class="disclaimer mb-3">
+    <p class="text-xs text-slate-300 leading-relaxed" data-i18n="disclaimer.search"><span class="text-accent-400 font-semibold">🔍 AI 검색</span> &nbsp; 아티스트명·노래제목·"아티스트 - 노래" 등 자유롭게 입력하세요. AI 가 곡 정보와 대표 히트곡 5-8개를 정리해 Suno-ready Style 프롬프트로 제공합니다. <b>아티스트명은 Suno 프롬프트에 포함되지 않으며</b>, 음악 스타일 분류용 참고 라벨로만 쓰입니다.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title" data-i18n="panel.search">🔍 AI 검색</h2>
+      <div id="search-prov-tabs" class="flex gap-0.5 ml-auto">
+        <button class="ai-prov" data-search-prov="anthropic">Claude</button>
+        <button class="ai-prov active" data-search-prov="openai">GPT</button>
+        <button class="ai-prov" data-search-prov="google">Gemini</button>
+      </div>
+    </div>
+    <div class="search-mode-row mb-2">
+      <label class="check search-web-toggle" data-i18n-title="search.web.tip" title="각 provider 의 네이티브 웹 검색 도구로 실시간 정보 조회. 끄면 AI 의 학습 데이터만 사용 (빠르고 저렴, 단 최신 정보 부정확 가능)">
+        <input type="checkbox" id="search-use-web">
+        <span data-i18n="search.web">🌐 웹 검색 사용</span>
+      </label>
+      <span id="search-cost-hint" class="text-xs ml-2 cost-off">💡 OFF — 학습 데이터만 사용 (빠르고 저렴, 단 최신 정보 부정확 가능)</span>
+    </div>
+    <div class="flex gap-2 mb-2">
+      <input id="search-input" class="input flex-1" data-i18n-placeholder="search.input.ph" placeholder="예: Coldplay · 강남스타일 · BTS - Dynamite · 아이유 좋은 날 · Bohemian Rhapsody" autocomplete="off">
+      <button id="search-btn" class="btn-primary" data-i18n="search.btn">검색</button>
+    </div>
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-xs" style="color: var(--text-4);" data-i18n="search.examples">예시:</span>
+      <button class="btn-ghost search-example" data-q="Coldplay">Coldplay</button>
+      <button class="btn-ghost search-example" data-q="아이유 - 좋은 날" data-i18n="search.ex.iu">아이유 - 좋은 날</button>
+      <button class="btn-ghost search-example" data-q="Daft Punk">Daft Punk</button>
+      <button class="btn-ghost search-example" data-q="Billie Eilish - bad guy">Billie Eilish - bad guy</button>
+      <button class="btn-ghost search-example" data-q="BTS Dynamite">BTS Dynamite</button>
+    </div>
+    <div id="search-status" class="text-xs" style="color: var(--text-secondary); min-height: 1.2em;"></div>
+  </div>
+
+  <div id="search-results" class="mt-5"></div>
+</section>
+<!-- ============ GUIDE ============ -->
+<section id="view-guide" class="view hidden">
+  <div class="grid grid-cols-12 gap-5">
+    <aside class="col-span-12 md:col-span-4 panel max-h-[80vh] overflow-auto">
+      <h2 class="panel-title mb-3" data-i18n="panel.guide.index">📚 챕터 인덱스 (93)</h2>
+      <ul id="guide-list" class="space-y-1 text-sm"></ul>
+    </aside>
+    <div class="col-span-12 md:col-span-8 panel">
+      <h2 id="guide-title" class="panel-title mb-3" data-i18n="guide.pick">챕터를 선택하세요</h2>
+      <div id="guide-content" class="text-sm text-slate-300"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRESETS ============ -->
+<section id="view-presets" class="view hidden">
+  <div class="backup-warning mb-3">
+    <span class="backup-warning-icon">⚠️</span>
+    <div>
+      <b data-i18n="saved.warn.title">저장 위치 안내 — 브라우저 데이터 영역</b><br>
+      <span data-i18n="saved.warn.body">모든 프리셋은 이 브라우저의 <b>localStorage</b> 에만 저장됩니다. 브라우저의 <b>쿠키 및 사이트 데이터 삭제</b>·시크릿 모드 종료·프로필 재설정 시 <b>모두 사라집니다</b>. 작업이 끝나면 반드시 <b>📤 JSON 내보내기</b> 또는 카드별 <b>💾 파일</b> 로 <code>Downloads/suno_prompt_manager/preset/</code> 에 백업하세요.</span>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="flex items-center gap-2 mb-3">
+      <h2 class="panel-title" data-i18n="panel.presets.saved">💾 저장된 프리셋</h2>
+      <button id="btn-export" class="btn-ghost ml-auto" data-i18n="presets.export">📤 JSON 내보내기</button>
+      <label class="btn-ghost cursor-pointer"><span data-i18n="album.import">📥 가져오기</span><input id="file-import" type="file" accept=".json" class="hidden"></label>
+      <button id="btn-clear-presets" class="btn-ghost text-red-300" data-i18n="presets.clearall">전체 삭제</button>
+    </div>
+    <div id="preset-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+  </div>
+</section>
+
+<!-- Persistent copyright notice — shown below every tab. Single
+     instance, sized down with .disclaimer-small so it sits quietly
+     at the bottom of the workspace without dominating any tab. -->
+<div class="disclaimer disclaimer-small mt-4">
+  <p class="text-slate-300 leading-relaxed" data-i18n="disclaimer.artists"><span class="text-accent-400 font-semibold">ⓘ 안내 (저작권)</span> &nbsp; 목록의 아티스트명은 사용자가 원하는 음악 스타일을 빠르게 찾도록 돕기 위한 <b>참고용 분류 라벨</b>일 뿐이며, 특정 아티스트의 고유한 창작물·보이스·시그니처 사운드를 재현하거나 모방하기 위한 목적이 아닙니다. 또한 본 서비스에서 추가 제공되는 태그는 특정 아티스트에 특화된 고유 표현이 아닌, 음악 장르·분위기·악기 구성·템포 등 대중적으로 널리 사용되는 <b>범용 음악 태그</b>이며, 음악 초보자들의 이해를 돕기 위한 안내 수단으로만 제공됩니다. Suno에 전달되는 Style 프롬프트와 가사에는 <b>실제 아티스트명이 포함되지 않으며</b>, 이 도구는 어떠한 저작권·퍼블리시티권·상표권도 침해할 의도가 없습니다. 생성된 음악의 권리와 이용 범위는 Suno 이용약관에 따라 <b>사용자(사용자가 직접 만든 창작물)에게 귀속</b>됩니다. 또한 만약 생성되거나 표시되는 태그에 아티스트명이 포함되는 경우, 이는 의도된 기능이 아니라 데이터 처리 또는 AI 자동 생성 과정에서 발생한 오류이며, 발견 즉시 수정·제거될 수 있습니다.</p>
+</div>
+
+</main>
+</div><!-- /.app-main -->
+</div><!-- /.app-shell -->
+
+<!-- help modal -->
+<div id="help-modal" class="modal hidden" aria-hidden="true">
+  <div class="modal-backdrop"></div>
+  <div class="modal-content help-modal-content" role="dialog" aria-labelledby="help-title">
+    <div class="help-header">
+      <div>
+        <h2 id="help-title" data-i18n="help.title">📖 SU-Note 사용 매뉴얼</h2>
+        <div class="help-subtitle" data-i18n="help.subtitle">수-노트 · Suno AI 프롬프트 매니저 · Suno V5.5 가이드 · 648 태그 · 867 템플릿 · 200 댄스 스타일</div>
+      </div>
+      <button class="help-close-x" data-close-modal="" aria-label="Close">✕</button>
+    </div>
+    <nav class="help-toc" aria-label="목차">
+      <a href="#h-overview" data-i18n="toc.overview">개요</a>
+      <a href="#h-workflow" data-i18n="toc.workflow">워크플로우</a>
+      <a href="#h-quickstart" data-i18n="toc.quickstart">빠른 시작</a>
+      <a href="#h-builder" data-i18n="toc.builder">빌더</a>
+      <a href="#h-album" data-i18n="toc.album">앨범</a>
+      <a href="#h-dance" data-i18n="toc.dance">댄싱 머신</a>
+      <a href="#h-presets" data-i18n="toc.presets">프리셋</a>
+      <a href="#h-search" data-i18n="toc.search">검색</a>
+      <a href="#h-design" data-i18n="toc.design">디자인·테마</a>
+      <a href="#h-sanitize" data-i18n="toc.sanitize">자동 정제</a>
+      <a href="#h-backup" data-i18n="toc.backup">백업·저장</a>
+      <a href="#h-security" data-i18n="toc.security">보안</a>
+      <a href="#h-shortcuts" data-i18n="toc.shortcuts">단축키</a>
+      <a href="#h-faq" data-i18n="toc.faq">FAQ</a>
+      <a href="#h-versions" data-i18n="toc.versions">버전 히스토리</a>
+    </nav>
+    <div class="help-body">
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <section id="h-overview">
+        <h3 data-i18n="h3.overview">🎯 개요 — SU-Note는 무엇인가</h3>
+        <p data-i18n="h-overview.p1">SU-Note (수-노트) 는 Suno AI 음악 생성에 최적화된 <b>프롬프트 매니저</b> 입니다. Excel 형식의 <em>Suno AI 한국어 종합 가이드 v8</em> 을 기반으로 <b>648 개 검증된 고유 태그</b>, <b>867 개 스타일 템플릿</b> (261 큐레이션 + 202 아티스트 × 3 변형 = 606 시그니처), <b>200 가지 댄스 서브장르</b>를 한 화면에서 검색·조합·복사할 수 있도록 정리했습니다.</p>
+        <p data-i18n="h-overview.p2">여기에 Claude · GPT · Gemini 세 AI 모델 연동을 더해 단일 곡과 12곡 앨범을 자동 기획·생성하며, 한국 가요 특화 옵션 (한·영 가사 비율, 보컬·랩 비율, 시적 비유 강도, 콜앤리스폰스, 화음·코러스) 까지 페이더로 조정할 수 있습니다.</p>
+        <div class="help-callout" data-i18n="h-overview.callout"><b>핵심 가치</b> ─ ① Suno 가 실제로 인식하는 검증된 태그만 노출 (반영도 색상 표시) ② 한국어 가사 디테일 ③ 아티스트 스타일을 안전하게 분류 라벨로만 사용 (Suno 에 아티스트명 전달 0건) ④ 12곡 앨범 일괄 기획 ⑤ 200 댄스 스타일 라이브러리.</div>
+      </section>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <section id="h-workflow">
+        <h3 data-i18n="h3.workflow">🗺️ 4단계 워크플로우</h3>
+        <ol class="help-stepline">
+          <li><span class="help-num help-num-1">1</span><div><b>스타일 선택</b><br><span class="help-desc">프리셋·댄싱머신</span></div></li>
+          <li class="help-arrow" aria-hidden="true">→</li>
+          <li><span class="help-num help-num-2">2</span><div><b>편집</b><br><span class="help-desc">Style·Lyrics·페이더</span></div></li>
+          <li class="help-arrow" aria-hidden="true">→</li>
+          <li><span class="help-num help-num-3">3</span><div><b>AI 생성</b><br><span class="help-desc">선택 사항</span></div></li>
+          <li class="help-arrow" aria-hidden="true">→</li>
+          <li><span class="help-num help-num-4">4</span><div><b>Suno 붙여넣기</b><br><span class="help-desc">📋 복사</span></div></li>
+        </ol>
+        <p class="help-note">상단의 4단계 차트는 <b>접기 / 펼치기</b> 버튼으로 숨길 수 있고 새로고침 후에도 상태가 유지됩니다.</p>
+      </section>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <section id="h-quickstart">
+        <h3 data-i18n="h3.quickstart">🚀 빠른 시작 (3분)</h3>
+        <ol class="help-numbered" data-i18n="h-quickstart.body"><li><b>API 키 등록</b> — 좌측 사이드바 ⚙️ <b>설정</b> 클릭 → Anthropic · OpenAI · Google 중 하나의 키 입력 → <b>암호화 저장</b>. <span class="help-note">앱 부팅 시 자동 생성된 디바이스 키로 AES-GCM 256bit 암호화되어 브라우저에만 저장 — 별도 암호 입력 없이 바로 사용 가능.</span></li><li><b>스타일 고르기</b> — 좌측 사이드바의 <b>프리셋</b> / <b>태그</b> / <b>댄싱머신</b> 탭에서 원하는 스타일을 검색·선택 → <b>빌더에 로드</b> 또는 <b>빌더로 전송</b> 버튼 클릭</li><li><b>제어 조정 (선택)</b> — 빌더 우측의 <b>제어</b> 패널에서 페이더 (한·영 비율 · 시적 비유 · 보컬↔랩) · 콜앤리스폰스·화음 옵션 · 보컬 편곡 스타일까지 원하는 대로 설정 후 <kbd class="cyan">▶ 빌더에 로드</kbd> 한 번 클릭</li><li><b>AI 생성 (선택)</b> — 중앙 <b>AI</b> 패널에 컨셉 입력 → Claude · GPT · Gemini 로 제목·가사 자동 생성</li><li><b>Suno 복사</b> — <b>📋 Style 복사</b> · <b>📋 Lyrics 복사</b> 로 클립보드에 → Suno Custom Mode 의 Style · Lyrics 필드에 각각 붙여넣고 곡 생성</li></ol>
+      </section>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <section id="h-builder">
+        <h3 data-i18n="h3.builder">🎼 빌더 — 단일 곡 만들기 (상세 매뉴얼)</h3>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.builder.title">① 노래 제목 (상단 Hero 입력칸)</h4>
+          <ul>
+            <li>큰 글씨 입력칸에 곡 제목을 직접 입력. 비워두면 AI 가 작명</li>
+            <li>AI 옵션의 <code>제목</code> 체크박스로 자동 작명 on/off</li>
+            <li><b>기본 골격</b> 버튼: 한국 가요 표준 가사 구조 (Intro·Verse·Pre·Chorus·Bridge·Outro) 자동 삽입</li>
+            <li><b>초기화</b> 버튼: 제목·가사·Style 칩·슬라이더·옵션·AI 프롬프트 전체 리셋</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.builder.style">② Style 패널 (중앙)</h4>
+          <ul>
+            <li>Suno 의 <b>Style 필드</b> 에 들어갈 키워드 칩 모음 (200자 권장)</li>
+            <li>칩 추가 방법 — ⓐ 빠른 팔레트 클릭 · ⓑ 입력칸 직접 타이핑 후 Enter · ⓒ AI 생성 · ⓓ 프리셋 로드 · ⓔ 검색 · ⓕ 댄싱머신</li>
+            <li>출처별 칩 색상 (테두리·텍스트):
+              <span class="help-chip-demo" style="color:var(--cyan-accent);border-color:var(--cyan-accent)">청록 = 아티스트</span>
+              <span class="help-chip-demo" style="color:var(--secondary);border-color:var(--secondary)">보라 = 템플릿</span>
+              <span class="help-chip-demo" style="color:var(--tertiary);border-color:var(--tertiary)">호박 = AI 생성</span>
+              <span class="help-chip-demo">회색 = 수동</span>
+            </li>
+            <li class="help-highlight"><b>칩 좌측 도트 (●) 색상 — Suno 적용도 (reflect)</b>:
+              <ul>
+                <li>🟢 <b>녹색</b> ─ Suno 가 잘 적용. 핵심 anchor 태그 (장르·BPM·악기 등)</li>
+                <li>🟡 <b>노랑</b> ─ 가끔만 반영. 조합·뉘앙스 태그</li>
+                <li>🔴 <b>빨강</b> ─ 잘 안 반영. 칩이 살짝 흐려져 표시 (시각 페이드)</li>
+                <li>⚪ <b>회색</b> ─ 카탈로그에 데이터 없음 (AI 가 만든 novel 조합 등)</li>
+                <li>마우스 오버 시 툴팁에 출처 + 적용도 한국어 설명 표시</li>
+              </ul>
+            </li>
+            <li class="help-highlight"><b>자동 정렬 — Suno 적용도 우선</b>: 칩은 🟢 → 🟡 → ⚪ → 🔴 순으로 안정 정렬됩니다. Suno 의 200자 토큰 한도에서 잘릴 때 <b>가장 잘 적용되는 태그가 살아남도록</b> 핵심 신호를 앞쪽에 모음. 🔴 태그는 뒤로 밀려나 우선순위 절감.</li>
+            <li>각 칩의 × 로 개별 삭제 — 삭제 후에도 자동 재정렬됨</li>
+            <li><b>📋 Style 복사</b> 버튼으로 콤마 결합된 최종 텍스트를 클립보드에</li>
+            <li><b>💾 프리셋으로 저장</b> 버튼으로 현재 조합을 저장됨 탭에 보관</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.builder.lyrics">③ Lyrics 패널 (중앙)</h4>
+          <ul>
+            <li>Suno 의 <b>Lyrics 필드</b> 에 들어갈 가사 + 섹션 태그</li>
+            <li>상단 구조 칩 클릭으로 섹션 삽입 — <code>[Intro]</code> · <code>[Verse 1]</code> · <code>[Pre-Chorus]</code> · <code>[Chorus]</code> · <code>[Bridge]</code> · <code>[Outro]</code> · <code>[Instrumental]</code></li>
+            <li><b>섹션별 음악 지시 포함</b> 옵션 켜면 AI 가 <code>[Verse: soft piano, intimate]</code> 식으로 음악 지시 영문 삽입</li>
+            <li>하단 카운터: 섹션 / 줄 / 글자 수 실시간 표시</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.builder.ai">④ AI 생성 패널 (중앙 하단)</h4>
+          <ul>
+            <li><b>Claude · GPT · Gemini</b> 세 모델 중 선택 (탭으로 전환). 모델 라인업: ⭐ Sonnet 4.6 / Haiku 4.5 · ⭐ GPT-5.4 mini / GPT-4.1 mini · ⭐ Gemini 3.5 Flash / Gemini 2.5 Flash — 별표는 가사 품질 우선 추천</li>
+            <li>자연어 프롬프트 입력 예시:
+              <em>"1980 년대 신스웨이브 발라드, 첫사랑 회상"</em>,
+              <em>"K-Pop 댄스, 여름밤 파티, 영문 50%"</em>,
+              <em>"Coldplay 스타일 어쿠스틱 + 스트링 빌드"</em></li>
+            <li>체크박스로 AI 가 채울 필드 선택 — <code>제목</code> · <code>Style</code> · <code>Lyrics</code> · <code>컨텍스트</code></li>
+            <li class="help-highlight"><b>🎺 연주곡 (Instrumental) 체크박스</b> — 가사 없는 연주곡 모드.
+              <ul>
+                <li>켜면 Style 칩에 <code>instrumental</code> 자동 삽입 + Lyrics 채우기는 ON 으로 유지 + 가사 textarea 자동 비움</li>
+                <li>AI 는 sung/rap 라인 대신 <b>섹션 로드맵</b> (예: <code>[Intro: soft piano, ambient pad, 8 bars]</code> · <code>[Verse 1: walking bass, brush snare, 16 bars]</code> · <code>---</code> 무성 마커) 만 작성</li>
+                <li><b>3-4분 트랙 보장</b> — 7-9 섹션, 마디 합계 80-120 bars 강제. Style 에 "extended arrangement" 길이 힌트 자동 추가</li>
+                <li>금지: 가짜 보컬 ("la la la", "ooh"), sung 단어 ("I", "you", "사랑"), 빈약한 브래킷</li>
+              </ul>
+            </li>
+            <li class="help-highlight"><b>제목 언어 드롭다운</b> — <code>Auto</code> (가사 언어 페이더 따름) · <code>한국어</code> · <code>English</code> · <code>日本語</code> · <code>Latin·다국어</code>. 가사와 무관하게 제목만 별도 언어로 강제 가능. 연주곡 모드에서도 유효</li>
+            <li>🔒 <b>프리셋 보호 중</b> 배지 — 프리셋 로드 시 Excel 원본 Style 이 덮어써지지 않도록 잠금. 클릭으로 해제 시 AI 가 Style 도 새로 작성</li>
+            <li>우측 미러: 현재 페이더 설정 (한글%·균형%·보컬%) 한눈에 확인</li>
+            <li>생성 시 우측 사이드바 상태표시줄에 진행 메시지 출력</li>
+            <li>🛑 <b>중지</b> 버튼 — 생성 중 빨간 outline 으로 강조. 진행 중인 요청을 즉시 취소</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.builder.start">⑤-1 시작점 패널 (우측 사이드바 상단 — 자동 표시·자동 숨김)</h4>
+          <ul>
+            <li><b>분류 → 시대 → 그룹 → 프리셋</b> 4단계 드롭다운으로 빌더 안에서 바로 프리셋 검색·선택 가능</li>
+            <li>Style 칩이 비어 있고 아직 프리셋이 로드되지 않은 상태에서만 표시됩니다 — 칩이 1 개라도 들어오면 자동으로 숨어요</li>
+            <li>좌측의 <b>프리셋 · 댄싱머신 · 검색</b> 탭에서 빌더로 전송하면 칩이 채워져 자동으로 숨겨짐</li>
+            <li>다시 보이게 하려면 <b>초기화</b> 버튼으로 빌더를 리셋</li>
+            <li>프리셋 선택 후 곡 구조·페이더·옵션까지 마쳤다면 제어 패널 하단의 <kbd class="cyan">▶ 빌더에 로드</kbd> 버튼으로 통합 적용</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.builder.current">⑤-2 현재 선택 패널 (시작점 아래 — 항상 읽기 전용)</h4>
+          <ul>
+            <li>현재 빌더에 로드된 프리셋의 메타 정보 표시: 시대·전성기·대표곡 (3 변형)·핵심 태그·곡 구조·저작권 안내</li>
+            <li>아티스트 프리셋은 <b>Signature / Ballad / Anthem</b> 3가지 변형 중 선택 가능 (메타 카드 하단의 변형 칩)</li>
+            <li>로드된 프리셋이 없으면 사용 안내 메시지 표시</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.builder.control">⑥ 제어 패널 (우측 사이드바 중앙 — Mix Console)</h4>
+          <p>가사 생성을 미세 조정하는 DAW 스타일 페이더와 옵션:</p>
+          <ul>
+            <li><b>가사 언어 페이더</b> ─ 0 = 한글 100% · 50 = 한·영 혼합 · 100 = 영문 100%</li>
+            <li><b>시적 비유 페이더</b> ─ 0 = 직설적 · 50 = 균형 · 100 = 시적·은유 풍부</li>
+            <li><b>보컬 ↔ 랩 페이더</b> ─ 0 = 순수 보컬 · 50 = 혼합 (K-힙합) · 100 = 순수 랩</li>
+            <li><b>BPM 자동 감지 표시</b> ─ Style 텍스트에서 BPM 추출 표시</li>
+            <li><b>섹션별 음악 지시 포함</b> ─ <code>[Verse: soft piano]</code> 식 영문 음악 지시 자동 삽입</li>
+            <li><b>콜 앤 리스폰스</b> ─ Lead↔Crowd 교차 구조. 켜면 <b>보컬 편곡 스타일</b> 선택 가능</li>
+            <li><b>화음·코러스</b> ─ 메인 보컬 위 layered 화음. 켜면 <b>보컬 편곡 스타일</b> 선택 가능</li>
+            <li>편곡 스타일 옵션: K-Pop 화음 · 아이돌 떼창 · 스타디움 록 · 가스펠 · EDM 페스티벌 · J-Pop · 펑크 갱</li>
+            <li class="help-highlight"><kbd class="cyan">▶ 빌더에 로드</kbd> ─ <b>제어 패널 하단의 시안 글로우 버튼</b>. 클릭 한 번에 <b>프리셋 Style + 곡 구조 + 페이더·옵션·편곡 키워드</b> 가 모두 빌더의 Style·Lyrics 영역으로 자동 적용</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.builder.palette">⑦ 팔레트 패널 (우측 사이드바 하단)</h4>
+          <ul>
+            <li>6 탭: <b>🎸 장르</b> · <b>🎭 분위기</b> · <b>🥁 악기</b> · <b>🎤 보컬</b> · <b>⏱ 템포</b> · <b>🔍 검색</b></li>
+            <li>각 항목 클릭으로 Style 칩 즉시 추가 (반영도 🟢 → 🟡 → 기타 순 정렬, 칩 추가 시 한글→영문 자동 변환)</li>
+            <li>반영도 색상 범례 — 🟢 무조건 / 🟡 비교적 / 🔴 잘 안됨</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <section id="h-album">
+        <h3 data-i18n="h3.album">💿 앨범 기획 — 12곡 한 번에</h3>
+        <ol class="help-numbered">
+          <li>좌측 패널에 <b>앨범 컨셉</b> 입력 ─ 예: <em>"도시 청춘의 사계절 — 봄에 만나 겨울에 헤어진 사랑의 12 장면"</em></li>
+          <li><b>분류 · 시대 · 스타일 그룹 · 레퍼런스 프리셋</b> 선택 (선택사항)</li>
+          <li><b>현재 빌더 선택 가져오기</b> 버튼 ─ 빌더에서 고른 프리셋을 그대로 앨범에 적용</li>
+          <li><b>무드</b> 다중 선택 (예: 멜랑콜릭 · 업비트 · 에테리얼)</li>
+          <li><b>앨범 흐름 (Arc)</b> 선택 ─ 감정 여정 · 스토리 아크 · 테마 통일 · 버라이어티 · 사계절 · 하루의 흐름</li>
+          <li><b>가사 언어 페이더</b> ─ 앨범 전체 한·영 비율</li>
+          <li><kbd class="cyan">🎵 앨범 기획 생성 (12곡)</kbd> → AI 가 앨범 제목 · 컨셉 요약 · 12 개 트랙 (제목·무드·BPM·Style·hook) 생성</li>
+          <li>우측에 트랙리스트 카드 12 장 표시</li>
+          <li><b>🎚️ 가사 생성 옵션</b> 펼침 ─ 한·영 / 비유 / 보컬·랩 / 음악 지시 / 콜앤리스폰스 / 화음·코러스 / 편곡 스타일</li>
+          <li>개별 트랙 <b>📝 가사 생성</b> 또는 전체 <b>📝 12곡 가사 일괄 생성</b></li>
+          <li>각 트랙 카드 복사 버튼 — <b>제목 / Style / 가사 / 전체</b> (Suno Custom Mode 3 필드 분리 붙여넣기)</li>
+          <li><b>🔄 다시 기획</b> ─ 같은 컨셉으로 재생성</li>
+          <li><b>💾 앨범 승인 · 저장</b> ─ localStorage 보관 (좌측 하단 저장된 앨범 리스트에서 다시 불러올 수 있음)</li>
+          <li><b>📤 JSON 내보내기</b> / <b>🗑️ 전체 초기화</b></li>
+        </ol>
+      </section>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <section id="h-dance">
+        <h3 data-i18n="h3.dance">🎯 댄싱 머신 — 200 댄스 스타일 + 태그 조합기</h3>
+
+        <h4 data-i18n="h4.dance.left">좌측 — 200 댄스 스타일 가이드</h4>
+        <ul>
+          <li>11 개 패밀리 필터: 하우스 (30) · 테크노 (30) · 트랜스 (20) · D&amp;B (20) · 하드 (15) · 베이스 (20) · 디스코 (15) · 라틴 (15) · 아프로 (15) · 실험 (10) · 모던 (10)</li>
+          <li>BPM 범위 필터 (~110 / 110-125 / 125-135 / 135-145 / 145-160 / 160-200+)</li>
+          <li>검색: 한글·영문·BPM·설명</li>
+          <li>각 카드 정보: 패밀리 라벨 · BPM · 한국어 이름 · 영문 이름 · 간단 설명 · Suno Style 프롬프트</li>
+          <li>카드 클릭 시 우측 시드로 자동 로드</li>
+        </ul>
+
+        <h4 data-i18n="h4.dance.right">우측 — 댄스 태그 조합기 (210 태그)</h4>
+        <ul>
+          <li>8 카테고리 탭: 드럼·리듬 · 베이스 · 신스·리드·패드 · 보컬 · 이펙트·텍스처 · 구조·드랍 · 무드 · BPM 힌트</li>
+          <li>각 태그 핀: 영문 태그 + 한국어 설명, 클릭으로 토글 선택</li>
+          <li>베이스 시드 (스타일 카드에서 자동 채워짐, 직접 편집 가능)</li>
+          <li>최종 조립된 Style 텍스트 실시간 미리보기 (중복 자동 제거)</li>
+          <li><kbd class="cyan">📋 Style 복사</kbd> / <kbd class="cyan">▶ 빌더로 보내기</kbd> / <b>초기화</b></li>
+        </ul>
+      </section>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <section id="h-presets">
+        <h3 data-i18n="h3.presets">🎤 프리셋 — 아티스트별 3가지 대표곡 스타일</h3>
+        <p>각 아티스트 카드는 시그니처 곡 외에 <b>다른 두 곡의 실제 대표 스타일</b> 까지 펼쳐서 보여줍니다. 같은 아티스트의 발라드와 댄스 곡을 동시에 비교 / 선택할 수 있어요.</p>
+        <ul>
+          <li>예) <b>BLACKPINK</b> ─ <em>How You Like That</em> + <em>Lovesick Girls</em> + <em>DDU-DU DDU-DU</em></li>
+          <li>예) <b>Queen</b> ─ <em>Bohemian Rhapsody</em> + <em>Love of My Life</em> + <em>Don't Stop Me Now</em></li>
+          <li>예) <b>Adele</b> ─ <em>Rolling in the Deep</em> + <em>Someone Like You</em> + <em>Hello</em></li>
+          <li>예) <b>The Police</b> ─ <em>Every Breath You Take</em> + <em>Roxanne</em> + <em>Message in a Bottle</em></li>
+          <li>각 곡마다 라벨 (대표곡 / 대표곡 2 / 대표곡 3), 곡명, 풀 Style 텍스트, 구조 표시</li>
+          <li>곡별 개별 <kbd class="cyan">▶ 빌더에 로드</kbd> / <b>📋 Style 복사</b> 버튼</li>
+          <li>총 202 아티스트 × 3 = <b>606 개의 실제 대표곡 Suno Style 프롬프트</b> (1920년대 재즈부터 2020년대 K-pop·Afrobeats 까지)</li>
+        </ul>
+      </section>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <section id="h-search">
+        <h3 data-i18n="h3.search">🔍 검색 — 자유 텍스트 발견 (학습 데이터 / 웹 검색 선택)</h3>
+        <p data-i18n="h-search.intro">큐레이션된 200 프리셋 밖의 <b>모든 아티스트·노래</b>를 검색합니다. 기본은 AI 의 학습 데이터로 답하고, <b>🌐 웹 검색</b> 체크 시 각 provider 의 네이티브 웹 도구로 실시간 정보 조회.</p>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.search.provider">Provider 선택 (패널 헤더 우측 탭)</h4>
+          <ul data-i18n="h-search.provider.body"><li><b>Claude</b> · <b>GPT</b> · <b>Gemini</b> 중 선택 — 메인 AI 패널 (가사 생성용) 의 provider 와 <b>동기화</b>됨</li><li>각 provider 의 API 키가 미리 ⚙️ 설정에 등록돼 있어야 동작</li></ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.search.web">🌐 웹 검색 체크박스 (기본 OFF)</h4>
+          <ul data-i18n="h-search.web.body"><li><b>OFF (기본)</b> — AI 의 학습 데이터로 답함. <b>빠르고 저렴</b>, 단 최신 발매·차트 정보는 부정확할 수 있음 (모델의 cutoff date 기준)</li><li><b>ON</b> — provider 의 네이티브 웹 검색 도구 호출:<ul><li>Claude: <code>web_search_20250305</code> (Anthropic 네이티브)</li><li>GPT: <code>web_search_preview</code> (Responses API 경유)</li><li>Gemini: <code>googleSearch</code> grounding</li></ul></li><li>설정은 localStorage <code>su_search_web</code> 에 저장 — 다음 방문에 유지</li><li>체크박스 옆에 <b>실시간 비용 안내</b> 표시:<ul><li>OFF 시: "💡 OFF — 학습 데이터만 사용"</li><li>ON 시: "💰 입력·출력 토큰 + 웹 검색 사용료 + 토큰 사용량 2-5× + provider 콘솔에서 단가 확인"</li></ul></li><li>provider 별 웹 검색 단가 (2025-11 기준 참고용):<ul><li>Claude: 약 <b>$10 / 1,000 검색</b></li><li>GPT (Responses): 약 <b>$10 / 1,000 쿼리</b></li><li>Gemini (Google Search grounding): 약 <b>$35 / 1,000 grounded 요청</b></li><li>실제 청구액은 모델 토큰 사용량까지 합산되며, 각 사의 최신 가격 페이지에서 확인 필요</li></ul></li></ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.search.input">입력 형태 — 3 가지 자유롭게</h4>
+          <ul data-i18n="h-search.input.body"><li><b>아티스트명만</b> — 예: <code>Coldplay</code>, <code>아이유</code>, <code>Daft Punk</code></li><li><b>노래 제목만</b> — 예: <code>Bohemian Rhapsody</code>, <code>강남스타일</code>, <code>좋은 날</code></li><li><b>아티스트 - 노래</b> — 예: <code>BTS - Dynamite</code>, <code>Billie Eilish - bad guy</code>, <code>아이유 좋은 날</code></li><li>입력칸 아래 예시 칩 클릭으로 빠른 시도 가능</li></ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.search.korean">🇰🇷 한국어 (한글 음역) 검색 지원</h4>
+          <ul data-i18n="h-search.korean.body"><li>해외 아티스트·노래를 한글로 입력해도 AI 가 정식 명칭으로 매핑해서 검색:<ul><li><code>콜드플레이</code> → Coldplay · <code>비틀즈</code> → The Beatles · <code>퀸</code> → Queen</li><li><code>다프트펑크</code> → Daft Punk · <code>라디오헤드</code> → Radiohead · <code>마이클잭슨</code> → Michael Jackson</li><li><code>빌리아일리시</code> → Billie Eilish · <code>테일러스위프트</code> → Taylor Swift · <code>에드시런</code> → Ed Sheeran</li><li>일본 아티스트: <code>요네즈켄시</code> → 米津玄師 · <code>우타다</code> → 宇多田ヒカル</li><li>노래 제목도 동일: <code>보헤미안랩소디</code> · <code>옐로우</code> · <code>비틀즈 - 헤이주드</code></li></ul></li><li>한국 아티스트 (방탄소년단·아이유·트로트·OST 등) 는 그대로 한글로 검색 — 역번역 안 됨</li><li>예시 칩 중 "(한글)" 표시된 항목으로 동작 확인 가능</li></ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.search.output">AI 출력</h4>
+          <ul data-i18n="h-search.output.body"><li><b>아티스트 카드</b> — 이름 (영문·한글) · 국적 · 활동 시대 · 장르 · 1-2 문장 요약 (웹에서 수집한 최신 정보 반영)</li><li><b>대표곡 5-8 개</b> — 각각 제목·발매연도·Suno-ready Style (150-220자)·곡 구조·무드</li><li>"아티스트 - 노래" 검색 시 해당 곡이 결과 리스트 <b>맨 앞</b>에 우선 배치</li><li>AI 가 검색해도 정보를 찾지 못한 아티스트면 <code>queryType: unknown</code> + 빈 결과 — 환각 (hallucinate) 방지</li></ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.search.use">결과 활용</h4>
+          <ul data-i18n="h-search.use.body"><li>각 곡 카드의 <kbd class="cyan">▶ 빌더에 로드</kbd> ─ Style 칩 · 제목 자동 채움. 가사는 비우고 빌더 AI 패널에서 별도 생성</li><li><b>📋 Style 복사</b> ─ 그 곡의 Style 프롬프트만 클립보드에</li><li>저장하려면 빌더 로드 후 Style 패널의 <b>💾 프리셋으로 저장</b> 버튼 사용 — 검색 결과는 자동 저장되지 않습니다</li><li>로드 시 이전 아티스트 컨텍스트 (refArtist) 자동 초기화 — AI 가사 생성 시 검색된 Style 이 덮어쓰이지 않음</li></ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.search.notes">제약·참고</h4>
+          <ul data-i18n="h-search.notes.body"><li>웹 검색 1 회 + AI 응답 1 회 = <b>토큰 사용량이 일반 채팅보다 2-5 배</b>. 검색 결과가 길수록 입력 토큰 늘어남</li><li>Provider 별 웹 검색 가격 (입력 토큰에 포함되거나 별도 청구) 은 각 사 문서 확인 필요</li><li>Style 필드는 자동 정제 — 한국어 장르명 · 아티스트명 자동 제거 (Suno 영문 토큰화 보장)</li><li>웹 검색이 차단되거나 결과가 부족할 때 AI 가 자체 지식으로 답할 수 있음 — 그래도 BPM·발매연도 등은 참고용으로만</li></ul>
+        </div>
+      </section>
+
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <section id="h-design">
+        <h3 data-i18n="h3.design">🎨 디자인 · 테마 · 레이아웃 모드</h3>
+        <ul>
+          <li><b>디자인 컨셉</b> — Sonic Syntax (DAW / IDE 스타일). 4 액센트 컬러:
+            <span class="help-chip-demo" style="color:var(--cyan-accent);border-color:var(--cyan-accent)">시안 = VU 미터·CTA</span>
+            <span class="help-chip-demo" style="color:var(--primary);border-color:var(--primary)">스카이 = 주요 액션</span>
+            <span class="help-chip-demo" style="color:var(--secondary);border-color:var(--secondary)">퍼플 = 창의 모디파이어</span>
+            <span class="help-chip-demo" style="color:var(--tertiary);border-color:var(--tertiary)">앰버 = 워닝·메타</span>
+          </li>
+          <li><b>폰트</b> — Paperozi (페이퍼로지) 단일 폰트 9 웨이트 (100~900). 한글·영문·숫자 모두</li>
+        </ul>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.design.theme">① 3 단 컬러 테마 (좌측 사이드바 하단 세그먼티드 컨트롤)</h4>
+          <ul>
+            <li><b>🌙 다크</b> — 기본. Sonic Syntax 의 원본 deep blue surface + sky-blue primary</li>
+            <li><b>◐ Graphite</b> — 차가운 수트 톤 (Linear · Vercel 분위기). 중간 명도 차콜 #1a1d24 + periwinkle #6e7bdc primary + 민트 #67e8c5 액센트. 다크 / 라이트의 중간 색감</li>
+            <li><b>☀ 라이트</b> — 부드러운 슬레이트 배경 + 진한 sky-blue. 밝은 작업 환경용</li>
+            <li>선택은 localStorage <code>su_theme</code> 에 저장 — 다음 방문에도 유지</li>
+            <li>Graphite 테마 focus ring 강화 — 입력 포커스 시 더 진한 periwinkle 글로우</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.design.split">② 분할 모드 (좌측 사이드바 하단 토글 + "Suno 열기" 버튼)</h4>
+          <ul>
+            <li><b>목적</b> — 화면 좌측 절반에 SU-Note, 우측 절반에 Suno.com 을 동시 띄워 한눈에 작업</li>
+            <li><b>분할 모드 슬라이드 스위치</b> — 켜면 사이드바 168px 로 축소, 패널/탑바/워크플로우 차트가 컴팩트 레이아웃으로 전환</li>
+            <li><b>워크플로우 차트 자동 이동</b> — 분할 ON 시 빌더 본문의 4 단계 차트가 사이드바 안의 컴팩트 세로 스트립으로 자동 이동. OFF 로 돌리면 원래 위치로 복귀</li>
+            <li><b>Suno 열기 버튼</b> — 화면 우측 절반에 popup 으로 Suno.com 띄움. 이미 열린 창이 있으면 focus 만 전환 (중복 안 열림). 위치는 <code>su_suno_pos</code> 에 저장돼 다음 열기 때 같은 자리로 복귀</li>
+            <li>분할 모드 자체도 <code>su_split</code> 에 저장 — 다음 방문에 자동 적용</li>
+            <li><b>크로스오리진 제약</b> — 브라우저 보안상 SU-Note 가 Suno 의 Style/Lyrics 입력란에 직접 붙여넣을 수 없습니다. <code>📋 Style 복사</code> → Suno 창에서 <kbd>Ctrl+V</kbd> 가 유일한 방법</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.design.mobile">③ 모바일 모드 (≤900px 자동 활성)</h4>
+          <ul>
+            <li><b>햄버거 메뉴</b> — 탑바 좌측 ☰ 아이콘. 사이드바가 화면 왼쪽에서 드로어처럼 슬라이드 인. 백드롭 탭 / <kbd>Esc</kbd> / 메뉴 항목 탭으로 자동 닫힘</li>
+            <li><b>레이아웃 압축</b> — 12-column 그리드 → 단일 컬럼 (≤900px). 탑바의 통계 텍스트 ("Suno V5.5 · 648 태그...") 자동 숨김</li>
+            <li><b>터치 친화</b> (≤640px) — 버튼·입력 최소 높이 40px. 워크플로우 카드 세로 정렬. 모달 96vw 로 확장</li>
+            <li>전체 편집 가능 — 모바일에서도 프리셋 로드·페이더 조정·AI 생성·복사 흐름 모두 작동</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.design.contrast">④ 시인성 강조 요소</h4>
+          <ul>
+            <li><b>강조 버튼</b> — <kbd class="cyan">▶ 빌더에 로드</kbd> · <kbd class="cyan">▶ 빌더로 보내기</kbd> ─ 시안 글로우로 핵심 액션 강조</li>
+            <li><b>📋 복사 버튼</b> (Style 복사 · Lyrics 복사) — cyan-accent 테두리 + 텍스트 → 워크플로우 종착점이 한눈에 보이게</li>
+            <li><b>AI 중지 버튼</b> — 생성 중일 때 빨간 outlined 컨트롤로 승격. ghost 처럼 흐리지 않음</li>
+            <li><b>사이드바 메뉴 폰트</b> — 13px (분할 모드 12px) 로 상향. 작은 캡션·뱃지도 모두 11~12px 이상으로 가독성 확보</li>
+            <li><b>글래스 패널</b> — backdrop-blur 로 깊이감, 오버레이 그라디언트로 시각적 입체감</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <section id="h-sanitize">
+        <h3 data-i18n="h3.sanitize">🧹 자동 정제 — Suno 영문 토큰화 보장</h3>
+        <p>Suno 의 Style 필드는 영문 음악 용어만 인식합니다. 한국어·아티스트명·언어 지시가 섞이면 Suno 의 토큰화가 깨지므로, SU-Note 는 <b>모든 Style 칩 진입 경로</b> (프리셋 로드 · AI 출력 · 수동 입력 · 팔레트 · 댄싱 머신) 에서 자동으로 정제합니다.</p>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.sanitize.korean">① 한국어 음악 용어 → 영문 치환</h4>
+          <ul>
+            <li>트로트 → <code>Trot</code> · 발라드 → <code>ballad</code> · 동요 → <code>children song</code> · 통기타 → <code>acoustic guitar folk</code></li>
+            <li>한국 가요·한국 힙합·한국 인디·시티팝 → <code>Korean pop</code> · <code>Korean hip-hop</code> · <code>Korean indie</code> · <code>city pop</code></li>
+            <li>걸그룹·보이그룹·아이돌 → <code>girl group</code> · <code>boy group</code> · <code>idol</code></li>
+            <li>매핑되지 않은 한글은 모두 제거 (잔여 한글 0건 보장)</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.sanitize.names">② 아티스트·프로듀서·밴드멤버 이름 → 역할 라벨</h4>
+          <ul>
+            <li>대표곡 변형 606 곡 + Excel 가이드 템플릿 + 댄스 200 스타일에서 모든 실명 자동 제거</li>
+            <li>예시 치환:
+              <ul>
+                <li>Quincy Jones / Phil Spector / Mutt Lange → <code>the producer</code></li>
+                <li>Nile Rodgers / Slash / Jimmy Page → <code>funk guitarist</code> / <code>the lead guitarist</code></li>
+                <li>McCartney / Lennon / Mercury / Plant / Ozzy → <code>the lead vocalist</code></li>
+                <li>Bonham / Moon / Ulrich → <code>the drummer</code></li>
+                <li>Bradley Cooper / Gaga / Adele / Beyoncé → <code>the male/female vocalist</code></li>
+                <li>Daft Punk / Tiësto / Noisia / Skrillex → <code>French house duo</code> / <code>trance producer</code> / 등</li>
+                <li>RZA · GZA · Snoop · Cardi B · Megan → <code>the rapper</code> / <code>featured rapper</code></li>
+              </ul>
+            </li>
+            <li>총 <b>250+ 패턴</b> 적용 (250+ 인명 → 역할 라벨, 소유격·접미 패턴까지 정리)</li>
+            <li><b>아티스트 카드의 라벨 (예: BLACKPINK · BTS · Adele) 은 그대로 유지</b> — 어디까지나 Style 텍스트 안에 들어가는 인명만 제거</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.sanitize.lang">③ 언어 지시 자동 제거</h4>
+          <ul>
+            <li>가사 언어는 <b>Lyrics 자체</b> 가 결정합니다. Style 에 들어가는 언어 지시는 노이즈이므로 모두 제거:</li>
+            <li><code>vocals in Korean</code> · <code>in English</code> · <code>with Korean</code> · <code>Korean lyrics</code> · <code>English lyrics</code> · <code>bilingual</code> · <code>codeswitching</code> · <code>Korean pronunciation</code> → 모두 빈 문자열</li>
+            <li>가사 한·영 비율은 우측 제어 패널의 <b>가사 언어 페이더</b> 로만 조정 → AI 가 가사 자체를 해당 언어로 작성</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.sanitize.blank">④ 가사 섹션 빈 줄 자동 삽입</h4>
+          <ul>
+            <li>AI 생성 · 프리셋 로드 · 팔레트 클릭 · 기본 골격 삽입 모든 경로에서 <code>[Section]</code> 헤더 앞에 빈 줄 1줄 자동 보장</li>
+            <li>3 줄 이상 연속 빈 줄은 1 줄로 정리 (멱등 정규화)</li>
+            <li>가사가 시각적으로 블록 단위로 구분되어 가독성·편집 편의 ↑</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.sanitize.dedup">⑤ 중복 era / genre 꼬리 태그 자동 제거</h4>
+          <ul>
+            <li>AI 가 자주 만들던 중복 패턴 — 앞에 <code>2010s K-pop</code> 박고 꼬리에 <code>2015-2019 Korean idol pop</code> · <code>early-2020s K-pop production</code> · <code>global K-pop dominance era</code> 같은 재진술 — 을 자동 dedup</li>
+            <li>중복 시대 토큰 (decade · year · range) 은 첫 것만 유지</li>
+            <li>중복 장르 lineage (K-pop / J-pop / Korean idol group 등 동의 그룹) 도 첫 것만 유지</li>
+            <li>Filler 꼬리 패턴 (<code>X-era sound</code> · <code>X-era production</code> · <code>dominance era</code> · <code>global X dominance</code> 등) 통째로 drop</li>
+            <li>AI 생성·검색 결과·프리셋 로드 모든 경로에서 적용 → 200자 token budget 효율 사용</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.sanitize.sort">⑥ Suno 적용도 기반 칩 자동 정렬</h4>
+          <ul>
+            <li>로드된 칩은 카탈로그의 <b>reflect 데이터</b> 와 매칭돼 자동 stable 정렬: 🟢 (잘 됨) → 🟡 (가끔만) → ⚪ (데이터 없음) → 🔴 (잘 안 됨)</li>
+            <li>200자 token 한도에서 잘릴 때 핵심 anchor 태그가 살아남도록 우선순위 강제</li>
+            <li>같은 적용도 안에선 추가된 순서 보존 (stable sort)</li>
+            <li>각 칩 좌측 ● 도트 색상으로 적용도 시각화 → 마우스 오버 시 한국어 설명</li>
+            <li>🔴 칩은 살짝 흐려져 (opacity 0.7) 우선순위가 낮음을 표시. 사용자가 의도적으로 두면 그대로 유지</li>
+          </ul>
+        </div>
+
+        <p class="help-note">★ 모든 정제는 <b>실시간 런타임</b> 으로 동작하므로 향후 Excel 가이드가 갱신되어 인명·한국어가 새로 들어와도 자동 처리됩니다.</p>
+      </section>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <section id="h-backup">
+        <h3 data-i18n="h3.backup">💾 백업 · 저장 — 위치와 안전한 보관</h3>
+
+        <div class="help-callout">
+          <b>핵심 — 모든 작업은 브라우저 localStorage 에만 자동 저장됩니다.</b><br>
+          쿠키 및 사이트 데이터 삭제·시크릿 모드 종료·프로필 재설정 시 <b>모두 사라집니다</b>. 정기적인 JSON 내보내기로 백업하는 것을 강력히 권장합니다.
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.backup.auto">① 자동 저장 (실시간) — localStorage</h4>
+          <dl class="help-dl">
+            <dt>suno_presets</dt>
+            <dd>빌더 프리셋 배열 — 제목·Style·가사·칩·페이더값·제어판 옵션·variantIndex</dd>
+            <dt>suno_albums</dt>
+            <dd>저장된 앨범 배열 — 12 트랙 + 전체 폼 상태 (formState)</dd>
+            <dt>suno_vault_v1</dt>
+            <dd>암호화된 API 키 (AES-GCM 256bit · 디바이스 키)</dd>
+            <dt>su_theme</dt>
+            <dd>라이트 / 다크 모드 선택</dd>
+            <dt>su_workflow_collapsed</dt>
+            <dd>헤더 워크플로우 차트 접힘 상태</dd>
+          </dl>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.backup.manual">② 수동 백업 (파일) — Downloads/suno_prompt_manager/</h4>
+          <p>📤 JSON 내보내기 · 💾 파일 버튼은 사용자의 다운로드 폴더에 다음 구조로 파일을 저장합니다 (Chromium 계열은 슬래시 경로를 인식해 하위 폴더 자동 생성, Firefox/Safari 는 underscore 로 평탄화):</p>
+<pre style="font-family:var(--f-mono);font-size:12px;background:var(--surface-container-lowest);border:1px solid var(--outline-variant);border-radius:var(--r-default);padding:var(--s-3);line-height:1.55;overflow-x:auto;color:var(--cyan-accent);">Downloads/
+└── suno_prompt_manager/
+    ├── preset/
+    │   ├── all_presets_&lt;ISO-ts&gt;.json    ← 📤 JSON 내보내기 (전체)
+    │   └── &lt;프리셋명&gt;.json              ← 💾 파일 (카드별)
+    │
+    └── &lt;앨범 제목&gt;/
+        ├── album.json                    ← 전체 구조 JSON
+        ├── 01_&lt;트랙 제목&gt;.txt            ← 트랙별 Style+구조+가사
+        ├── 02_&lt;트랙 제목&gt;.txt
+        └── ... (총 12 .txt)
+</pre>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.backup.restore">③ 가져오기 (복원·이전)</h4>
+          <ul>
+            <li><b>저장됨 탭 → 📥 가져오기</b> ─ 프리셋 JSON 파일을 다시 로드. id + name+style 키로 중복 자동 제거.</li>
+            <li><b>앨범 탭 → 저장된 앨범 패널 → 📥 가져오기</b> ─ 앨범 JSON (단일 객체 또는 배열) 로드. name + savedAt 으로 중복 제거.</li>
+            <li><b>전체 삭제</b> ─ 프리셋·앨범 각 패널의 🗑️ 버튼으로 일괄 정리.</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4 data-i18n="h4.backup.routine">④ 추천 백업 루틴</h4>
+          <ul>
+            <li>마음에 드는 프리셋을 만들면 즉시 <b>💾 파일</b> 버튼으로 개별 저장</li>
+            <li>앨범 완성 후 <b>📤 JSON 내보내기</b> 로 album.json + 12 트랙 .txt 받기</li>
+            <li>USB · Dropbox · iCloud · Google Drive 등에 <code>Downloads/suno_prompt_manager/</code> 폴더를 주기적 복사</li>
+            <li>새 PC·브라우저로 옮길 땐 같은 도메인에서 📥 가져오기</li>
+            <li>별도 암호 입력 없음 — 디바이스 키가 자동으로 관리. 다른 PC 로 옮기려면 새 PC 에서 키를 다시 입력하면 됨</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <section id="h-security">
+        <h3 data-i18n="h3.security">🔐 보안 — API 키 저장 방식</h3>
+        <ul>
+          <li>앱 첫 실행 시 <b>WebCrypto API 가 무작위 AES-GCM 256bit 디바이스 키</b>를 자동 생성 → <code>suno_device_key</code> 로 브라우저에 저장</li>
+          <li>각 API 키는 고유 IV(96bit) 로 암호화되어 <code>suno_api_v1</code> 안에 보관 → <b>localStorage 에만 저장 · 서버 전송 0건</b></li>
+          <li>다음 실행부터 디바이스 키가 자동 로드되어 <b>별도 암호 입력 없이 즉시 사용 가능</b></li>
+          <li>새 기기로 이전하려면 새 기기 설정 화면에서 API 키를 다시 입력 (디바이스 키는 기기별 격리)</li>
+          <li><b>전체 정보 초기화 (Purge All Data)</b> ─ 설정 모달 하단 빨강 버튼. localStorage 의 디바이스 키·API 키·메타 모두 삭제 후 새 디바이스 키 자동 생성</li>
+        </ul>
+      </section>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <section id="h-shortcuts">
+        <h3 data-i18n="h3.shortcuts">⌨️ 단축키 · 기타 팁</h3>
+        <dl class="help-dl">
+          <dt><kbd>?</kbd></dt><dd>이 매뉴얼 열기</dd>
+          <dt><kbd>Esc</kbd></dt><dd>모달 / 모바일 사이드바 드로어 닫기</dd>
+          <dt><kbd>Ctrl+Shift+R</kbd></dt><dd>강력 새로고침 — 캐시 클리어</dd>
+          <dt>워크플로우</dt><dd>상단 차트의 <b>접기 / 펼치기</b> 버튼 ─ localStorage <code>su_workflow_collapsed</code> 로 상태 유지. 분할 모드 ON 시 자동으로 사이드바 안 컴팩트 스트립으로 이동</dd>
+          <dt>테마 (3 단)</dt><dd>좌측 사이드바 하단 세그먼티드 컨트롤 — 🌙 다크 / ◐ Graphite / ☀ 라이트. localStorage <code>su_theme</code></dd>
+          <dt>분할 모드</dt><dd>좌측 사이드바 하단 토글 → 우측 절반에 Suno 띄우기용 컴팩트 레이아웃. localStorage <code>su_split</code></dd>
+          <dt>Suno 열기</dt><dd>좌측 사이드바 "Suno 열기" 버튼 — 분할 모드 시 우측 절반 popup, 비분할 시 새 탭. 창 위치 <code>su_suno_pos</code> 에 기억</dd>
+          <dt>모바일 드로어</dt><dd>화면 폭 ≤900px 에서 탑바 좌측 ☰ 아이콘으로 사이드바 열기/닫기</dd>
+          <dt>저작권 안내</dt><dd>아티스트 카드 상단·푸터·아티스트 탭에 4 곳 명시 ─ 아티스트명은 스타일 분류 라벨일 뿐 Suno 프롬프트에 포함되지 않음</dd>
+        </dl>
+      </section>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <section id="h-faq">
+        <h3 data-i18n="h3.faq">❓ 자주 묻는 질문 (FAQ)</h3>
+        <dl class="help-dl">
+          <dt data-i18n="faq.q.fill">Style 채우기 체크가 꺼져있어요</dt>
+          <dd data-i18n="faq.a.fill">프리셋을 로드하면 자동으로 잠깁니다 (Excel 원본 보호). 🔒 배지 클릭으로 해제하면 AI 가 Style 을 새로 작성합니다.</dd>
+
+          <dt data-i18n="faq.q.artistname">아티스트명이 Suno 로 전달되나요?</dt>
+          <dd data-i18n="faq.a.artistname">아니요. 아티스트명은 사용자가 스타일을 찾기 쉽도록 돕는 <b>분류 라벨</b> 일 뿐이며, Suno 에 가는 프롬프트엔 포함되지 않습니다. 4 곳에 명시되어 있습니다.</dd>
+
+          <dt data-i18n="faq.q.lyricslang">가사가 한글로 안 나와요</dt>
+          <dd data-i18n="faq.a.lyricslang">제어 패널의 <b>가사 언어 페이더</b> 가 한글 100% (좌측 끝) 인지 확인하세요. AI 가 페이더 값을 그대로 따릅니다.</dd>
+
+          <dt data-i18n="faq.q.dupechip">같은 칩이 두 번 들어가요</dt>
+          <dd data-i18n="faq.a.dupechip">대·소문자 무관 자동 중복 제거됩니다. 보인다면 <kbd>Ctrl+Shift+R</kbd> 강력 새로고침.</dd>
+
+          <dt data-i18n="faq.q.korstyle">Style 에 한글 (트로트 · 발라드) 이 보여요</dt>
+          <dd data-i18n="faq.a.korstyle">모든 한국어 음악 용어가 자동으로 영문 치환됩니다 (트로트 → Trot, 발라드 → ballad). 만약 보인다면 강력 새로고침 후 다시 시도하세요.</dd>
+
+          <dt data-i18n="faq.q.namesinstyle">Style 에 아티스트 이름이 보여요 (예: McCartney · Bradley Cooper)</dt>
+          <dd data-i18n="faq.a.namesinstyle">250+ 인명 패턴이 자동으로 역할 라벨 (the lead vocalist, the producer 등) 으로 치환됩니다. 갓 추가된 인명은 다음 빌드에서 잡힙니다.</dd>
+
+          <dt data-i18n="faq.q.langdirective">Style 에 "in English / in Korean" 같은 표현이 들어가요</dt>
+          <dd data-i18n="faq.a.langdirective">언어 지시는 Style 에서 자동 제거됩니다. 가사 언어는 우측 <b>제어</b> 패널의 가사 언어 페이더로만 결정됩니다.</dd>
+
+          <dt data-i18n="faq.q.startpanel">시작점 패널이 안 보여요</dt>
+          <dd data-i18n="faq.a.startpanel">시작점 패널은 <b>Style 칩이 비어 있고 프리셋이 로드되지 않은 상태</b>에서만 자동 표시됩니다. 칩이 1 개라도 있으면 (수동 추가·다른 탭에서 전송 등) 자동으로 숨겨져요. 다시 보려면 <b>초기화</b> 버튼으로 빌더를 리셋. 또는 좌측 <b>프리셋 · 댄싱머신 · 검색</b> 탭에서 스타일을 골라 빌더로 전송해도 됩니다.</dd>
+
+          <dt data-i18n="faq.q.chipsort">칩 순서가 자동으로 바뀌어요</dt>
+          <dd data-i18n="faq.a.chipsort">의도된 동작입니다. 칩은 <b>Suno 적용도 (reflect)</b> 기준으로 자동 정렬돼요 — 🟢 → 🟡 → ⚪ → 🔴. Suno 의 200자 token 한도에서 잘릴 때 잘 적용되는 태그가 살아남도록 핵심을 앞쪽에 모읍니다. 칩 좌측 도트 색상이 적용도를 표시 (마우스 오버 시 한국어 설명). 같은 적용도 안에선 추가된 순서가 유지됩니다 (stable sort).</dd>
+
+          <dt data-i18n="faq.q.reddot">칩에 빨간 도트가 나오는 태그는 지워야 하나요?</dt>
+          <dd data-i18n="faq.a.reddot">꼭 그럴 필요는 없습니다. 🔴 은 "Suno 가 잘 반영 안 함" 이지 "잘못된 태그" 가 아니에요. 의도적으로 무드·스토리 신호용으로 두고 싶으면 그대로 유지. 200자 한도에 가까울 때 우선순위 정렬로 뒤에 밀려있어 자동으로 잘릴 수도 있고, × 버튼으로 직접 제거해도 됩니다.</dd>
+
+          <dt data-i18n="faq.q.addbtn">"Style에 키워드 추가" 버튼이 사라졌어요</dt>
+          <dd data-i18n="faq.a.addbtn">"빌더에 로드 · 제어 옵션 머지" 버튼에 통합됐습니다. 콜앤리스폰스 또는 화음·코러스가 켜져 있으면 선택한 보컬 편곡 스타일의 키워드가 로드 시 자동 추가됩니다.</dd>
+
+          <dt data-i18n="faq.q.loaddual">"빌더에 로드" 버튼이 두 가지 모드로 동작한다는데?</dt>
+          <dd data-i18n="faq.a.loaddual">네 — ① 시작점 패널에서 프리셋을 선택한 상태면 <b>프리셋 Style + 곡 구조 + 제어 옵션</b> 을 모두 적용. ② 검색·댄싱머신·태그 탭에서 가져온 칩만 있는 상태면 <b>제어 옵션 (콜앤리스폰스·화음·코러스·보컬 편곡 스타일) 만 기존 칩에 머지</b>. 어느 쪽이든 한 번 클릭으로 끝.</dd>
+
+          <dt data-i18n="faq.q.tabreset">탭 전환할 때 빌더·앨범 작업 상태가 유지되나요?</dt>
+          <dd data-i18n="faq.a.tabreset">이젠 초기화되지 않습니다. 사이드바 탭은 순수 네비게이션이라 빌더의 칩·제목·가사·AI 프롬프트, 검색 결과, 댄싱머신 picks, 앨범 12곡 진행 상태가 탭을 옮겨도 그대로 유지됩니다. 특히 앨범 가사 일괄 생성처럼 시간이 걸리는 작업 중에 다른 탭을 봐도 안전합니다. 비우고 싶을 땐 각 탭의 <b>초기화</b> 버튼을 직접 누르세요.</dd>
+
+          <dt data-i18n="faq.q.korsearch">해외 아티스트를 한글로 검색해도 되나요?</dt>
+          <dd data-i18n="faq.a.korsearch">네 — AI 가 한글 음역을 자동 인식합니다. 예: <code>콜드플레이</code> → Coldplay · <code>비틀즈</code> → The Beatles · <code>다프트펑크</code> → Daft Punk · <code>빌리아일리시</code> → Billie Eilish · <code>요네즈켄시</code> → Kenshi Yonezu. 노래 제목도 동일: <code>보헤미안랩소디</code>, <code>옐로우</code> 등. 한국 아티스트 (방탄소년단 · 아이유 등) 는 그대로 한글 검색.</dd>
+
+          <dt data-i18n="faq.q.blanklines">가사 섹션 사이에 빈 줄이 자동으로 들어가요</dt>
+          <dd data-i18n="faq.a.blanklines">가독성을 위한 의도된 동작입니다. [Verse 1] / [Chorus] 등 모든 섹션 헤더 앞에 빈 줄이 자동 보장됩니다. 직접 편집해도 다음 AI 생성 / 프리셋 로드 시 다시 정규화됩니다.</dd>
+
+          <dt data-i18n="faq.q.dancenotfound">200 댄스 스타일에 원하는 게 없어요</dt>
+          <dd data-i18n="faq.a.dancenotfound">좌측에서 가장 가까운 시드 스타일을 고른 뒤 우측 태그 조합기에서 카테고리별 태그를 골라 직접 조합하세요. 8 카테고리 × 210 태그 = 충분한 변주가 가능합니다.</dd>
+
+          <dt data-i18n="faq.q.albumslow">앨범 12곡 가사 일괄 생성이 너무 느려요</dt>
+          <dd data-i18n="faq.a.albumslow">곡당 약 5~15 초 × 12 = 1~3 분 소요. AI 모델별로 응답 속도 다름. 진행 상황은 상태 바에 표시됩니다.</dd>
+
+          <dt data-i18n="faq.q.aimismatch">AI 가 만든 가사가 제 의도와 달라요</dt>
+          <dd data-i18n="faq.a.aimismatch">AI 프롬프트 입력칸을 더 구체적으로 — 시대·무드·이야기·핵심 단어를 명시. 페이더로 비유 강도·언어·랩 비율도 조정.</dd>
+
+          <dt data-i18n="faq.q.offline">오프라인에서 동작하나요?</dt>
+          <dd data-i18n="faq.a.offline">UI 는 정적 SPA 라 첫 로딩만 인터넷 필요. 단 AI 생성은 항상 외부 API 호출이 필요합니다.</dd>
+
+          <dt data-i18n="faq.q.instrumental">가사 없는 연주곡을 만들고 싶어요</dt>
+          <dd data-i18n="faq.a.instrumental">AI 패널의 <b>🎺 연주곡</b> 체크박스 ON → Style 칩에 <code>instrumental</code> 자동 삽입, Lyrics textarea 비워짐, AI 는 sung 라인 없이 섹션 로드맵만 작성. 7-9 섹션 × 80-120 마디로 3-4분 트랙 보장. Suno Custom Mode 에 그대로 붙여넣으면 됩니다.</dd>
+
+          <dt data-i18n="faq.q.titlelang">제목만 다른 언어로 만들고 싶어요 (예: 한국어 가사 + 영문 제목)</dt>
+          <dd data-i18n="faq.a.titlelang">AI 패널의 <b>제목 언어</b> 드롭다운에서 <code>English</code> 등 선택. <code>Auto</code> 면 가사 언어 페이더를 따르고, 나머지는 가사와 무관하게 제목만 강제 언어로 작성합니다. 연주곡 모드에서도 동작.</dd>
+
+          <dt data-i18n="faq.q.autopaste">분할 모드에서 SU-Note 가 Suno 입력란에 직접 붙여넣을 수 있나요?</dt>
+          <dd data-i18n="faq.a.autopaste">불가능합니다. 브라우저 보안 (Same-Origin Policy) 상 SU-Note 와 Suno.com 은 서로 다른 출처라 DOM 접근이 차단됩니다. <code>📋 Style 복사</code> · <code>📋 Lyrics 복사</code> → Suno 창 클릭 → <kbd>Ctrl+V</kbd> 가 유일한 방법.</dd>
+
+          <dt data-i18n="faq.q.wfsplit">분할 모드 ON / OFF 시 워크플로우 차트가 사라져요</dt>
+          <dd data-i18n="faq.a.wfsplit">사라진 게 아니라 <b>사이드바 안 컴팩트 스트립</b> 으로 자동 이동합니다. 일반 모드로 돌리면 빌더 본문 상단 원래 자리로 복귀합니다.</dd>
+
+          <dt data-i18n="faq.q.aistyle">댄싱머신 / 저장된 프리셋을 빌더로 보냈더니 AI 가 엉뚱한 스타일로 가사를 써요</dt>
+          <dd data-i18n="faq.a.aistyle">최근 패치로 수정됐습니다. 이전엔 빌더 칩만 갈아끼우고 AI 가 참조하는 <code>state.selectedArtist</code> 가 이전 프리셋 상태로 남아 있어 그 아티스트 스타일이 강제됐어요. 지금은 댄스 전송 · 저장 프리셋 복원 · 앨범 트랙 송신 모든 흐름에서 잔여 컨텍스트가 자동 초기화됩니다.</dd>
+
+          <dt data-i18n="faq.q.shortinstr">Suno 가 연주곡인데 90초로 잘려 나와요</dt>
+          <dd data-i18n="faq.a.shortinstr">Suno 는 Lyrics 필드의 글자 수와 섹션 밀도를 곡 길이 신호로 사용합니다. 연주곡 모드는 AI 에게 7-9 섹션 + 모든 브래킷에 명시적 마디 수 (8/16/24 bars) + Style 에 "extended arrangement" 길이 힌트를 강제하도록 설계됐어요. 그래도 짧다면 같은 프롬프트로 한 번 더 재생성 (Suno 자체의 변동성 가능).</dd>
+
+          <dt data-i18n="faq.q.storage">제 데이터는 어디 보관되나요?</dt>
+          <dd data-i18n="faq.a.storage">모든 프리셋·앨범·API 키·테마·워크플로우 상태는 <b>브라우저 localStorage</b> 에만 보관됩니다. 외부 서버 전송 없음.</dd>
+
+          <dt data-i18n="faq.q.mobile">모바일에서도 쓸 수 있나요?</dt>
+          <dd data-i18n="faq.a.mobile">반응형 디자인 적용. 1100px 이하에서 사이드바·페이더·태그 그리드가 세로로 재배치됩니다.</dd>
+
+          <dt data-i18n="faq.q.lost">저장한 프리셋·앨범이 갑자기 사라졌어요</dt>
+          <dd data-i18n="faq.a.lost">브라우저의 "쿠키 및 사이트 데이터 삭제" 또는 시크릿 모드 종료로 localStorage 가 초기화된 경우입니다. <b>📥 가져오기</b> 로 <code>Downloads/suno_prompt_manager/</code> 에 백업해 둔 JSON 파일을 다시 불러오세요. 백업이 없다면 복구 불가능. ⚠️ 정기적인 📤 JSON 내보내기를 권장합니다.</dd>
+
+          <dt data-i18n="faq.q.transfer">다른 PC·브라우저로 작업을 옮기고 싶어요</dt>
+          <dd data-i18n="faq.a.transfer">현재 기기에서 📤 JSON 내보내기로 받은 파일을 새 기기로 옮긴 뒤, 동일 도메인 (또는 동일 로컬 서버) 에서 📥 가져오기로 로드. 같은 도메인이 아니면 localStorage 가 격리되어 자동 공유되지 않습니다.</dd>
+        </dl>
+      </section>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <section id="h-versions">
+        <h3 data-i18n="h3.versions">📜 버전 히스토리</h3>
+        <p>주요 마일스톤 모음. 현재 버전: <b class="brand-version-inline">v2.1</b></p>
+
+        <ol class="version-timeline">
+          <li class="version-entry current">
+            <div class="version-tag">v2.1</div>
+            <div class="version-body">
+              <div class="version-title">🎯 Suno 적용도 우선 + UX 폴리시 <span class="version-pill">현재</span></div>
+              <ul>
+                <li>칩 Suno 적용도 (🟢🟡🔴⚪) <b>자동 정렬</b> + 좌측 도트 색상 — 200자 한도에서 핵심 anchor 가 살아남도록 우선순위 강제</li>
+                <li>팔레트 (장르·분위기·악기·보컬·템포·검색) 태그에도 동일 도트 적용 → 추가 전 적용도 미리 확인</li>
+                <li>시작점 picker <b>복귀</b> — 빌더 우측 상단. 칩이 비어 있을 때만 자동 표시, 칩이 들어오면 자동 숨김</li>
+                <li>"빌더에 로드" 듀얼 모드 — 프리셋 있으면 통합 적용, 없으면 제어 옵션만 기존 칩에 머지</li>
+                <li>사이드바 탭 직접 클릭 시 본문 자동 초기화 (프로그램적 setTab 은 보존)</li>
+                <li>해외 아티스트 <b>한글 음역 검색</b> 지원 (콜드플레이 / 비틀즈 / 빌리아일리시 등)</li>
+                <li>Style 중복 era / genre 꼬리 태그 자동 dedup ("early-2020s K-pop production" 같은 재진술 제거)</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="version-entry">
+            <div class="version-tag">v1.9</div>
+            <div class="version-body">
+              <div class="version-title">🔍 AI 검색 + 웹 검색 grounding</div>
+              <ul>
+                <li>새 <b>🔍 검색</b> 사이드바 탭 — 200 큐레이션 밖의 모든 아티스트·노래 발견</li>
+                <li>Claude / GPT / Gemini provider 별 네이티브 웹 검색 도구 — <code>web_search_20250305</code> · <code>web_search_preview</code> · <code>googleSearch</code> grounding</li>
+                <li>웹 검색 <b>옵션 체크박스</b> + 실시간 비용 안내 (provider 별 단가 표시)</li>
+                <li>아티스트 정보 + 대표곡 5-8개 자동 정리 → Suno-ready Style 그대로 빌더 로드</li>
+                <li>검색 결과는 자동 저장 안 함 (사용자가 명시적으로 Style 패널의 💾 사용)</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="version-entry">
+            <div class="version-tag">v1.7</div>
+            <div class="version-body">
+              <div class="version-title">🎺 Instrumental 모드 + 제목 언어</div>
+              <ul>
+                <li><b>🎺 연주곡</b> 체크박스 — 가사 없이 [Section: 음악 큐] + <code>---</code> 마커만으로 instrumental 트랙 생성</li>
+                <li>7-9 섹션 + 80-120 마디 강제로 3-4분 트랙 길이 보장 (빈 가사가 90초 루프 되는 문제 해결)</li>
+                <li><b>제목 언어</b> 별도 선택 — Auto / 한국어 / English / 日本語 / Latin·다국어. 가사 언어와 무관하게 제목만 강제</li>
+                <li>AI 시스템 프롬프트에 <b>중복 금지</b> 룰 추가 (slot order + filler 꼬리 제거)</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="version-entry">
+            <div class="version-tag">v1.5</div>
+            <div class="version-body">
+              <div class="version-title">🎨 테마 시스템 + 분할 모드 + 모바일</div>
+              <ul>
+                <li><b>Graphite 테마</b> 추가 — Linear / Vercel 톤. 다크 / Graphite / 라이트 3 단 세그먼티드 컨트롤</li>
+                <li><b>분할 모드</b> — 사이드바 168px 컴팩트, Suno 우측 절반 자동 popup, 창 위치 기억</li>
+                <li>분할 ON 시 워크플로우 차트 사이드바로 자동 이동</li>
+                <li><b>모바일 드로어</b> (≤900px) — 햄버거 메뉴, 40px 터치 타겟, 단일 컬럼</li>
+                <li>사이드바 폰트 크기 상향, 캡션·뱃지 가독성 개선</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="version-entry">
+            <div class="version-tag">v1.3</div>
+            <div class="version-body">
+              <div class="version-title">🔐 Passphrase-free Vault + 모델 큐레이션</div>
+              <ul>
+                <li>WebCrypto 디바이스 키 자동 생성 — passphrase 입력 없이 즉시 사용</li>
+                <li>큐레이션 6 AI 모델 라인업 — Sonnet 4.6 / Haiku 4.5 / GPT-5.4 mini / GPT-4.1 mini / Gemini 3.5 Flash / Gemini 2.5 Flash</li>
+                <li>가사 품질 우선 ⭐ 추천 표시</li>
+                <li>localStorage 데이터 손실 주의 백업 경고 (3 곳 배치)</li>
+                <li>빨강 에러 토스트 + AI 중지 버튼 강조</li>
+                <li>cyan-accent 복사 버튼 강조 (워크플로우 종착점 인지)</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="version-entry">
+            <div class="version-tag">v1.1</div>
+            <div class="version-body">
+              <div class="version-title">🌍 200 아티스트 + Paperozi + Sanitization</div>
+              <ul>
+                <li>200 mainstream 아티스트 완성 (Björk → The Police 등 대중 친화)</li>
+                <li>4-단계 beginner 워크플로우 차트</li>
+                <li>Paperozi (Paperlogy) 통합 단일 폰트 (9 weight)</li>
+                <li>3-layer Sanitization Pipeline — 한국어 → 영문 치환 / 250+ 인명 → 역할 라벨 / 언어 지시 제거</li>
+                <li>사용법 가이드 모달 (manual-grade)</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="version-entry">
+            <div class="version-tag">v0.9</div>
+            <div class="version-body">
+              <div class="version-title">🎚️ Sonic Syntax + Dancing Machine</div>
+              <ul>
+                <li>DAW 다크 모드 디자인 시스템 (sky-blue primary, cyan-accent meters, purple secondary)</li>
+                <li>각 아티스트 3-variant 프리셋 (Signature / Ballad / Anthem) → 200 × 3 = 600 곡</li>
+                <li><b>Dancing Machine</b> — 200 댄스 스타일 가이드 + 8 카테고리 × 210 태그 조합기</li>
+                <li>시안 글로우 CTA 버튼 (▶ 빌더에 로드)</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="version-entry">
+            <div class="version-tag">v0.7</div>
+            <div class="version-body">
+              <div class="version-title">✨ SU-Note 리브랜딩 + UI 재설계</div>
+              <ul>
+                <li>SU-Note (수-노트) 브랜딩 — 이전 Sunote / GPT PARK 에서 진화</li>
+                <li>라이트 / 다크 모드 토글 (localStorage 영속)</li>
+                <li>좌측 사이드바 + 메인 hero 레이아웃</li>
+                <li>디자인 토큰 통합 (radius scale, color tokens)</li>
+                <li>글래스 모피즘 패널 + 그라디언트</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="version-entry">
+            <div class="version-tag">v0.5</div>
+            <div class="version-body">
+              <div class="version-title">💿 Mix Console + 12-곡 앨범 기획</div>
+              <ul>
+                <li>Mix Console — 페이더 기반 가사 옵션 통합</li>
+                <li>💿 12-곡 앨범 자동 기획·생성 (곡당 distinct style)</li>
+                <li>콜앤리스폰스 / 화음·코러스 + 보컬 편곡 스타일 (K-Pop / 아이돌 / 스타디움 록 / 가스펠 / EDM / J-Pop / 펑크 갱)</li>
+                <li>저작권 안내 4 곳 배치</li>
+                <li>Tolerant JSON parser (AI 출력의 일반적 JSON foible 자동 복구)</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="version-entry">
+            <div class="version-tag">v0.3</div>
+            <div class="version-body">
+              <div class="version-title">🎙️ Suno v8 적응 + 페이더 슬라이더</div>
+              <ul>
+                <li>한·영 가사 비율 페이더 (0 = 한글 100% · 50 = 혼합 · 100 = 영문 100%)</li>
+                <li>🎭 시적 비유 강도 슬라이더</li>
+                <li>🎤 보컬↔랩 비율 슬라이더</li>
+                <li>섹션 내 음악 큐 자동 삽입 (<code>[Verse: soft piano, intimate]</code>)</li>
+                <li>Excel 원본 Style 보호 잠금 (🔒 프리셋 보호 중 배지)</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="version-entry">
+            <div class="version-tag">v0.1</div>
+            <div class="version-body">
+              <div class="version-title">🌱 Genesis</div>
+              <ul>
+                <li>1,127 Suno 태그 카탈로그 + 261 큐레이션 템플릿 + 200 아티스트</li>
+                <li>한국 가요 / POP 분류 시스템</li>
+                <li>Claude / GPT / Gemini 3 provider AI 연동</li>
+                <li>WebCrypto AES-GCM 256bit 로컬 API 키 vault</li>
+                <li>SPA 정적 호스팅 (Vercel 배포)</li>
+              </ul>
+            </div>
+          </li>
+        </ol>
+
+        <p class="help-note">★ 버전은 마이너 패치까지 매번 표기하진 않습니다 — 사용자가 체감 가능한 큰 변경 단위로 묶어 정리. 사이드바 좌상단 <b class="brand-version-inline">v2.1</b> 배지 클릭으로 이 섹션에 바로 접근 가능.</p>
+      </section>
+
+      <section class="help-footer-note">
+        <p>이 도구는 Suno AI 와 무관한 <b>비공식 보조 도구</b> 입니다. 아티스트명은 음악 스타일 분류 참고용이며 어떠한 저작권도 침해하지 않습니다. 생성된 음악의 권리는 Suno 의 이용약관에 따릅니다.</p>
+        <p style="margin-top: 8px;">제작 — <b class="help-brand">GPT PARK · AIFACT-GPTPARK</b> · <a href="https://gptparkai.com/" target="_blank" rel="noopener">gptparkai.com</a> · <a href="https://www.youtube.com/@AIFACT-GPTPARK" target="_blank" rel="noopener">YouTube</a></p>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- toast -->
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 opacity-0 pointer-events-none transition-opacity">메시지</div>
+
+<!-- settings modal -->
+<div id="settings-modal" class="modal hidden" aria-hidden="true">
+  <div class="modal-backdrop"></div>
+  <div class="modal-content" role="dialog" aria-labelledby="settings-title">
+    <div class="flex items-center justify-between mb-4">
+      <h2 id="settings-title" class="text-base font-semibold" data-i18n="settings.title">⚙️ API 키 &amp; 모델 설정</h2>
+      <button class="btn-ghost" data-close-modal="">×</button>
+    </div>
+
+    <div class="backup-warning-inline mb-3" data-i18n="settings.warning">⚠️ API 키는 이 브라우저의 자동 생성된 디바이스 키로 AES-GCM 256bit 암호화되어 <b>localStorage</b> 에만 저장됩니다. 외부 서버로 전송되지 않습니다. 쿠키 및 사이트 데이터 삭제 / 시크릿 모드 종료 / 프로필 재설정 시 함께 사라지므로, 그 경우엔 다시 키를 입력하면 됩니다.</div>
+
+    <!-- API key management view (always visible) -->
+    <div id="settings-unlocked" class="space-y-3">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <label class="field">
+          <span class="field-label" data-i18n="settings.provider">기본 제공업체</span>
+          <select id="settings-provider" class="input">
+            <option value="anthropic">Claude (Anthropic)</option>
+            <option value="openai">ChatGPT (OpenAI)</option>
+            <option value="google">Gemini (Google)</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="field-label" data-i18n="settings.model">모델 (가사 생성용 추천)</span>
+          <select id="settings-model" class="input"></select>
+          <span id="settings-model-note" class="text-xs mt-1" style="color: var(--text-secondary); line-height:1.5;"></span>
+        </label>
+      </div>
+
+      <div class="border-t border-ink-600 pt-3 space-y-3">
+        <label class="field">
+          <span class="field-label" data-i18n="settings.key.anthropic">🤖 Anthropic API Key</span>
+          <input id="api-anthropic" type="password" class="input" placeholder="sk-ant-…" autocomplete="off">
+        </label>
+        <label class="field">
+          <span class="field-label" data-i18n="settings.key.openai">💬 OpenAI API Key</span>
+          <input id="api-openai" type="password" class="input" placeholder="sk-…" autocomplete="off">
+        </label>
+        <label class="field">
+          <span class="field-label" data-i18n="settings.key.google">🔮 Google AI Studio Key (Gemini)</span>
+          <input id="api-google" type="password" class="input" placeholder="AIza…" autocomplete="off">
+        </label>
+      </div>
+
+      <div class="flex flex-wrap gap-2 pt-2">
+        <button id="settings-save" class="btn-primary" data-i18n="settings.save">💾 암호화 저장</button>
+        <button id="settings-test" class="btn-secondary" data-i18n="settings.test">🔌 연결 테스트</button>
+        <button id="settings-reset2" class="btn-ghost ml-auto text-red-300" data-i18n="settings.purge">🗑️ 전체 초기화</button>
+      </div>
+      <div id="settings-status" class="text-xs text-slate-400 min-h-[1rem]"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="app-footer">
+  <div class="max-w-[1400px] mx-auto px-5 py-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+    <span>
+      <span data-i18n="footer.dev">개발자</span>
+      <a href="https://gptparkai.com/" target="_blank" rel="noopener" class="footer-name">GPT&nbsp;PARK</a>
+    </span>
+    <span class="footer-sep">·</span>
+    <a href="https://www.youtube.com/@AIFACT-GPTPARK" target="_blank" rel="noopener" class="footer-link">
+      ▶︎ YouTube <span class="text-slate-500">@AIFACT-GPTPARK</span>
+    </a>
+    <span class="footer-sep">·</span>
+    <a href="https://gptparkai.com/" target="_blank" rel="noopener" class="footer-link">
+      <span data-i18n="footer.official">🌐 공식 사이트</span> <span class="text-slate-500">gptparkai.com</span>
+    </a>
+    <span class="ml-auto text-slate-500" data-stats="footer">Suno V5.5 · 648 태그 · 867 템플릿 · 200 댄스</span>
+
+    <div class="footer-disclaimer" data-i18n="footer.disclaimer">ⓘ 본 도구의 아티스트명은 사용자의 음악 스타일 선택을 돕기 위한 <b>참고용 분류 라벨</b>이며, Suno에 전달되는 프롬프트에 아티스트명이 포함되지 않습니다. 이 도구는 어떠한 저작권도 침해하지 않으며, 생성되는 음악의 권리는 Suno의 이용약관에 따릅니다. 본 도구는 Suno AI와 무관한 비공식 보조 도구입니다.</div>
+  </div>
+</footer>
+
+<script src="data/data.js"></script>
+<script src="data/extras.js"></script>
+<script src="data/artist_variants.js?v=99"></script>
+<script src="data/dance_styles.js?v=99"></script>
+<script src="data/dance_tags.js?v=99"></script>
+<script src="js/crypto.js?v=128"></script>
+<script src="js/ai.js?v=128"></script>
+<script src="js/app.js?v=128"></script>
+
+
+</body><fatkun-drop-panel><template shadowrootmode="open">
+        <!-- Compact mode -->
+        <div class="drop-area" style="display:none">
+            <button class="close-btn" aria-label="Close">×</button>
+            <div class="drop-area-content">
+                <div class="icon-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></div>
+                <div class="compact-title">드래그 앤 드롭</div>
+                <div class="compact-desc">여기에 이미지를 놓으면 다운로드됩니다</div>
+            </div>
+            <div class="compact-footer">
+                <div class="compact-util" data-action="disable"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg> 여기로 드래그하여 비활성화</div>
+                <div class="compact-util" data-action="settings"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> 여기로 드래그하여 설정 열기</div>
+            </div>
+        </div>
+        <!-- Bar mode -->
+        <div class="drop-bar" style="display:none">
+            <div class="bar-utils">
+                <div class="bar-util" data-action="disable"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg> 여기로 드래그하여 비활성화</div>
+                <div class="bar-util" data-action="settings"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> 여기로 드래그하여 설정 열기</div>
+            </div>
+            <div class="bar-action" data-action="download">
+                <div class="bar-action-inner">
+                    <div class="bar-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></div>
+                    <div class="bar-label">다운로드</div>
+                    <div class="bar-hint">컴퓨터에 저장</div>
+                </div>
+            </div>
+            <div class="bar-action" data-action="filter">
+                <div class="bar-action-inner">
+                    <div class="bar-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
+                    <div class="bar-label">수집</div>
+                    <div class="bar-hint">필터 페이지로 보내기</div>
+                </div>
+            </div>
+            <div class="bar-action" data-action="search">
+                <div class="bar-action-inner">
+                    <div class="bar-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
+                    <div class="bar-label">이미지로 검색</div>
+                    <div class="bar-hint">유사 상품 찾기</div>
+                </div>
+            </div>
+            <button class="bar-close" aria-label="Close">×</button>
+        </div></template></fatkun-drop-panel></html>

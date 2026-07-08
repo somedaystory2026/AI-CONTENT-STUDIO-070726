@@ -1,0 +1,247 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ContentType {
+  NEWS
+  CARD_NEWS
+  IMAGE
+  VIDEO
+  MUSIC
+  AMAZON_SEO
+  INFLUENCER
+  WORKFLOW
+}
+
+enum ContentStatus {
+  DRAFT
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum JobType {
+  IMAGE_GENERATION
+  VIDEO_STORYBOARD
+  VIDEO_SCRIPT
+  SNS_PUBLISH
+  RSS_COLLECT
+  CONTENT_AUTOMATION
+}
+
+enum JobStatus {
+  WAITING
+  ACTIVE
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+  role          String    @default("USER")
+  accounts      Account[]
+  sessions      Session[]
+  projects      Project[]
+  libraryItems  LibraryItem[]
+  jobs          QueueJob[]
+  automationWorkflows AutomationWorkflow[]
+  automationRuns AutomationRun[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  ownerId     String
+  owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  items       LibraryItem[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model LibraryItem {
+  id          String        @id @default(cuid())
+  title       String
+  type        ContentType
+  status      ContentStatus @default(DRAFT)
+  summary     String?
+  sourceUrl   String?
+  thumbnail   String?
+  payload     Json
+  projectId   String?
+  ownerId     String?
+  project     Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  owner       User?         @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([type])
+  @@index([status])
+  @@index([ownerId])
+}
+
+model QueueJob {
+  id         String    @id @default(cuid())
+  externalId String?   @unique
+  type       JobType
+  status     JobStatus @default(WAITING)
+  progress   Int       @default(0)
+  input      Json
+  output     Json?
+  error      String?
+  ownerId    String?
+  owner      User?     @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([type])
+  @@index([status])
+}
+
+
+model PromptTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  category    String
+  systemPrompt String  @db.Text
+  userPrompt  String   @db.Text
+  variables   Json
+  isPreset    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+}
+
+model BrandKit {
+  id        String   @id @default(cuid())
+  name      String
+  font      String?
+  primary   String
+  secondary String?
+  logoUrl   String?
+  payload   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RssSource {
+  id        String   @id @default(cuid())
+  name      String
+  url       String   @unique
+  country   String
+  language  String
+  category  String
+  enabled   Boolean  @default(true)
+  priority  Int      @default(5)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([country])
+  @@index([language])
+  @@index([category])
+}
+
+model UsageLog {
+  id          String   @id @default(cuid())
+  provider    String
+  model       String?
+  feature     String
+  inputTokens Int      @default(0)
+  outputTokens Int     @default(0)
+  totalTokens Int      @default(0)
+  cost        Float    @default(0)
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([provider])
+  @@index([feature])
+  @@index([createdAt])
+}
+
+
+model AutomationWorkflow {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  enabled     Boolean  @default(true)
+  schedule    String?
+  config      Json
+  ownerId     String?
+  owner       User?    @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  runs        AutomationRun[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([enabled])
+  @@index([ownerId])
+}
+
+model AutomationRun {
+  id          String   @id @default(cuid())
+  workflowId  String?
+  workflow    AutomationWorkflow? @relation(fields: [workflowId], references: [id], onDelete: SetNull)
+  name        String
+  status      JobStatus @default(WAITING)
+  progress    Int      @default(0)
+  input       Json
+  output      Json?
+  error       String?
+  ownerId     String?
+  owner       User?    @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([workflowId])
+  @@index([status])
+  @@index([ownerId])
+}

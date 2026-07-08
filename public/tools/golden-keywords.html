@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>황금 키워드 — 프로토타입</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Noto+Sans+KR:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --ink:#11121a;
+  --ink-soft:#161826;
+  --paper:#1c1f2e;
+  --paper-raised:#242838;
+  --line: rgba(255,255,255,.09);
+  --line-strong: rgba(255,255,255,.16);
+  --text:#f1ede3;
+  --text-dim:#9aa0b4;
+  --text-faint:#6a7088;
+  --gold:#d7a33b;
+  --gold-bright:#f2cb70;
+  --gold-dim: rgba(215,163,59,.16);
+  --ember:#e2643a;
+  --ember-dim: rgba(226,100,58,.16);
+  --teal:#5fb3a3;
+  --teal-dim: rgba(95,179,163,.16);
+  --violet:#8d7cf0;
+  --violet-dim: rgba(141,124,240,.16);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 18px 50px -20px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(900px 500px at 12% -10%, rgba(215,163,59,.10), transparent 60%),
+    radial-gradient(700px 500px at 100% 0%, rgba(141,124,240,.08), transparent 55%),
+    var(--ink);
+  color:var(--text);
+  font-family:'Noto Sans KR', sans-serif;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+.app{max-width:1080px;margin:0 auto;padding:48px 20px 100px;}
+.mono{font-family:'JetBrains Mono', monospace;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+
+/* ===== Header ===== */
+.masthead{
+  display:flex;justify-content:space-between;align-items:flex-end;gap:24px;
+  padding-bottom:28px;border-bottom:1px solid var(--line);margin-bottom:36px;
+  flex-wrap:wrap;
+}
+.masthead-eyebrow{
+  display:flex;align-items:center;gap:8px;font-size:12.5px;letter-spacing:.08em;
+  color:var(--gold-bright);text-transform:uppercase;margin-bottom:14px;font-weight:600;
+}
+.masthead-eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold-bright);box-shadow:0 0 0 3px var(--gold-dim);}
+.masthead h1{
+  font-family:'Fraunces', serif;font-weight:600;font-size:clamp(28px,4vw,42px);
+  margin:0;line-height:1.18;letter-spacing:-.01em;
+}
+.masthead h1 em{font-style:italic;color:var(--gold-bright);font-weight:600;}
+.masthead p{margin:14px 0 0;color:var(--text-dim);font-size:15px;max-width:480px;line-height:1.6;}
+.masthead-date{
+  font-family:'JetBrains Mono',monospace;text-align:right;flex-shrink:0;
+  border:1px solid var(--line-strong);border-radius:var(--radius-sm);padding:12px 16px;background:var(--paper);
+}
+.masthead-date .lbl{display:block;font-size:11px;color:var(--text-faint);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;}
+.masthead-date .val{font-size:16px;color:var(--gold-bright);font-weight:600;}
+
+/* ===== Search ===== */
+.search-block{position:relative;margin-bottom:54px;}
+.search-shell{
+  display:flex;align-items:center;gap:12px;background:var(--paper);
+  border:1px solid var(--line-strong);border-radius:16px;padding:14px 18px;
+  transition:border-color .2s, box-shadow .2s;
+}
+.search-shell:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-dim);}
+.search-shell svg{flex-shrink:0;color:var(--text-faint);}
+.search-shell input{
+  flex:1;background:none;border:none;outline:none;color:var(--text);font-size:15.5px;font-family:inherit;
+}
+.search-shell input::placeholder{color:var(--text-faint);}
+.search-hint{font-size:11.5px;color:var(--text-faint);font-family:'JetBrains Mono',monospace;flex-shrink:0;white-space:nowrap;}
+.search-quick{display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap;}
+.search-quick span{font-size:12.5px;color:var(--text-faint);margin-right:2px;}
+.chip-mini{
+  border:1px solid var(--line);background:transparent;color:var(--text-dim);border-radius:999px;
+  padding:6px 13px;font-size:12.5px;transition:.15s;
+}
+.chip-mini:hover{border-color:var(--gold);color:var(--gold-bright);}
+.search-dropdown{
+  position:absolute;top:calc(100% + 8px);left:0;right:0;background:var(--paper-raised);
+  border:1px solid var(--line-strong);border-radius:12px;box-shadow:var(--shadow);
+  overflow:hidden;z-index:30;display:none;
+}
+.search-dropdown.open{display:block;}
+.search-item{
+  display:flex;justify-content:space-between;align-items:center;padding:11px 16px;
+  border-bottom:1px solid var(--line);cursor:pointer;
+}
+.search-item:last-child{border-bottom:none;}
+.search-item:hover{background:rgba(215,163,59,.08);}
+.search-item .kw{font-size:14.5px;}
+.search-item .num{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--text-faint);}
+
+/* ===== Section heads ===== */
+.eyebrow{
+  display:inline-flex;align-items:center;gap:7px;font-size:12px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--text-faint);font-weight:600;margin-bottom:10px;
+}
+.eyebrow::before{content:"";width:16px;height:1px;background:var(--gold);}
+.section-title{
+  font-family:'Fraunces',serif;font-weight:600;font-size:24px;margin:0 0 6px;letter-spacing:-.01em;
+}
+.section-title .accent{color:var(--gold-bright);font-style:italic;}
+.section-sub{color:var(--text-dim);font-size:14px;margin:0 0 28px;line-height:1.6;max-width:560px;}
+section{margin-bottom:64px;}
+
+/* ===== Hero / TOP champion ===== */
+.champion{
+  position:relative;border-radius:var(--radius);padding:30px 30px 26px;
+  background:linear-gradient(160deg, rgba(215,163,59,.14), rgba(28,31,46,.4));
+  border:1px solid rgba(215,163,59,.35);box-shadow:var(--shadow);overflow:hidden;
+}
+.champion::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;
+  background:linear-gradient(120deg, var(--gold-bright), transparent 40%, transparent 60%, var(--gold-bright));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;opacity:.5;pointer-events:none;
+}
+.champion-top{display:flex;align-items:center;gap:16px;margin-bottom:18px;}
+.champion-rank{
+  width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:conic-gradient(var(--gold-bright) calc(var(--p,62)*1%), rgba(255,255,255,.08) 0);
+  flex-shrink:0;position:relative;
+}
+.champion-rank::after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--ink);}
+.champion-rank span{position:relative;z-index:1;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--gold-bright);}
+.champion-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-bright);font-weight:700;}
+.champion-kw{
+  font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:2px 0 0;letter-spacing:-.01em;
+}
+.champion-tags{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.tag{
+  display:inline-flex;align-items:center;gap:6px;font-size:12.5px;border-radius:999px;padding:5px 12px;font-weight:500;
+}
+.tag.gold{background:var(--gold-dim);color:var(--gold-bright);}
+.tag.ember{background:var(--ember-dim);color:#f29275;}
+.tag.teal{background:var(--teal-dim);color:#8fd1c2;}
+.tag.violet{background:var(--violet-dim);color:#b3a6f7;}
+.champion-stats{display:flex;gap:36px;margin-bottom:22px;flex-wrap:wrap;}
+.stat .lbl{font-size:12px;color:var(--text-faint);margin-bottom:4px;}
+.stat .val{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:600;}
+.stat .val.bad{color:#f29275;}
+.champion-cta{
+  display:inline-flex;align-items:center;gap:8px;background:var(--gold-bright);color:#1c1306;
+  font-weight:700;font-size:14.5px;padding:13px 22px;border-radius:11px;border:none;
+  transition:transform .15s, box-shadow .15s;
+}
+.champion-cta:hover{transform:translateY(-1px);box-shadow:0 10px 24px -8px rgba(242,203,112,.5);}
+
+.runner-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px;}
+.runner-card{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-sm);padding:18px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.runner-top{display:flex;justify-content:space-between;align-items:center;}
+.runner-rank{font-size:12.5px;color:var(--text-faint);font-weight:600;}
+.runner-score{font-family:'JetBrains Mono',monospace;color:var(--gold-bright);font-weight:700;font-size:16px;}
+.runner-kw{font-size:16px;font-weight:600;}
+.runner-meta{font-size:12.5px;color:var(--text-faint);font-family:'JetBrains Mono',monospace;}
+
+.list-rows{margin-top:16px;display:flex;flex-direction:column;border-top:1px solid var(--line);}
+.list-row{
+  display:grid;grid-template-columns:34px 30px 1fr auto auto;gap:14px;align-items:center;
+  padding:12px 4px;border-bottom:1px solid var(--line);font-size:14px;
+}
+.list-row .rk{color:var(--text-faint);font-family:'JetBrains Mono',monospace;font-size:12.5px;}
+.list-row .sc{color:var(--gold-bright);font-family:'JetBrains Mono',monospace;font-weight:600;}
+.list-row .kw{cursor:pointer;}
+.list-row .kw:hover{color:var(--gold-bright);}
+.list-row .num{color:var(--text-faint);font-family:'JetBrains Mono',monospace;font-size:12.5px;text-align:right;}
+
+/* ===== Season upcoming ===== */
+.season-row{
+  display:grid;grid-template-columns:24px 70px 1fr 130px 110px;gap:14px;align-items:center;
+  padding:13px 4px;border-bottom:1px solid var(--line);font-size:14px;
+}
+.season-row:first-child{border-top:1px solid var(--line);}
+.season-row .rk{font-family:'JetBrains Mono',monospace;color:var(--text-faint);font-size:12.5px;}
+.season-badge{font-size:12px;padding:3px 9px;border-radius:999px;font-weight:600;white-space:nowrap;}
+.season-badge.spring{background:rgba(141,124,240,.16);color:#b3a6f7;}
+.season-badge.summer{background:var(--ember-dim);color:#f29275;}
+.season-badge.autumn{background:var(--gold-dim);color:var(--gold-bright);}
+.season-badge.winter{background:var(--teal-dim);color:#8fd1c2;}
+.season-row .kw{cursor:pointer;}
+.season-row .kw:hover{color:var(--gold-bright);}
+.season-bar-wrap{display:flex;align-items:center;gap:8px;}
+.season-bar{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden;}
+.season-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-bright));}
+.season-row .num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-faint);text-align:right;}
+
+/* ===== Recent cards ===== */
+.recent-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.recent-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-sm);padding:18px;}
+.recent-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;}
+.recent-head .d{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;}
+.recent-head .w{font-size:12px;color:var(--text-faint);margin-left:6px;}
+.recent-item{
+  display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:center;
+  padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px;
+}
+.recent-item:last-child{border-bottom:none;}
+.recent-item .no{color:var(--text-faint);font-family:'JetBrains Mono',monospace;font-size:11.5px;}
+.recent-item .kw{cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.recent-item .kw:hover{color:var(--gold-bright);}
+.recent-item .val{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-faint);}
+
+/* ===== Filter bar ===== */
+.filter-bar{display:flex;flex-direction:column;gap:14px;margin-bottom:22px;}
+.chip-row{display:flex;gap:8px;flex-wrap:wrap;}
+.chip{
+  border:1px solid var(--line);background:var(--paper);color:var(--text-dim);
+  border-radius:999px;padding:7px 15px;font-size:13px;transition:.15s;display:flex;align-items:center;gap:6px;
+}
+.chip:hover{border-color:var(--gold);}
+.chip.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-bright);font-weight:600;}
+
+/* ===== Table ===== */
+.table-wrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--paper);}
+.tbl{width:100%;border-collapse:collapse;font-size:14px;}
+.tbl thead th{
+  text-align:left;font-size:12px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;
+  padding:13px 14px;border-bottom:1px solid var(--line);font-weight:600;background:var(--paper-raised);
+  cursor:pointer;white-space:nowrap;user-select:none;
+}
+.tbl thead th:hover{color:var(--gold-bright);}
+.tbl thead th.num,.tbl tbody td.num{text-align:right;}
+.tbl tbody td{padding:14px;border-bottom:1px solid var(--line);vertical-align:middle;}
+.tbl tbody tr:last-child td{border-bottom:none;}
+.tbl tbody tr:hover{background:rgba(255,255,255,.02);}
+.td-kw{display:flex;flex-direction:column;gap:6px;min-width:170px;}
+.td-kw .name{font-weight:600;font-size:14.5px;cursor:pointer;}
+.td-kw .name:hover{color:var(--gold-bright);}
+.td-kw .reasons{display:flex;gap:5px;flex-wrap:wrap;}
+.mini-tag{font-size:11px;padding:2px 8px;border-radius:999px;}
+.score-cell{display:flex;align-items:center;gap:10px;}
+.score-num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px;width:26px;}
+.score-bar{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;min-width:50px;}
+.score-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-bright));}
+.num{font-family:'JetBrains Mono',monospace;color:var(--text-dim);}
+.compete-badge{font-size:11px;padding:2px 7px;border-radius:6px;margin-left:6px;white-space:nowrap;}
+.compete-badge.bad{background:var(--ember-dim);color:#f29275;}
+.compete-badge.mid{background:var(--gold-dim);color:var(--gold-bright);}
+.compete-badge.good{background:var(--teal-dim);color:#8fd1c2;}
+.row-actions{display:flex;gap:6px;justify-content:flex-end;}
+.icon-btn{
+  border:1px solid var(--line);background:transparent;border-radius:8px;width:32px;height:32px;
+  display:flex;align-items:center;justify-content:center;color:var(--text-dim);transition:.15s;
+}
+.icon-btn:hover{border-color:var(--gold);color:var(--gold-bright);}
+.write-btn{
+  background:var(--gold-bright);color:#1c1306;font-weight:700;font-size:12.5px;padding:8px 13px;
+  border-radius:8px;border:none;white-space:nowrap;
+}
+
+/* ===== Action popover ===== */
+.popover{
+  position:fixed;z-index:120;background:var(--paper-raised);border:1px solid var(--line-strong);
+  border-radius:12px;box-shadow:var(--shadow);min-width:200px;padding:6px;display:none;
+}
+.popover.open{display:block;}
+.pop-item{
+  display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--text);
+  padding:10px 12px;border-radius:8px;font-size:13.5px;text-align:left;
+}
+.pop-item:hover{background:rgba(215,163,59,.1);color:var(--gold-bright);}
+
+/* ===== Modal ===== */
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(8,9,14,.7);backdrop-filter:blur(3px);z-index:90;
+  display:none;align-items:flex-start;justify-content:center;padding:60px 20px;overflow-y:auto;
+}
+.modal-backdrop.open{display:flex;}
+.modal-box{
+  background:var(--paper);border:1px solid var(--line-strong);border-radius:18px;max-width:660px;width:100%;
+  box-shadow:var(--shadow);position:relative;
+}
+.modal-head{padding:26px 28px 18px;border-bottom:1px solid var(--line);}
+.modal-close{
+  position:absolute;top:20px;right:20px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);
+  background:transparent;color:var(--text-dim);font-size:16px;display:flex;align-items:center;justify-content:center;
+}
+.modal-close:hover{color:var(--gold-bright);border-color:var(--gold);}
+.modal-title{font-family:'Fraunces',serif;font-size:24px;font-weight:600;margin:4px 0 0;}
+.modal-body{padding:22px 28px 30px;}
+.modal-section{margin-bottom:26px;}
+.modal-section-label{font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-faint);margin-bottom:10px;font-weight:600;}
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.metric{background:var(--paper-raised);border:1px solid var(--line);border-radius:10px;padding:13px;text-align:center;}
+.metric .l{font-size:11px;color:var(--text-faint);margin-bottom:6px;}
+.metric .v{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px;}
+.chart-box{height:200px;position:relative;}
+.morph-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.morph-rank{width:54px;font-size:11.5px;color:var(--text-faint);flex-shrink:0;}
+.morph-words{display:flex;gap:6px;flex-wrap:wrap;}
+.morph-word{background:rgba(255,255,255,.06);border-radius:999px;padding:4px 11px;font-size:12.5px;}
+.blog-row{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);align-items:center;}
+.blog-row:last-child{border-bottom:none;}
+.blog-rank{
+  width:34px;height:34px;border-radius:50%;background:var(--paper-raised);display:flex;align-items:center;
+  justify-content:center;font-size:12px;color:var(--text-faint);flex-shrink:0;font-family:'JetBrains Mono',monospace;
+}
+.blog-title{font-size:13.5px;color:var(--text-dim);}
+
+/* ===== Toast ===== */
+.toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:var(--paper-raised);border:1px solid var(--gold);color:var(--text);
+  padding:12px 22px;border-radius:10px;font-size:13.5px;opacity:0;transition:.25s;z-index:140;pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.note{
+  border:1px dashed var(--line-strong);border-radius:12px;padding:16px 18px;color:var(--text-faint);
+  font-size:12.5px;line-height:1.7;margin-top:8px;
+}
+.note b{color:var(--gold-bright);}
+
+@media (max-width: 760px){
+  .runner-grid{grid-template-columns:1fr;}
+  .recent-grid{grid-template-columns:1fr;}
+  .champion-stats{gap:20px;}
+  .metric-grid{grid-template-columns:repeat(2,1fr);}
+  .list-row{grid-template-columns:24px 24px 1fr auto;}
+  .list-row .num{display:none;}
+  .season-row{grid-template-columns:20px 56px 1fr 70px;}
+  .season-row .num{display:none;}
+  .tbl{font-size:13px;}
+  .table-wrap{overflow-x:auto;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="masthead">
+    <div>
+      <div class="masthead-eyebrow">매일 갱신되는 키워드 인사이트 · 프로토타입</div>
+      <h1>숨겨진 <em>황금 키워드</em>를<br>매일 캐드려요</h1>
+      <p>검색량은 높지만 경쟁이 적은 키워드만 골라서, 블로그 상위노출의 비밀을 알려드립니다. (현재 화면은 더미 데이터로 구성된 데모입니다)</p>
+    </div>
+    <div class="masthead-date"><span class="lbl">기준일</span><span class="val" id="todayLabel">2026.06.19</span></div>
+  </header>
+
+  <div class="search-block">
+    <div class="search-shell">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="searchInput" type="text" placeholder="키워드를 검색하세요 — 예: 에어프라이어, 전세보증보험, 캠핑">
+      <span class="search-hint mono">더미 인덱스 24개</span>
+    </div>
+    <div class="search-dropdown" id="searchDropdown"></div>
+    <div class="search-quick">
+      <span>자주 찾는</span>
+      <button class="chip-mini" data-quick="에어프라이어">에어프라이어</button>
+      <button class="chip-mini" data-quick="캠핑">캠핑</button>
+      <button class="chip-mini" data-quick="전기차">전기차</button>
+      <button class="chip-mini" data-quick="육아">육아</button>
+    </div>
+  </div>
+
+  <section>
+    <div class="eyebrow">오늘의 황금 키워드</div>
+    <h2 class="section-title">블로거님, <span class="accent">오늘은 이거</span> 써보세요</h2>
+    <p class="section-sub">검색량 · 경쟁 · 신선도 · 꾸준함을 종합해서 뽑은 TOP 10입니다. (더미 데이터)</p>
+    <div id="heroChampion"></div>
+    <div class="runner-grid" id="heroRunners"></div>
+    <div class="list-rows" id="heroList"></div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Coming Up</div>
+    <h2 class="section-title">다음 주에 뜰 <span class="accent">시즌 키워드</span></h2>
+    <p class="section-sub">글 작성 + 인덱싱 시간까지 고려해서, 검색이 폭증할 키워드만 미리 골라드려요.</p>
+    <div id="seasonUpcoming"></div>
+  </section>
+
+  <section>
+    <div class="eyebrow">최근 3일</div>
+    <h2 class="section-title">오늘 새롭게 등장한 키워드</h2>
+    <p class="section-sub">아직 아무도 선점하지 않은, 갓 떠오른 신규 키워드입니다.</p>
+    <div class="recent-grid" id="recentGrid"></div>
+  </section>
+
+  <section style="margin-bottom:30px;">
+    <div class="eyebrow">황금 인덱스</div>
+    <h2 class="section-title">전체 황금 키워드</h2>
+    <p class="section-sub">계절·카테고리로 좁혀보고, 컬럼 헤더를 눌러 정렬해보세요.</p>
+
+    <div class="filter-bar">
+      <div class="chip-row" id="seasonChips"></div>
+      <div class="chip-row" id="categoryChips"></div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="width:36px;">No.</th>
+            <th>키워드</th>
+            <th class="num" data-sort="score">황금점수 ↕</th>
+            <th class="num" data-sort="search">월 검색량 ↕</th>
+            <th class="num" data-sort="competition">경쟁 글 ↕</th>
+            <th style="width:130px;"></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="note">이 화면은 <b>더미 데이터</b>로 동작하는 프로토타입입니다. 실제 검색량·경쟁도를 붙이려면 검색 데이터 API(네이버 검색광고 API, 또는 구글 쪽 데이터 소스) 연동이 필요해요.</div>
+  </section>
+
+</div>
+
+<!-- Action popover -->
+<div class="popover" id="popover">
+  <button class="pop-item" id="popWrite">✎ 이 키워드로 글쓰기 (데모)</button>
+  <button class="pop-item" id="popCopy">⧉ 키워드 복사</button>
+  <button class="pop-item" id="popNaver">⌕ 네이버에서 검색</button>
+</div>
+
+<!-- Detail modal -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose">×</button>
+    <div class="modal-head">
+      <div class="eyebrow" style="margin-bottom:6px;">상세분석</div>
+      <h3 class="modal-title" id="modalTitle">키워드</h3>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-section-label">Overview</div>
+        <div class="metric-grid" id="modalMetrics"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">최근 12개월 추이 (더미)</div>
+        <div class="chart-box"><canvas id="modalChart"></canvas></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">추천 형태소 (더미)</div>
+        <div id="modalMorphemes"></div>
+      </div>
+      <div class="modal-section" style="margin-bottom:0;">
+        <div class="modal-section-label">상위 노출 글 (더미)</div>
+        <div id="modalBlogs"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== 더미 데이터 ===================== */
+const CATEGORIES = ["요리·레시피","IT·컴퓨터","건강·의학","반려동물","국내여행","자동차","육아·결혼","인테리어·DIY","비즈니스·경제","원예·재배","취미","좋은글·이미지"];
+const SEASON_LABEL = {spring:"🌷 봄", summer:"☀️ 여름", autumn:"🍂 가을", winter:"❄️ 겨울", evergreen:"📈 사계절"};
+
+const RAW = [
+  ["에어프라이어 감자튀김 바삭하게", "요리·레시피", "evergreen", 61, 412000, 980, ["steady","popular"]],
+  ["캠핑 의자 추천 가벼운", "취미", "summer", 58, 268000, 540, ["new"]],
+  ["강아지 첫 목욕 시기", "반려동물", "evergreen", 55, 198000, 410, ["steady"]],
+  ["전세보증보험 신청방법", "비즈니스·경제", "evergreen", 64, 331000, 690, ["popular","growing"]],
+  ["손목터널증후군 스트레칭", "건강·의학", "evergreen", 49, 156000, 1200, ["steady"]],
+  ["자취방 미니 냉장고 추천", "인테리어·DIY", "evergreen", 52, 184000, 870, ["popular"]],
+  ["제주도 가을 여행 코스 3일", "국내여행", "autumn", 67, 522000, 460, ["new","growing"]],
+  ["전기차 보조금 2026 신청", "자동차", "evergreen", 71, 614000, 310, ["growing","popular"]],
+  ["신생아 트림시키는법", "육아·결혼", "evergreen", 46, 132000, 1450, ["steady"]],
+  ["김장철 배추 고르는법", "요리·레시피", "autumn", 59, 245000, 380, ["new"]],
+  ["연말 선물 추천 가격대별", "좋은글·이미지", "winter", 54, 301000, 920, ["popular"]],
+  ["발코니 텃밭 상추 키우기", "원예·재배", "spring", 48, 121000, 290, ["new","growing"]],
+  ["노트북 배터리 오래쓰는법", "IT·컴퓨터", "evergreen", 51, 176000, 1340, ["steady"]],
+  ["여름철 에어컨 전기세 절약법", "인테리어·DIY", "summer", 63, 387000, 760, ["growing","popular"]],
+  ["청년도약계좌 신청 조건", "비즈니스·경제", "evergreen", 69, 498000, 250, ["popular","growing"]],
+  ["캣타워 추천 좁은집", "반려동물", "evergreen", 47, 109000, 640, ["steady"]],
+  ["봄나들이 도시락 메뉴", "요리·레시피", "spring", 56, 198000, 430, ["new"]],
+  ["겨울 등산화 추천 방수", "취미", "winter", 50, 142000, 520, ["steady"]],
+  ["설날 선물세트 가격대별", "좋은글·이미지", "winter", 60, 276000, 610, ["popular"]],
+  ["허리디스크 초기증상", "건강·의학", "evergreen", 44, 167000, 1680, ["steady"]],
+  ["강아지 분리불안 훈련법", "반려동물", "evergreen", 53, 134000, 580, ["new","growing"]],
+  ["에어컨 냄새 제거 셀프", "인테리어·DIY", "summer", 57, 221000, 690, ["popular"]],
+  ["전기요금 절약 팁 모음", "비즈니스·경제", "evergreen", 45, 145000, 1120, ["steady"]],
+  ["부모님 생신 선물 추천", "좋은글·이미지", "evergreen", 41, 98000, 740, ["steady"]],
+];
+
+function seededRand(seed){
+  let h = 0;
+  for(let i=0;i<seed.length;i++){ h = (h*31 + seed.charCodeAt(i)) % 100000; }
+  return function(){ h = (h*9301 + 49297) % 233280; return h/233280; };
+}
+
+const DATA = RAW.map((r,i)=>{
+  const [keyword, category, season, score, search, competition, reasons] = r;
+  const rnd = seededRand(keyword);
+  const competeLevel = competition > 800 ? "bad" : (competition > 400 ? "mid" : "good");
+  const trend = reasons.includes("growing") ? {icon:"📈",label:"성장"} : reasons.includes("new") ? {icon:"🌱",label:"신규"} : {icon:"💪",label:"꾸준"};
+  // 12개월 더미 시즌 곡선
+  const monthly = Array.from({length:12}, (_, m) => {
+    let base = 40 + rnd()*30;
+    if(season!=="evergreen"){
+      const peakMonths = {spring:[3,4,5], summer:[6,7,8], autumn:[9,10,11], winter:[12,1,2]}[season];
+      if(peakMonths.includes(m+1)) base += 45 + rnd()*15;
+    }
+    return Math.round(Math.min(100, base));
+  });
+  return {
+    id:i, keyword, category, season, score,
+    search, competition, competeLevel, reasons, trend, monthly,
+    avgLen: 1400 + Math.round(rnd()*1200),
+    avgImg: 8 + Math.round(rnd()*14),
+    saturation: (competition / (search/1000)).toFixed(2),
+  };
+});
+
+const REASON_META = {
+  steady:{label:"한 달 내내 꾸준해요", cls:"teal", icon:"💪"},
+  popular:{label:"찾는 사람이 정말 많아요", cls:"gold", icon:"⭐"},
+  new:{label:"오늘 처음 떴어요", cls:"ember", icon:"🔥"},
+  growing:{label:"막 뜨는 중이에요", cls:"violet", icon:"📈"},
+};
+
+function fmtNum(n){ return n.toLocaleString("ko-KR"); }
+function tagHtml(key){
+  const m = REASON_META[key];
+  return `<span class="tag ${m.cls}">${m.icon} ${m.label}</span>`;
+}
+function miniTagHtml(key){
+  const m = REASON_META[key];
+  return `<span class="mini-tag tag ${m.cls}" style="padding:2px 8px;font-size:11px;">${m.icon} ${m.label}</span>`;
+}
+
+/* ===================== 상태 ===================== */
+let state = { season:"", categories:new Set(CATEGORIES), sort:{key:"score", dir:"desc"} };
+
+/* ===================== 렌더: 히어로 ===================== */
+function renderHero(){
+  const sorted = [...DATA].sort((a,b)=>b.score-a.score);
+  const champ = sorted[0];
+  document.getElementById("heroChampion").innerHTML = `
+    <div class="champion">
+      <div class="champion-top">
+        <div class="champion-rank" style="--p:${champ.score}"><span>${champ.score}</span></div>
+        <div>
+          <div class="champion-label">👑 TOP 1 · 황금점수 ${champ.score}</div>
+          <h3 class="champion-kw">${champ.keyword}</h3>
+        </div>
+      </div>
+      <div class="champion-tags">${champ.reasons.map(tagHtml).join("")}</div>
+      <div class="champion-stats">
+        <div class="stat"><div class="lbl">월 검색량</div><div class="val">${fmtNum(champ.search)}</div></div>
+        <div class="stat"><div class="lbl">경쟁 글</div><div class="val bad">${fmtNum(champ.competition)}개</div></div>
+        <div class="stat"><div class="lbl">카테고리</div><div class="val" style="font-size:14px;font-weight:500;">${champ.category}</div></div>
+      </div>
+      <button class="champion-cta open-detail" data-id="${champ.id}">이 키워드로 글쓰기 (데모) →</button>
+    </div>`;
+
+  document.getElementById("heroRunners").innerHTML = sorted.slice(1,3).map((k,i)=>`
+    <div class="runner-card">
+      <div class="runner-top"><span class="runner-rank">${i===0?"🥈 TOP 2":"🥉 TOP 3"}</span><span class="runner-score">${k.score}</span></div>
+      <div class="runner-kw open-detail" data-id="${k.id}" style="cursor:pointer;">${k.keyword}</div>
+      <div class="runner-meta">검색 ${fmtNum(k.search)} · 경쟁 ${fmtNum(k.competition)}개</div>
+    </div>`).join("");
+
+  document.getElementById("heroList").innerHTML = sorted.slice(3,10).map((k,i)=>`
+    <div class="list-row">
+      <span class="rk">${i+4}위</span>
+      <span class="sc">${k.score}</span>
+      <span class="kw open-detail" data-id="${k.id}">${k.keyword}</span>
+      <span></span>
+      <span class="num">검색 ${fmtNum(k.search)}</span>
+    </div>`).join("");
+}
+
+/* ===================== 렌더: 시즌 예고 ===================== */
+function renderSeasonUpcoming(){
+  const months = ["spring","summer","autumn","winter"];
+  const list = DATA.filter(d=>d.season!=="evergreen").sort((a,b)=>b.search-a.search).slice(0,8);
+  document.getElementById("seasonUpcoming").innerHTML = list.map((k,i)=>`
+    <div class="season-row">
+      <span class="rk">${i+1}</span>
+      <span class="season-badge ${k.season}">${SEASON_LABEL[k.season]}</span>
+      <span class="kw open-detail" data-id="${k.id}">${k.keyword}</span>
+      <span class="season-bar-wrap"><span class="season-bar"><span style="width:${Math.max(...k.monthly)}%"></span></span></span>
+      <span class="num">검색 ${fmtNum(k.search)}</span>
+    </div>`).join("");
+}
+
+/* ===================== 렌더: 최근 3일 ===================== */
+function renderRecent(){
+  const today = new Date(2026,5,19);
+  const cards = [0,1,2].map(offset=>{
+    const d = new Date(today); d.setDate(d.getDate()-offset);
+    const dateLabel = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`;
+    const weekday = ["일","월","화","수","목","금","토"][d.getDay()];
+    const pool = [...DATA].sort(()=>seededRand(dateLabel+offset)()-0.5).slice(0, 6 - offset);
+    return {dateLabel, weekday, items: pool};
+  });
+  document.getElementById("recentGrid").innerHTML = cards.map(c=>`
+    <div class="recent-card">
+      <div class="recent-head"><div><span class="d">${c.dateLabel}</span><span class="w">${c.weekday}</span></div></div>
+      ${c.items.map((k,i)=>`
+        <div class="recent-item">
+          <span class="no">${i+1}</span>
+          <span class="kw open-detail" data-id="${k.id}">${k.keyword}</span>
+          <span class="val">${fmtNum(k.search)}</span>
+        </div>`).join("")}
+    </div>`).join("");
+}
+
+/* ===================== 필터 칩 ===================== */
+function renderChips(){
+  const seasons = [["","🌐 전체"],["spring","🌷 봄"],["summer","☀️ 여름"],["autumn","🍂 가을"],["winter","❄️ 겨울"],["evergreen","📈 사계절"]];
+  document.getElementById("seasonChips").innerHTML = seasons.map(([key,label])=>
+    `<button class="chip season-chip ${state.season===key?'active':''}" data-season="${key}">${label}</button>`).join("");
+
+  document.getElementById("categoryChips").innerHTML = CATEGORIES.map(c=>
+    `<button class="chip cat-chip ${state.categories.has(c)?'active':''}" data-cat="${c}">${c}</button>`).join("");
+}
+
+/* ===================== 테이블 ===================== */
+function getFiltered(){
+  let arr = DATA.filter(d => (state.season==="" || d.season===state.season) && state.categories.has(d.category));
+  const {key,dir} = state.sort;
+  arr.sort((a,b)=> dir==="desc" ? b[key]-a[key] : a[key]-b[key]);
+  return arr;
+}
+function renderTable(){
+  const arr = getFiltered();
+  document.getElementById("tableBody").innerHTML = arr.map((k,i)=>`
+    <tr>
+      <td class="num" style="color:var(--text-faint);">${i+1}</td>
+      <td>
+        <div class="td-kw">
+          <span class="name open-detail" data-id="${k.id}">${k.keyword}</span>
+          <div class="reasons">${k.reasons.slice(0,2).map(miniTagHtml).join("")}</div>
+        </div>
+      </td>
+      <td class="num"><div class="score-cell"><span class="score-num">${k.score}</span><span class="score-bar"><span style="width:${k.score}%"></span></span></div></td>
+      <td class="num">${fmtNum(k.search)}</td>
+      <td class="num">${fmtNum(k.competition)}<span class="compete-badge ${k.competeLevel}">${k.competeLevel==="bad"?"많음":k.competeLevel==="mid"?"보통":"적음"}</span></td>
+      <td>
+        <div class="row-actions">
+          <button class="write-btn open-detail" data-id="${k.id}">글쓰기 →</button>
+          <button class="icon-btn more-btn" data-id="${k.id}">⋮</button>
+        </div>
+      </td>
+    </tr>`).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--text-faint);padding:40px;">조건에 맞는 키워드가 없어요.</td></tr>`;
+}
+
+/* ===================== 모달 ===================== */
+let chartInstance = null;
+function openDetail(id){
+  const k = DATA.find(d=>d.id===id);
+  document.getElementById("modalTitle").textContent = k.keyword;
+  document.getElementById("modalMetrics").innerHTML = `
+    <div class="metric"><div class="l">월 검색량</div><div class="v">${fmtNum(k.search)}</div></div>
+    <div class="metric"><div class="l">월 발행량</div><div class="v">${fmtNum(k.competition)}</div></div>
+    <div class="metric"><div class="l">포화도</div><div class="v">${k.saturation}%</div></div>
+    <div class="metric"><div class="l">평균 글자수</div><div class="v">${fmtNum(k.avgLen)}자</div></div>`;
+
+  document.getElementById("modalMorphemes").innerHTML = ["TOP 10","TOP 5","TOP 3"].map((label,i)=>{
+    const rnd = seededRand(k.keyword+label);
+    const pool = ["가격","효과","후기","비교","추천","방법","순서","주의사항","2026","꿀팁"];
+    const n = 5-i;
+    const words = Array.from({length:n}, ()=>pool[Math.floor(rnd()*pool.length)]);
+    return `<div class="morph-row"><span class="morph-rank">${label}</span><div class="morph-words">${words.map(w=>`<span class="morph-word">${w}</span>`).join("")}</div></div>`;
+  }).join("");
+
+  document.getElementById("modalBlogs").innerHTML = Array.from({length:5},(_,i)=>{
+    const rnd = seededRand(k.keyword+"blog"+i);
+    return `<div class="blog-row">
+      <div class="blog-rank">${i+1}위</div>
+      <div class="blog-title">"${k.keyword}" 관련 더미 블로그 글 제목 #${i+1} · ${Math.round(rnd()*2000+800)}자</div>
+    </div>`;
+  }).join("");
+
+  const ctx = document.getElementById("modalChart").getContext("2d");
+  if(chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, {
+    type:"line",
+    data:{
+      labels:k.monthly.map((_,i)=>`${i+1}월`),
+      datasets:[{
+        data:k.monthly, borderColor:"#f2cb70", backgroundColor:"rgba(242,203,112,.15)",
+        fill:true, tension:.35, pointRadius:0, borderWidth:2,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:"rgba(255,255,255,.06)"}, ticks:{color:"#6a7088", font:{size:10}}},
+        y:{grid:{color:"rgba(255,255,255,.06)"}, ticks:{color:"#6a7088", font:{size:10}}, beginAtZero:true}
+      }
+    }
+  });
+
+  document.getElementById("modalBackdrop").classList.add("open");
+}
+document.getElementById("modalClose").onclick = ()=>document.getElementById("modalBackdrop").classList.remove("open");
+document.getElementById("modalBackdrop").addEventListener("click", e=>{ if(e.target.id==="modalBackdrop") e.currentTarget.classList.remove("open"); });
+
+/* ===================== 토스트 ===================== */
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(()=>t.classList.remove("show"), 1800);
+}
+
+/* ===================== 액션 팝오버 ===================== */
+let popoverTarget = null;
+const popover = document.getElementById("popover");
+function openPopover(btn, id){
+  popoverTarget = id;
+  const rect = btn.getBoundingClientRect();
+  popover.style.top = (rect.bottom + 6) + "px";
+  popover.style.left = Math.min(rect.left, window.innerWidth-220) + "px";
+  popover.classList.add("open");
+}
+document.addEventListener("click", e=>{
+  if(!popover.contains(e.target) && !e.target.classList.contains("more-btn")) popover.classList.remove("open");
+});
+document.getElementById("popWrite").onclick = ()=>{ toast("프로토타입 데모입니다 — 실제 글쓰기 기능은 연결되어 있지 않아요."); popover.classList.remove("open"); };
+document.getElementById("popCopy").onclick = ()=>{
+  const k = DATA.find(d=>d.id===popoverTarget);
+  navigator.clipboard?.writeText(k.keyword).catch(()=>{});
+  toast(`"${k.keyword}" 복사했어요`);
+  popover.classList.remove("open");
+};
+document.getElementById("popNaver").onclick = ()=>{
+  const k = DATA.find(d=>d.id===popoverTarget);
+  window.open("https://search.naver.com/search.naver?query="+encodeURIComponent(k.keyword), "_blank");
+  popover.classList.remove("open");
+};
+
+/* ===================== 검색 ===================== */
+const searchInput = document.getElementById("searchInput");
+const searchDropdown = document.getElementById("searchDropdown");
+function runSearch(q){
+  if(!q){ searchDropdown.classList.remove("open"); return; }
+  const matches = DATA.filter(d=>d.keyword.includes(q)).slice(0,7);
+  if(matches.length===0){ searchDropdown.innerHTML = `<div class="search-item"><span class="kw" style="color:var(--text-faint);">매칭되는 키워드가 없어요</span></div>`; }
+  else{
+    searchDropdown.innerHTML = matches.map(k=>`<div class="search-item" data-id="${k.id}"><span class="kw">${k.keyword}</span><span class="num">검색 ${fmtNum(k.search)}</span></div>`).join("");
+  }
+  searchDropdown.classList.add("open");
+}
+searchInput.addEventListener("input", e=>runSearch(e.target.value.trim()));
+searchInput.addEventListener("focus", e=>{ if(e.target.value.trim()) runSearch(e.target.value.trim()); });
+document.addEventListener("click", e=>{
+  if(!searchDropdown.contains(e.target) && e.target!==searchInput) searchDropdown.classList.remove("open");
+});
+searchDropdown.addEventListener("click", e=>{
+  const row = e.target.closest(".search-item");
+  if(row && row.dataset.id!==undefined){ openDetail(Number(row.dataset.id)); searchDropdown.classList.remove("open"); searchInput.value=""; }
+});
+document.querySelectorAll(".chip-mini").forEach(b=>b.addEventListener("click", ()=>{
+  searchInput.value = b.dataset.quick; runSearch(b.dataset.quick); searchInput.focus();
+}));
+
+/* ===================== 이벤트 위임 ===================== */
+document.addEventListener("click", e=>{
+  const det = e.target.closest(".open-detail");
+  if(det){ openDetail(Number(det.dataset.id)); return; }
+  const more = e.target.closest(".more-btn");
+  if(more){ openPopover(more, Number(more.dataset.id)); return; }
+  const seasonChip = e.target.closest(".season-chip");
+  if(seasonChip){ state.season = seasonChip.dataset.season; renderChips(); renderTable(); return; }
+  const catChip = e.target.closest(".cat-chip");
+  if(catChip){
+    const c = catChip.dataset.cat;
+    state.categories.has(c) ? state.categories.delete(c) : state.categories.add(c);
+    renderChips(); renderTable(); return;
+  }
+  const th = e.target.closest("th[data-sort]");
+  if(th){
+    const key = th.dataset.sort;
+    if(state.sort.key===key) state.sort.dir = state.sort.dir==="desc"?"asc":"desc";
+    else state.sort = {key, dir:"desc"};
+    renderTable(); return;
+  }
+});
+
+/* ===================== 초기 렌더 ===================== */
+renderHero();
+renderSeasonUpcoming();
+renderRecent();
+renderChips();
+renderTable();
+</script>
+</body>
+</html>

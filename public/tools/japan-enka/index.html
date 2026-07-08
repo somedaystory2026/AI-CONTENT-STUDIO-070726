@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎌 수노 일본 시니어 엔카 생성기</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<a href="/tools" style="position:fixed;top:14px;right:14px;z-index:2147483647;background:linear-gradient(135deg,#7c3aed,#db00ff);color:#fff;padding:10px 14px;border-radius:999px;font-weight:900;font-family:system-ui,-apple-system,Segoe UI,sans-serif;text-decoration:none;box-shadow:0 10px 30px rgba(124,58,237,.35);transition:transform .2s ease, box-shadow .2s ease;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 14px 36px rgba(219,0,255,.45)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 10px 30px rgba(124,58,237,.35)'">← 통합도구 홈</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <h1>🎌 쇼와 엔카 Suno 생성기</h1>
+      <p>일본 시니어(60~80대) 타겟 유튜브 채널용 엔카·쇼와 가요 자동 생성</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="tab-row">
+      <button class="tab active" onclick="switchTab('make')">노래 만들기</button>
+      <button class="tab" onclick="switchTab('eq')">EQ 가이드</button>
+      <button class="tab" onclick="switchTab('tips')">수노 공식</button>
+    </div>
+
+    <!-- ===== TAB: 노래 만들기 ===== -->
+    <div class="tab-content active" id="tab-make">
+
+      <div class="card">
+        <p class="card-title">1. 핵심 정체성 — 장르 &amp; 방향</p>
+        <div class="chips" id="genre-chips">
+          <span class="chip active" data-val="enka">엔카 정통</span>
+          <span class="chip" data-val="showa">쇼와 가요</span>
+          <span class="chip" data-val="folk">포크송</span>
+          <span class="chip" data-val="idol80">80년대 아이돌</span>
+          <span class="chip" data-val="modern">현대 편곡 엔카</span>
+        </div>
+        <div class="grid-2" style="margin-top:14px">
+          <div>
+            <label class="lbl">주제 / テーマ</label>
+            <select id="theme">
+              <option>고향과 그리움 (故郷)</option>
+              <option>이별과 눈물 (別れ)</option>
+              <option>바다와 어부 (海・漁師)</option>
+              <option>겨울 여행 (冬の旅)</option>
+              <option>항구와 떠남 (港・旅立ち)</option>
+              <option>봄비와 기다림 (春雨・待つ心)</option>
+              <option>인생과 회한 (人生・後悔)</option>
+              <option>어머니 (お母さん)</option>
+              <option>첫사랑 추억 (初恋の思い出)</option>
+            </select>
+          </div>
+          <div>
+            <label class="lbl">분위기 / 雰囲気</label>
+            <select id="mood">
+              <option value="melancholic, heartache">哀愁漂う — 애수 짙은</option>
+              <option value="nostalgic, warm longing">懐かしい — 그리운</option>
+              <option value="bittersweet, aching">切ない — 애절한</option>
+              <option value="powerful, resilient">力強い — 힘찬</option>
+              <option value="gentle, peaceful">穏やか — 잔잔한</option>
+              <option value="passionate, emotive">情熱的 — 열정적</option>
+            </select>
+          </div>
+        </div>
+        <label class="lbl" style="margin-top:14px;display:block">지역 배경 (가사 분위기)</label>
+        <div class="chips" id="region-chips">
+          <span class="chip region active" data-val="Tsugaru region, northern Honshu">津軽</span>
+          <span class="chip region" data-val="Hokkaido, cold northern sea">北海道</span>
+          <span class="chip region" data-val="Kyoto, Osaka, Kansai warmth">京都・大阪</span>
+          <span class="chip region" data-val="Kyushu, southern passion">九州</span>
+          <span class="chip region" data-val="Tokyo, Yokohama, urban nostalgia">東京・横浜</span>
+          <span class="chip region" data-val="Sea of Japan, rough waves">日本海</span>
+          <span class="chip region" data-val="">지역 없음</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">2. 사운드 &amp; 악기 편성 (복수 선택)</p>
+        <div class="chips" id="inst-chips">
+          <span class="chip inst" data-val="shamisen leading the melody with haunting plucks">샤미센</span>
+          <span class="chip inst" data-val="koto providing shimmering harmonic texture">고토</span>
+          <span class="chip inst active" data-val="fingerstyle acoustic guitar carrying the emotional core">핑거스타일 기타</span>
+          <span class="chip inst" data-val="warm Rhodes piano adding intimate warmth">Rhodes 피아노</span>
+          <span class="chip inst active" data-val="string ensemble swelling beneath the vocal">현악 앙상블</span>
+          <span class="chip inst" data-val="muted trumpet painting melancholic color">뮤트 트럼펫</span>
+          <span class="chip inst" data-val="gentle accordion breathing life into the harmony">아코디언</span>
+          <span class="chip inst" data-val="subtle synth pad creating ambient depth">신스 패드</span>
+          <span class="chip inst" data-val="taiko drum grounding the rhythm with traditional weight">타이코</span>
+          <span class="chip inst" data-val="brush drums providing soft swing groove">브러시 드럼</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">3. 보컬 &amp; 인트로 타입</p>
+        <div class="grid-2">
+          <div>
+            <label class="lbl">보컬 스타일</label>
+            <select id="vocal">
+              <option value="Female vocal with deep kobushi runs and vibrato, raw emotional delivery">여성 — 코부시 창법</option>
+              <option value="Male vocal with gritty kobushi technique, weathered and powerful">남성 — 코부시 창법</option>
+              <option value="Female vocal, breathy and melancholic, intimate phrasing">여성 — 소프트 멜랑꼴리</option>
+              <option value="Male vocal, soulful and resonant, slow deliberate phrasing">남성 — 소울풀</option>
+              <option value="Female vocal, youthful idol pop style, clear and bright">여성 — 80년대 아이돌</option>
+              <option value="Layered vocals with background harmonies, choir-like depth">코러스 하모니</option>
+            </select>
+          </div>
+          <div>
+            <label class="lbl">인트로 타입</label>
+            <select id="intro-type">
+              <option value="Cold open with dry vocal, no long intro">보컬 선입 (Cold open)</option>
+              <option value="Open with a single signature shamisen pluck, immediate mood definition">샤미센 시그니처</option>
+              <option value="Drop immediately into groove, no intro buildup">그루브 선입</option>
+              <option value="Open with Rhodes chord and intimate vocal, warm and dry">Rhodes 선입</option>
+              <option value="Begin with slow string swell, cinematic opening">현악 스웰</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-2" style="margin-top:10px">
+          <div>
+            <label class="lbl">다이내믹스 전개</label>
+            <select id="dynamic">
+              <option value="builds gradually from intimate verse to sweeping emotional chorus">잔잔 → 폭발</option>
+              <option value="maintains consistent melancholic intimacy throughout">잔잔하게 유지</option>
+              <option value="starts powerful, strips back to whisper, then returns to full force">강-약-강</option>
+              <option value="steady groove with subtle tension building toward bridge climax">점층적 긴장감</option>
+            </select>
+          </div>
+          <div>
+            <label class="lbl">시대 배경</label>
+            <select id="era">
+              <option value="evoking the early Showa era sound of the 1950s–60s">1950~60년대</option>
+              <option value="rooted in the mid-Showa pop-enka fusion of the 1970s">1970년대</option>
+              <option value="channeling the polished late-Showa production of the 1980s">1980년대</option>
+              <option value="blending classic Showa feeling with modern production warmth">시대 혼합</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">4. 출력 설정</p>
+        <div class="grid-3">
+          <div>
+            <label class="lbl">가사 언어</label>
+            <select id="lyric-lang">
+              <option value="Japanese (hiragana and kanji)">일본어</option>
+              <option value="Japanese with Korean translation side by side">일본어+한국어</option>
+              <option value="Korean with Showa emotional feel">한국어 번안</option>
+            </select>
+          </div>
+          <div>
+            <label class="lbl">YouTube 제목 형식</label>
+            <select id="yt-fmt">
+              <option value="【昭和の名曲】감성 자막형">【昭和の名曲】형</option>
+              <option value="懐かしい昭和の歌 추억 회상형">懐かしい昭和형</option>
+              <option value="心が癒される 힐링형">心が癒される형</option>
+              <option value="【演歌】엔카 직접 표기형">【演歌】직접형</option>
+            </select>
+          </div>
+          <div>
+            <label class="lbl">아티스트 레퍼런스</label>
+            <select id="ref">
+              <option value="in the spirit of Hibari Misora">美空ひばり</option>
+              <option value="channeling Saburo Kitajima">北島三郎</option>
+              <option value="evoking Sayuri Ishikawa">石川さゆり</option>
+              <option value="inspired by Hiroshi Itsuki">五木ひろし</option>
+              <option value="reminiscent of Seiko Matsuda">松田聖子</option>
+              <option value="with the melancholy of Akina Nakamori">中森明菜</option>
+              <option value="">레퍼런스 없음</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:10px">
+          <label class="lbl">추가 요청 (선택)</label>
+          <textarea id="extra" placeholder="예: 어머니를 기다리는 마음을 담아, 눈 오는 항구를 배경으로..."></textarea>
+        </div>
+      </div>
+
+      <button class="gen-btn" id="gen-btn">演歌を生成する — 프로 엔카 생성</button>
+
+      <!-- Result -->
+      <div class="result" id="result">
+        <hr class="divider" />
+        <div class="result-header">
+          <div>
+            <div class="song-title" id="r-title"></div>
+            <div class="song-sub" id="r-sub"></div>
+          </div>
+          <button class="gen-btn regen-btn" id="regen-btn">↺ 再生成</button>
+        </div>
+
+        <p class="sec-hd">Style of Music (수노에 붙여넣기)</p>
+        <div class="box" id="r-som"></div>
+        <div class="row-btn">
+          <button class="sm-btn" data-copy="r-som" data-ok="ok-som">복사</button>
+          <span class="copy-ok" id="ok-som">복사됨!</span>
+        </div>
+
+        <p class="sec-hd">수노 스타일 태그</p>
+        <div id="r-tags"></div>
+
+        <p class="sec-hd">YouTube 제목</p>
+        <div class="box" id="r-yt" style="font-weight:600"></div>
+        <div class="row-btn">
+          <button class="sm-btn" data-copy="r-yt" data-ok="ok-yt">복사</button>
+          <span class="copy-ok" id="ok-yt">복사됨!</span>
+        </div>
+
+        <p class="sec-hd">3초 체크리스트</p>
+        <div class="box" id="r-check" style="white-space:pre-line"></div>
+
+        <p class="sec-hd">가사 / 歌詞</p>
+        <div class="lyric-box" id="r-lyrics"></div>
+        <div class="row-btn">
+          <button class="sm-btn" data-copy="r-lyrics" data-ok="ok-lyr">가사 복사</button>
+          <span class="copy-ok" id="ok-lyr">복사됨!</span>
+        </div>
+        <p class="hint">수노 Custom → Lyrics에 가사 / Style of Music에 Style 붙여넣기</p>
+      </div>
+    </div>
+
+    <!-- ===== TAB: EQ 가이드 ===== -->
+    <div class="tab-content" id="tab-eq">
+      <div class="card">
+        <p class="card-title">수노 엔카 음원 EQ 가이드</p>
+        <div class="eq-list">
+          <div class="eq-row">
+            <span class="eq-band">로우컷 80~120Hz</span>
+            <span class="eq-desc">보컬 불필요 저음 정리 — 너무 많이 자르면 얇아짐, 너무 적으면 뭉침</span>
+          </div>
+          <div class="eq-row">
+            <span class="eq-band">로우미드 −2dB</span>
+            <span class="eq-desc">200~400Hz — 뿌옇고 답답한 느낌 제거. 이것만 해도 체감 효과 큼</span>
+          </div>
+          <div class="eq-row">
+            <span class="eq-band">프레즌스 3kHz</span>
+            <span class="eq-desc">살짝 부스트 → 보컬 선명도·존재감, 앞으로 튀어나오는 느낌</span>
+          </div>
+          <div class="eq-row">
+            <span class="eq-band">하이쉘프 6kHz+</span>
+            <span class="eq-desc">+2~3dB → 에어감·열린 느낌 ※ 수노 고음역 디지털 노이즈 주의</span>
+          </div>
+        </div>
+        <p class="eq-order">순서: 로우컷 → 로우미드 컷 → 프레즌스(3kHz) → 하이쉘프 부스트</p>
+        <p class="eq-note">엔카 특성상 코부시 구간(장식음)에서 중고역이 피크를 침. 3kHz 부스트는 +1.5dB부터 조심스럽게 시작하세요.</p>
+      </div>
+      <div class="card">
+        <p class="card-title">엔카 보컬 프로덕션 질감 추천 태그</p>
+        <div class="chips static-chips">
+          <span class="chip active small">Analog warmth</span>
+          <span class="chip active small">Tape saturation</span>
+          <span class="chip coral small">Vinyl texture</span>
+          <span class="chip coral small">Wide stereo</span>
+          <span class="chip purple small">Organic production</span>
+          <span class="chip purple small">Tape delay</span>
+          <span class="chip teal small">Intimate vocal</span>
+          <span class="chip teal small">Soulful vocal</span>
+          <span class="chip active small">Late night mood</span>
+          <span class="chip active small">Nostalgic vibe</span>
+          <span class="chip coral small">Melancholic mood</span>
+          <span class="chip purple small">Vintage vibe</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB: 수노 공식 ===== -->
+    <div class="tab-content" id="tab-tips">
+      <div class="card">
+        <p class="card-title">Style of Music 5단계 공식</p>
+        <ol class="tips-list">
+          <li><strong>핵심 정체성:</strong> 장르(하위 장르) + 구체적 분위기 장면 + 레퍼런스 1~2명</li>
+          <li><strong>사운드·악기:</strong> 핵심 악기 3~5개의 역할과 상호작용을 자연어로 묘사</li>
+          <li><strong>보컬:</strong> [Male/Female vocal] + 음색/감정 표현 스타일 구체 명시</li>
+          <li><strong>전개:</strong> 곡의 다이내믹스 흐름 (잔잔→폭발, 점층적 긴장감 등)</li>
+          <li><strong>품질 태그:</strong> [Audio quality improved to masterpiece]</li>
+        </ol>
+        <div class="tip-note">자연어 기반 영문 서술 / 구조화 태그 [BPM=120] 사용 금지 / 부정 지시 사용 금지 / 최적 길이 150~250자</div>
+      </div>
+      <div class="card">
+        <p class="card-title">3초 체크리스트 (발매 전 확인)</p>
+        <ul class="check-list">
+          <li>□ 0초에 보컬 또는 명확한 리듬이 치고 나오는가?</li>
+          <li>□ 첫 소리(1초 이내)만 들어도 장르가 직관적으로 느껴지는가?</li>
+          <li>□ 2초 안에 따라 흥얼거릴 반복 요소(Loop)가 등장하는가?</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title">가사 7대 규칙</p>
+        <ol class="tips-list">
+          <li>실제 사람이 말하는 것처럼 자연스럽게</li>
+          <li>클리셰 금지: dream, shining, sky, tonight, forever</li>
+          <li>후렴은 짧고 중독성 있게 (숏폼 바이럴 기준)</li>
+          <li>각 Verse는 스토리가 진행되도록</li>
+          <li>감정선이 Intro → Final Chorus로 점층적으로 성장</li>
+          <li>Suno가 노래하기 쉬운 짧은 문장 위주</li>
+          <li>전체 3,000자 이내 유지</li>
+        </ol>
+      </div>
+      <div class="card">
+        <p class="card-title">인트로 타입별 프롬프트 공식</p>
+        <div class="prompt-list">
+          <div class="prompt-row"><span class="prompt-label">🎤 보컬 선입</span><code>Cold open with dry vocal / No long intro</code></div>
+          <div class="prompt-row"><span class="prompt-label">🥁 그루브 선입</span><code>Drop immediately into groove / No intro buildup</code></div>
+          <div class="prompt-row"><span class="prompt-label">🎸 시그니처</span><code>Open with a single signature sound / Immediate mood definition</code></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>Suno AI 일본 시니어 엔카 생성기 — Powered by Claude API</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

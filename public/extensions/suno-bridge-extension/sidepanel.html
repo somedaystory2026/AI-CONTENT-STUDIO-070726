@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>David Melody Suno Bridge</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", system-ui, sans-serif;
+    background: linear-gradient(135deg, #07111f, #1E3A5F 55%, #05070c);
+    color: #f1f1f5;
+    padding: 16px;
+    min-height: 100vh;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  header .logo {
+    font-size: 18px;
+  }
+  header h1 {
+    font-size: 15px;
+    margin: 0;
+  }
+  .card {
+    background: rgba(7, 17, 31, 0.82); border: 1px solid rgba(212,175,55,.22);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .empty {
+    color: #9a9ab0;
+    font-size: 13px;
+    text-align: center;
+    padding: 32px 12px;
+    line-height: 1.7;
+  }
+  .song-title {
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 4px;
+    word-break: break-word;
+  }
+  .song-meta {
+    font-size: 11px;
+    color: #9a9ab0;
+    margin-bottom: 12px;
+  }
+  .field-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .field-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #b9b9d0;
+  }
+  .copy-mini {
+    width: auto;
+    margin: 0;
+    padding: 5px 8px;
+    border-radius: 7px;
+    background: rgba(124,58,237,.2);
+    color: #ddd6fe;
+    border: 1px solid rgba(124,58,237,.35);
+    font-size: 11px;
+  }
+  .field-preview {
+    font-size: 12px;
+    color: #c9c9dd;
+    background: linear-gradient(135deg, #07111f, #1E3A5F 55%, #05070c);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 12px;
+    max-height: 110px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-family: ui-monospace, monospace;
+    line-height: 1.5;
+  }
+  button {
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(90deg, #D4AF37, #b58f1f);
+    color: #07111f;
+  }
+  .btn-secondary {
+    background: #2c2f52;
+    color: #f1f1f5;
+  }
+  .btn-danger-outline {
+    background: transparent;
+    color: #ef7c7c;
+    border: 1px solid rgba(239, 124, 124, 0.4);
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  #status {
+    font-size: 12px;
+    text-align: center;
+    margin-top: 10px;
+    min-height: 16px;
+  }
+  #status.error { color: #ef7c7c; }
+  #status.success { color: #6ee7a5; }
+  .hint {
+    font-size: 11px;
+    color: #7d7d97;
+    line-height: 1.6;
+    margin-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 12px;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <span class="logo">🎵</span>
+    <h1>다윗멜로디 Suno Bridge</h1>
+  </header>
+
+  <button class="btn-secondary" id="btn-reload">새로고침 / 최신 곡 불러오기</button>
+
+  <div id="pending-empty" class="card empty">
+    아직 전달받은 곡이 없어요.<br />
+    다윗멜로디 AI Studio에서 곡을 만들고<br />
+    <b>"🚀 Suno로 보내기"</b> 버튼을 눌러주세요.
+  </div>
+
+  <div id="pending-card" class="card" style="display:none;">
+    <div class="song-title" id="song-title"></div>
+    <div class="song-meta" id="song-meta"></div>
+
+    <div class="field-label-row">
+      <div class="field-label">🎛 Style of Music</div>
+      <button class="copy-mini" id="btn-copy-style">📋 복사</button>
+    </div>
+    <div class="field-preview" id="song-style"></div>
+
+    <div class="field-label-row">
+      <div class="field-label">📝 Lyrics</div>
+      <button class="copy-mini" id="btn-copy-lyrics">📋 복사</button>
+    </div>
+    <div class="field-preview" id="song-lyrics"></div>
+
+    <button class="btn-primary" id="btn-inject">Suno에 입력하기</button>
+    <button class="btn-secondary" id="btn-inject-create">입력 + 곡 만들기 클릭까지</button>
+    <button class="btn-danger-outline" id="btn-clear">이 곡 지우기</button>
+  </div>
+
+  <div id="status"></div>
+
+  <div class="hint">
+    * Suno.com의 "곡 만들기" 화면을 열어둔 상태에서 눌러주세요.<br />
+    * "입력 + 곡 만들기 클릭까지"는 실제로 곡 생성(크레딧 소모)까지 진행되니 확인 후 눌러주세요.
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Veo3 쇼츠 프롬프트 생성기</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #ffffff; --bg2: #f5f5f4; --bg3: #eeede9;
+      --text: #1a1a18; --text2: #6b6b67; --text3: #a0a09c;
+      --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+      --accent: #3b82f6; --accent-bg: #eff6ff; --accent-text: #1d4ed8;
+      --radius: 8px; --radius-lg: 12px; --success: #16a34a;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1a; --bg2: #262624; --bg3: #303030;
+        --text: #f0efe8; --text2: #a0a09c; --text3: #666662;
+        --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
+        --accent: #60a5fa; --accent-bg: #1e3a5f; --accent-text: #93c5fd;
+        --success: #4ade80;
+      }
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; padding: 2rem 1rem; }
+    .container { max-width: 720px; margin: 0 auto; }
+    header { margin-bottom: 2rem; }
+    header h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+    header p { font-size: 14px; color: var(--text2); }
+    .card { background: var(--bg); border-radius: var(--radius-lg); border: 0.5px solid var(--border); padding: 1.25rem; margin-bottom: 1rem; }
+    .card-title { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    select { flex: 1; min-width: 150px; height: 38px; padding: 0 28px 0 10px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); font-size: 14px; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+    select:disabled { opacity: 0.4; cursor: not-allowed; }
+    select:focus { outline: none; box-shadow: 0 0 0 2px var(--accent); }
+    .city-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .chip { height: 30px; padding: 0 12px; border-radius: 20px; border: 0.5px solid var(--border2); background: var(--bg); color: var(--text2); font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; transition: background 0.1s, color 0.1s; }
+    .chip:hover { background: var(--bg2); }
+    .chip.active { background: var(--accent-bg); color: var(--accent-text); border-color: var(--accent); }
+    .opts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .opt-group label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
+    .opt-group select { width: 100%; min-width: unset; flex: unset; }
+    .btn-gen { width: 100%; height: 44px; border-radius: var(--radius); border: none; background: var(--accent); color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.15s, transform 0.1s; }
+    .btn-gen:hover { opacity: 0.88; }
+    .btn-gen:active { transform: scale(0.98); }
+    .out-box { background: var(--bg2); border-radius: var(--radius-lg); border: 0.5px solid var(--border); padding: 1rem 1.25rem; min-height: 80px; position: relative; }
+    .placeholder { color: var(--text3); font-size: 14px; text-align: center; padding: 1.5rem 0; }
+    pre#out-text { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12.5px; line-height: 1.75; color: var(--text); white-space: pre-wrap; word-break: break-all; padding-right: 70px; }
+    .copy-btn { position: absolute; top: 10px; right: 10px; height: 30px; padding: 0 12px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text2); font-size: 12px; cursor: pointer; display: none; align-items: center; gap: 5px; }
+    .copy-btn:hover { background: var(--bg3); }
+    .copy-btn.copied { color: var(--success); }
+    .info-badge { font-size: 12px; color: var(--text2); margin-top: 8px; display: none; }
+    footer { text-align: center; font-size: 12px; color: var(--text3); margin-top: 2rem; }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🎬 Veo3 쇼츠 프롬프트 생성기</h1>
+    <p>나라·도시를 선택하면 Veo3용 초고속 여행 쇼츠 프롬프트를 자동으로 만들어드립니다.</p>
+  </header>
+
+  <div class="card">
+    <div class="card-title">1단계 — 나라 &amp; 도시 선택</div>
+    <div class="row">
+      <select id="country-sel" onchange="onCountry()">
+        <option value="">-- 나라 선택 --</option>
+        <optgroup label="🌏 아시아">
+          <option value="South Korea">🇰🇷 대한민국</option>
+          <option value="Japan">🇯🇵 일본</option>
+          <option value="China">🇨🇳 중국</option>
+          <option value="Taiwan">🇹🇼 대만</option>
+          <option value="Thailand">🇹🇭 태국</option>
+          <option value="Vietnam">🇻🇳 베트남</option>
+          <option value="Singapore">🇸🇬 싱가포르</option>
+          <option value="Indonesia">🇮🇩 인도네시아</option>
+          <option value="Philippines">🇵🇭 필리핀</option>
+          <option value="India">🇮🇳 인도</option>
+          <option value="Turkey">🇹🇷 터키</option>
+          <option value="UAE">🇦🇪 아랍에미리트</option>
+          <option value="Saudi Arabia">🇸🇦 사우디아라비아</option>
+          <option value="Qatar">🇶🇦 카타르</option>
+        </optgroup>
+        <optgroup label="🌍 유럽">
+          <option value="United Kingdom">🇬🇧 영국</option>
+          <option value="France">🇫🇷 프랑스</option>
+          <option value="Germany">🇩🇪 독일</option>
+          <option value="Italy">🇮🇹 이탈리아</option>
+          <option value="Spain">🇪🇸 스페인</option>
+          <option value="Netherlands">🇳🇱 네덜란드</option>
+          <option value="Greece">🇬🇷 그리스</option>
+          <option value="Switzerland">🇨🇭 스위스</option>
+          <option value="Portugal">🇵🇹 포르투갈</option>
+        </optgroup>
+        <optgroup label="🌎 아메리카">
+          <option value="United States">🇺🇸 미국</option>
+          <option value="Canada">🇨🇦 캐나다</option>
+          <option value="Mexico">🇲🇽 멕시코</option>
+          <option value="Brazil">🇧🇷 브라질</option>
+          <option value="Argentina">🇦🇷 아르헨티나</option>
+          <option value="Chile">🇨🇱 칠레</option>
+          <option value="Peru">🇵🇪 페루</option>
+        </optgroup>
+        <optgroup label="🌐 오세아니아 · 아프리카">
+          <option value="Australia">🇦🇺 호주</option>
+          <option value="New Zealand">🇳🇿 뉴질랜드</option>
+          <option value="South Africa">🇿🇦 남아프리카공화국</option>
+          <option value="Egypt">🇪🇬 이집트</option>
+          <option value="Morocco">🇲🇦 모로코</option>
+        </optgroup>
+      </select>
+      <select id="city-sel" disabled onchange="onCitySelect()">
+        <option value="">-- 전체 (도시 무관) --</option>
+      </select>
+    </div>
+    <div class="city-chips" id="city-chips" style="display:none;"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">2단계 — 영상 옵션</div>
+    <div class="opts-grid">
+      <div class="opt-group">
+        <label>관광지 수</label>
+        <select id="spot-count">
+          <option value="10">10곳 (1초)</option>
+          <option value="15" selected>15곳 (1.5초)</option>
+          <option value="20">20곳 (2초)</option>
+          <option value="30">30곳 (3초)</option>
+        </select>
+      </div>
+      <div class="opt-group">
+        <label>영상 스타일</label>
+        <select id="style-sel">
+          <option value="cinematic">Cinematic</option>
+          <option value="aerial drone" selected>Aerial Drone</option>
+          <option value="golden hour">Golden Hour</option>
+          <option value="night life">Night Life</option>
+          <option value="cultural heritage">Cultural Heritage</option>
+        </select>
+      </div>
+      <div class="opt-group">
+        <label>카메라 무빙</label>
+        <select id="cam-sel">
+          <option value="dynamic handheld + drone shots" selected>다이나믹 (핸드헬드+드론)</option>
+          <option value="smooth gimbal movements">스무스 (짐벌)</option>
+          <option value="fast whip pans and cuts">패스트컷 (휩 팬)</option>
+          <option value="slow cinematic pans">슬로우 (시네마틱)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">3단계 — 프롬프트 생성 &amp; 복사</div>
+    <button class="btn-gen" onclick="generate()">▶ 프롬프트 생성</button>
+    <div style="margin-top:1rem;">
+      <div class="out-box" id="out-box">
+        <p class="placeholder" id="placeholder">↑ 나라를 선택하고 생성 버튼을 누르세요</p>
+        <pre id="out-text" style="display:none;"></pre>
+        <button class="copy-btn" id="copy-btn" onclick="copyPrompt()">📋 복사</button>
+      </div>
+      <div class="info-badge" id="info-badge"></div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Veo3 Shorts Prompt Generator · <a href="https://deepmind.google/technologies/veo/" target="_blank" rel="noopener">Google Veo3 →</a></p>
+  </footer>
+</div>
+
+<script>
+const CITIES = {
+  "South Korea": {
+    "서울": ["Gyeongbokgung Palace","Changdeokgung Secret Garden","Bukchon Hanok Village","N Seoul Tower","Namsan Park","Insadong Alley","Dongdaemun Design Plaza","Myeongdong Street","Gwanghwamun Square","Cheonggyecheon Stream","Lotte World Tower","Hongdae Street","Seongsu Hipster District","Han River Yeouido","Banpo Bridge Rainbow Fountain","COEX Starfield Library","Gyeonghuigung Palace","Naksan Park Viewpoint","Itaewon Global Village","Bukaksan Mountain Trail"],
+    "부산": ["Haeundae Beach","Gwangalli Beach","Gamcheon Culture Village","Jagalchi Fish Market","Busan Tower","Taejongdae Cliffs","Oryukdo Skywalk","Songdo Cable Car","Gukje Market","Beomeosa Temple","Huinnyeoul Culture Village","Marine City Skyscrapers","Dalmaji Hill","Dadaepo Sunset Fountain","Busan Cinema Center","Dongbaek Island APEC House","Gijang Crab Market","Ilgwang Beach","Songjeong Beach","Amnam Park"],
+    "인천": ["Incheon Chinatown","Jayu Park","Songdo Central Park","Incheon Grand Bridge","Wolmido Island","Open Port Area","Incheon Art Platform","Sorae Ecology Park","Ganghwa Island Dolmens","Gyeongmyeong Palace Site","Incheon Landing Memorial Hall","Bupyeong Underground Shopping","Songdo G-Tower","Incheon Airport Sky Garden","Eurwangni Beach","Muuido Island","Yeongjongdo Beach","Incheon FC Stadium","Namdong Reservoir","Songdo Convensia"],
+    "대구": ["Dongseongno Street","Seomun Market","Palgongsan Mountain","Apsan Park","83 Tower","Kim Gwang-seok Street","Duryu Park","Daegu Art Museum","Dalseong Park","Suseong Lake","Donghwasa Temple","Haeinsa Day Trip","Daegu Modern History Museum","Gukchaebosang Memorial","Daegu Stadium","Deagu Chinatown","E-World Theme Park","Homeplus Daegu","Suseong Pool","Daegu Chicken Festival"],
+    "대전": ["Expo Science Park","Yuseong Hot Springs","Daejeon O-World","Uam Historical Park","Daejeon Arts Center","Ppuri Park","Jangtaesan Recreational Forest","Hanbat Arboretum","Gapcheon Stream","Daejeon National Cemetery","Daejeon Museum of Art","Bomunsan Mountain","Sinseong-dong Platane Tree Road","Daejeon Civic Center","Daejeon Government Complex","Gyejoksan Mountain","Wolpyeong Dong Riverside","Boramae Park Daejeon","Daejeon Central Market","Dunsan-dong Culture Street"],
+    "광주": ["Gwangju National Museum","5.18 Memorial Park","Mudeungsan National Park","Yangnim Historical Culture Village","Asia Culture Center","Gwangju Biennale Hall","Chungjangno Street","Gwangju Folk Museum","Gwangcheon Stream","Gwangju World Cup Stadium","Soswaewon Garden","Damyang Bamboo Forest","Naju Pear Orchard","Hwasun Dolmen","Gwangju Art Street","Gwangju Cinema Street","Pungsaeng Market","Daein Market","Gwangju Park","Uchi Park"],
+    "울산": ["Ganjeolgot Sunrise","Ulsan Grand Park","Taehwagang National Garden","Jangsaengpo Whale Museum","Yeongnam Alps","Eonyang Onggi Village","Ulsan Daeungjeon","Ilsan Beach","Bangupo Wetland","Seonam Reservoir","Ulsan Petrochemical Complex View","Ulsan City Hall","Hamwol Mountain","Sinhwa Country Club View","Ulsan Bay","Yeongnam Alps Icicle Festival","Cheonsang Wetland","Magoksa Valley","Hakseong-ri Reed Field","Ulsan Oil Hub View"],
+    "제주": ["Hallasan Crater","Seongsan Ilchulbong","Manjanggul Cave","Cheonjeyeon Waterfall","Udo Island","Seopjikoji Cliffs","Hyeopjae Beach","Olle Trail Coastal Path","Jeju Stone Park","Sangumburi Crater","Bijarim Forest","Jeju Folk Village","Hamdeok Beach","Yongduam Dragon Rock","Jeju Haenyeo Diving","Jungmun Beach","Ecoland Theme Park","Hallim Park","Marado Island","Gimnyeong Maze Park"]
+  },
+  "Japan": {
+    "도쿄": ["Shibuya Crossing","Senso-ji Temple Asakusa","Tokyo Tower","Tokyo Skytree","Shinjuku Gyoen Garden","Harajuku Takeshita Street","Tsukiji Outer Market","Akihabara Electronics Town","Ueno Park Museums","Odaiba Waterfront","Meiji Shrine","Imperial Palace East Gardens","Roppongi Hills","Shimokitazawa Vintage","Yanaka Old Town","Toyosu Fish Market","teamLab Planets","Nakameguro Canal","Ginza Crossing","Koenji Bohemian District"],
+    "오사카": ["Dotonbori","Osaka Castle","Universal Studios Japan","Kuromon Ichiba Market","Shinsekai","Umeda Sky Building","Namba Streets","Sumiyoshi Taisha Shrine","Osaka Aquarium Kaiyukan","Tempozan Ferris Wheel","Tsutenkaku Tower","Hozenji Yokocho Alley","Shinsaibashi Shopping","Amerika-mura","Nakanoshima Park","Abeno Harukas","Tennoji Zoo","Minami Boat Tour","Denden Town Otaku","Namba Parks"],
+    "교토": ["Fushimi Inari Shrine","Arashiyama Bamboo Grove","Kinkaku-ji Golden Pavilion","Gion District","Kiyomizu-dera Temple","Philosopher's Path","Nijo Castle","Nishiki Market","Ryoan-ji Rock Garden","Tenryu-ji Garden","Sagano Romantic Train","Fushimi Sake District","Daitoku-ji Complex","Kurama Mountain","Pontocho Alley","Heian Shrine","Nanzen-ji Temple","Kibune River Dining","Amanohashidate Viewpoint","Ohara Sanzen-in Temple"],
+    "나고야": ["Nagoya Castle","Atsuta Jingu Shrine","Legoland Japan","Nagoya TV Tower","Osu Kannon Temple","Tokugawa Art Museum","Nagoya Port Aquarium","Higashiyama Zoo","Inuyama Castle Day Trip","Meijo Park","Nagoya City Science Museum","Midland Square","Shirakawa Park","Tsuruma Park","Ohnuma Pond","Noritake Garden","Nagoya Civic Assembly Hall","Seto Ware Village","Arimatsu Tie-Dye Town","Nagoya Sumo Tournament"],
+    "삿포로": ["Sapporo Snow Festival","Odori Park","Hokkaido University Campus","Sapporo TV Tower","Susukino Night District","Shiroi Koibito Park","Nijo Fish Market","Jozankei Onsen","Moiwa Mountain Ropeway","Hokkaido Museum","Sapporo Beer Museum","Moerenuma Park","Hitsujigaoka Viewpoint","Nakajima Park","Historical Village Hokkaido","Maruyama Zoo","Sapporo Factory","Makomanai Ice Arena","Odori Beer Garden","Tanuki Koji Alley"],
+    "후쿠오카": ["Hakata Station","Fukuoka Castle Ruins","Ohori Park","Dazaifu Tenmangu Shrine","Fukuoka Tower","Marinoa City Outlet","Canal City Hakata","Nakasu Island Night","Yanagibashi Market","Fukuoka Asian Art Museum","Momochi Seaside Park","Fukuoka PayPay Dome","Itoshima Coast","Nanzoin Temple","Uminonakamichi Seaside","Kushida Shrine","Tochoji Temple","Hakata Traditional Craft","Fukuoka Zoo","Shingu Kumano Shrine"],
+    "요코하마": ["Yokohama Chinatown","Minato Mirai 21","Yokohama Red Brick Warehouse","Yokohama Landmark Tower","Sankei-en Garden","Yamashita Park","Cosmo World Ferris Wheel","Yokohama Museum of Art","Cup Noodles Museum","Yokohama Stadium","Hikawa Maru Ship","Nihon Odori","Bashamichi Street","Yokohama Foreign Cemetery","Portside Park","Kanagawa Museum","Motomachi Shopping","Negishi Forest Park","Yokohama Zoo Zoorasia","Kamakura Day Trip"],
+    "고베": ["Kitano Ijinkan District","Kobe Harborland","Kobe Tower","Nunobiki Herb Garden","Meriken Park","Kobe Ropeway","Arima Onsen","Akashi Kaikyo Bridge","Kobe Chinatown Nankinmachi","Kobe Fashion Museum","Kobe Maritime Museum","Sannomiya Shopping","Shin-Kobe Ropeway","Maiko Beach","Kobe Animal Kingdom","Rokko Mountain","Kobe Winery","Hyogo Prefectural Museum","Kobe City Museum","Sorakuen Garden"]
+  },
+  "China": {
+    "베이징": ["Great Wall Mutianyu","Forbidden City","Temple of Heaven","Summer Palace","Tiananmen Square","Hutong Alleyways","Yonghe Lama Temple","Beihai Park","798 Art District","National Museum","Bird's Nest Stadium","National Aquatics Center","Shichahai Lake","Drum Tower","Jingshan Park View","Prince Gong's Mansion","Nanluoguxiang Lane","Panjiayuan Flea Market","Olympic Park","Yuanmingyuan Ruins"],
+    "상하이": ["Bund Waterfront","Shanghai Tower","Yu Garden","Old Town Nanshi","French Concession","Xintiandi","Nanjing Road","The Bund Night View","Zhujiajiao Water Town","Jing'an Temple","Shanghai Museum","Power Station of Art","Tianzifang","Oriental Pearl Tower","M50 Art Warehouse","Lujiazui Finance District","Huangpu River Cruise","Qibao Ancient Town","Disneyland Shanghai","West Bund Arts Center"],
+    "선전": ["Shenzhen Bay Park","OCT Loft Creative Park","Dafen Oil Painting Village","Window of the World","Happy Valley","Shenzhen Museum","Mangrove Nature Reserve","Splendid China Folk Village","Shenzhen Civic Center","Fairy Lake Botanical Garden","Lianhua Mountain","Dameisha Beach","Xiaomeisha Beach","Sea World Shekou","Shenzhen Safari Park","Shenzhen Concert Hall","Overseas Chinese Town","Luohu Commercial City","Sungang Electronics Market","Qianhai Free Trade Zone"],
+    "광저우": ["Canton Tower","Shamian Island","Chen Clan Ancestral Hall","Yuexiu Park","Guangzhou Opera House","Pearl River Night Cruise","Baiyun Mountain","Chimelong Safari Park","Sun Yat-sen Memorial Hall","Haizhu Wetland","Beijing Road Pedestrian","Huacheng Square","Liwan Lake Park","Xiguan Folk Houses","Guangzhou Museum","Zhujiang New Town","White Cloud Airport View","Tianhe Sports Center","Nansha Wetland","Foshan Ancestral Temple"],
+    "홍콩": ["Victoria Peak","Hong Kong Disneyland","Tsim Sha Tsui Promenade","Hong Kong Skyline","Temple Street Night Market","Big Buddha Lantau","Stanley Market","Mong Kok Street","Ngong Ping 360","Ocean Park","Aberdeen Floating Village","Sai Kung Seafood","Hong Kong Museum of History","Tian Tan Buddha","Tai O Fishing Village","Ladies Market Mong Kok","Repulse Bay","Dragon's Back Trail","Cheung Chau Island","Wan Chai Night"],
+    "청두": ["Giant Panda Base","Jinli Ancient Street","Wuhou Shrine","Chengdu Research Base","Kuanzhai Alley","Du Fu Thatched Cottage","Tianfu Square","Sichuan Opera Face Change","Qingcheng Mountain","Leshan Giant Buddha","Mount Emei","Chengdu Museum","Sanxingdui Museum","People's Park Tea House","Chunxi Road Shopping","Jinsha Site Museum","Huanglongxi Ancient Town","Anren Ancient Town","Chengdu Hot Pot Street","Jiuzhaigou Day Trip"],
+    "항저우": ["West Lake","Lingyin Temple","Longjing Tea Fields","Six Harmonies Pagoda","China National Silk Museum","Song Dynasty Town","Feilaifeng Grottoes","Qiantang River Tidal Bore","Hefang Street","Hangzhou Botanical Garden","Xixi Wetland","Qiandao Lake Day Trip","Wuzhen Water Town","Southern Song Imperial Street","Guo's Villa West Lake","Broken Bridge","Three Pools Mirroring Moon","Orioles Singing in Willows","Leifeng Pagoda","Bao Chu Pagoda"]
+  },
+  "Taiwan": {
+    "타이베이": ["Taipei 101","Jiufen Old Street","Shilin Night Market","National Palace Museum","Taroko Gorge Day Trip","Elephant Mountain","Longshan Temple","Ximending Red House","Beitou Hot Spring","Maokong Gondola","Chiang Kai-shek Memorial","Huashan Creative Park","Raohe Night Market","Sun Yat-sen Memorial","Dihua Street","Tamsui Old Street","Yangmingshan Volcano","Xinyi Commercial District","Danshui Fisherman's Wharf","Pingxi Lantern Festival"],
+    "가오슝": ["Lotus Pond Dragon Tiger","Love River Cruise","Cijin Island","Pier-2 Art Center","E-DA Theme Park","Kaohsiung Museum of Fine Arts","Fo Guang Shan Buddha","Liuhe Night Market","Zuoying Lotus Park","Kaohsiung 85 Sky Tower","Dome of Light Formosa Boulevard","Sanfeng Temple","Kaohsiung Port","National Sun Yat-sen University","Chengcing Lake","Yuanshan Ecological Park","Meinong Hakka Village","Maolin Valley","Alishan Day Trip","Tainan Day Trip"],
+    "타이중": ["Rainbow Village","Gaomei Wetlands","National Taichung Theater","Fengjia Night Market","Miyahara Ice Cream","Taichung Park","Luce Memorial Chapel","National Museum of Natural Science","Donghai University Campus","Zhongxing New Village","Sun Moon Lake Day Trip","Xitou Forest","Puli Township","Lukang Old Street","Baguashan Giant Buddha","Taichung Literary Park","Maple Garden","20th Village Creative Park","Taichung Municipal Zoo","Chingching Farm"]
+  },
+  "Thailand": {
+    "방콕": ["Grand Palace","Wat Pho Temple","Wat Arun Temple","Chatuchak Weekend Market","Floating Markets Damnoen","Khao San Road","Lumpini Park","Asiatique Riverfront","ICONSIAM Mall","Chinatown Yaowarat","Jim Thompson House","Erawan Shrine","Terminal 21 Mall","Chao Phraya River Cruise","Wat Saket Golden Mount","MBK Center","Patpong Night Market","Sky Bar Lebua","Bangkok Art Center","Mahanakhon Skywalk"],
+    "치앙마이": ["Elephant Nature Park","Doi Inthanon Summit","Wat Phra That Doi Suthep","Chiang Mai Night Bazaar","Sunday Walking Street","Nimman Road Hip Cafes","Chiang Mai Old City Moat","Doi Pui Tribal Village","Mae Sa Waterfall","Bua Thong Sticky Waterfalls","Chiang Mai Zoo","Handicraft Sankampaeng","Chiang Rai White Temple","Chiang Rai Blue Temple","Mae Rim Valley","Night Safari","Ping River Walk","Four Seasons Jungle Resort","Chiang Mai Thai Cooking","San Kamphaeng Hot Springs"],
+    "푸켓": ["Patong Beach","Phi Phi Islands","Kata Beach","Promthep Cape Sunset","Big Buddha Phuket","Old Phuket Town","Karon Beach","Phang Nga Bay","James Bond Island","Rawai Seafood Market","Bangla Road Night","Phuket Fantasea Show","Surin Beach","Naiharn Beach","Similan Islands Day Trip","Ao Yon Beach","Khao Rang Hill","Simon Cabaret","Phuket Weekend Market","Laem Singh Beach"],
+    "파타야": ["Walking Street Pattaya","Sanctuary of Truth","Pattaya Beach","Coral Island","Nong Nooch Tropical Garden","Viewpoint Hill","Underwater World","Art in Paradise Museum","Mini Siam","Pattaya Floating Market","Jomtien Beach","Khao Kheow Open Zoo","Ripley's Believe It or Not","Pattaya Park Tower","Cartoon Network Amazone","Alcazar Cabaret Show","Silver Lake Vineyard","Water Park Ramayana","Naklua Night Market","Wong Amat Beach"]
+  },
+  "Vietnam": {
+    "하노이": ["Hoan Kiem Lake","Temple of Literature","Old Quarter 36 Streets","Ho Chi Minh Mausoleum","Hoa Lo Prison","Fine Arts Museum","West Lake Tay Ho","Dong Xuan Market","St. Joseph's Cathedral","Vietnam Museum of Ethnology","Thang Long Citadel","Long Bien Bridge","Hang Dao Night Market","Bat Trang Ceramic Village","Van Phuc Silk Village","Bach Ma Temple","Ngoc Son Temple","Hanoi Street Food","Bia Hoi Corner","Ha Long Bay Day Trip"],
+    "호찌민": ["Ben Thanh Market","War Remnants Museum","Reunification Palace","Cu Chi Tunnels","Notre-Dame Cathedral Saigon","Central Post Office","Bitexco Financial Tower","Bui Vien Walking Street","Cho Lon Chinatown","Mekong Delta Day Trip","Jade Emperor Pagoda","Tan Dinh Church Pink","Saigon Sky Deck","Ho Chi Minh Museum","Vietnamese History Museum","Thien Hau Temple","Nguyen Hue Walking Street","Bonsai River Cruise","Saigon Street Food","Tao Dan Park"],
+    "다낭": ["Marble Mountains","Dragon Bridge","Ba Na Hills Golden Bridge","My Khe Beach","My Son Sanctuary Day Trip","Hoi An Ancient Town Day Trip","Linh Ung Pagoda","Han Market","Non Nuoc Beach","Suoi Mo Spring","Da Nang Museum","Asia Park Sun World","Pham Van Dong Beach","Son Tra Peninsula","Da Nang Cathedral","Con Market","Bac My An Beach","Cham Museum","Fantasy Park Da Nang","Dragon Bridge Fire Show"],
+    "나트랑": ["Nha Trang Beach","Po Nagar Cham Towers","Vinpearl Land","Long Son Pagoda","Alexandre Yersin Museum","Nha Trang Bay Cruise","Monkey Island","Hon Mun Marine Reserve","Mud Bath Therapy","Dam Market","Bao Dai Royal Villa","Nha Trang Night Market","Iresort Mud Bath","Oceanography Institute","Tower of Cham Nha Trang","Suoi Luon Stream","Whale Island","Bai Dai Beach","Salt Fields Ninh Hoa","Diep Son Island"],
+    "하이퐁": ["Do Son Beach","Cat Ba Island","Ha Long Bay Gateway","Haiphong Museum","Du Hang Pagoda","Hang Kenh Communal House","Dinh Hang Commune","Opera House Haiphong","Tam Bac Lake","Chua Ve Pagoda","Haiphong Night Market","Phong Lan Flower Market","Vinh Bao Craft Village","Trang Kenh Mine","Nui Voi Mountain","Phu Long Mangroves","Cat Hai Island","Bach Dang River","Haiphong Railway Station","Hoa Binh Cinema"]
+  },
+  "Singapore": {
+    "싱가포르": ["Marina Bay Sands","Gardens by the Bay","Sentosa Island","Orchard Road Shopping","Chinatown Heritage","Little India Mustafa","Clarke Quay Night","Merlion Park","Singapore Zoo","Universal Studios","Hawker Centre Lau Pa Sat","Botanic Gardens UNESCO","Changi Airport Jewel","Pulau Ubin Island","Night Safari","S.E.A. Aquarium","ArtScience Museum","Fort Canning Park","Haji Lane Arab Street","Singapore Flyer"]
+  },
+  "Indonesia": {
+    "자카르타": ["Monas National Monument","Old Town Kota Tua","Istiqlal Mosque","Jakarta Cathedral","Ragunan Zoo","Ancol Dreamland","Sunda Kelapa Harbor","National Museum","Fatahillah Square","China Town Glodok","Grand Indonesia Mall","SCBD Financial District","Menteng Heritage","Taman Mini Indonesia","Pantai Indah Kapuk","Thousand Islands Day","Kebayoran Baru","Kemang District","Blok M Market","Bundaran HI Fountain"],
+    "발리": ["Tanah Lot Temple","Uluwatu Cliff Temple","Ubud Rice Terraces","Sacred Monkey Forest","Tegallalang Rice Paddy","Nusa Penida Kelingking","Seminyak Beach Sunset","Jimbaran Bay Seafood","Bedugul Lake Temple","Tirta Empul Holy Water","Besakih Mother Temple","Bali Swing","Sekumpul Waterfall","Sanur Beach Morning","Canggu Surf Break","Kuta Beach Sunset","Gunung Batur Sunrise","Nusa Lembongan","Devil's Tears Nusa","Bali Bird Park"],
+    "수라바야": ["House of Sampoerna","Surabaya Zoo","Heroes Monument","Tunjungan Plaza","Ampel Mosque","China Town Kapasan","Submarine Monument","Kenjeran Park","Pakuwon City","Surabaya Night Market","Kalimas Riverside","Red Bridge Jembatan Merah","Surabaya Historical Museum","Sunan Ampel Tomb","Mangrove Wonorejo","Bawean Island","Tretes Highland","Bromo Volcano Day Trip","Surabaya City Hall","ITS Kampus Walk"]
+  },
+  "Philippines": {
+    "마닐라": ["Intramuros Walled City","Rizal Park","Fort Santiago","Manila Bay Sunset","Binondo Chinatown","BGC Art Gardens","SM Mall of Asia","National Museum Philippines","Bonifacio Global City","Quiapo Church","Malate District Night","Manila Ocean Park","Cultural Center Philippines","Ermita Tourist Belt","Paco Park Cemetery","Pandacan Oil Depot View","Luneta Hotel Heritage","Pasig River Cruise","Manila Cathedral","Nagtahan Bridge"],
+    "세부": ["Kawasan Falls","Chocolate Hills Bohol","Malapascua Dive","Cebu Cathedral","Sinulog Festival Ground","Mactan Island Beach","Oslob Whale Shark","Magellan's Cross","Basilica Minore del Santo Niño","Carbon Market","Tops Lookout","Bantayan Island","Moalboal Sardine Run","Camotes Island","Temple of Leah","Taoist Temple Cebu","Heritage Monument","Lahug District","IT Park Cebu","Lapu-Lapu Monument"],
+    "다바오": ["Eden Nature Park","Philippine Eagle Center","Samal Island","Mount Apo Trek","Crocodile Park","Davao Crocodile Park","Jack's Ridge","Davao Night Market","San Pedro Cathedral","Magsaysay Park","Mindanao Cultural Village","Davao Fruit Market","Shrine of Divine Mercy","Lon Wa Buddhist Temple","Kadayawan Festival","Pearl Farm Beach Resort","Talomo Beach","Lanang Golf Course","Ateneo de Davao","Davao Regional Museum"]
+  },
+  "India": {
+    "뭄바이": ["Gateway of India","Marine Drive Queens Necklace","Elephanta Caves","Taj Mahal Palace Hotel","Chhatrapati Shivaji Terminal","Colaba Causeway","Dharavi Slum Tour","Bollywood Studio Tour","Juhu Beach","Sanjay Gandhi National Park","Haji Ali Dargah","Mount Mary Church","Bandra Worli Sea Link","Siddhivinayak Temple","Girgaon Chowpatty","Film City Goregaon","Banganga Tank","Malabar Hill","Nehru Planetarium","Crawford Market"],
+    "뉴델리": ["Red Fort","Qutub Minar","India Gate","Lotus Temple","Humayun's Tomb","Chandni Chowk","Jama Masjid","Akshardham Temple","Lodi Garden","National Museum","Connaught Place","Dilli Haat","Hauz Khas Village","Safdarjung's Tomb","Purana Qila","Mehrauli Ruins","Sunder Nursery","Jantar Mantar Observatory","Raj Ghat","Rashtrapati Bhavan"],
+    "벵갈루루": ["Lalbagh Botanical Garden","Cubbon Park","Bangalore Palace","Vidhana Soudha","MG Road Commercial","Tipu Sultan's Summer Palace","ISKCON Temple","Bangalore Fort","Bannerghatta National Park","Nandi Hills","Ulsoor Lake","National Gallery Modern Art","HAL Aerospace Museum","Innovative Film City","Jawahar Lal Nehru Planetarium","Gavipuram Cave Temple","Wonder La Amusement","Devanahalli Fort","Hesaraghatta Lake","Indiranagar 100 Feet Road"],
+    "하이데라바드": ["Charminar","Golconda Fort","Ramoji Film City","Hussain Sagar Lake","Salar Jung Museum","Qutb Shahi Tombs","Mecca Masjid","Chowmahalla Palace","HITEC City","Birla Mandir Hyderabad","Nehru Zoological Park","Laad Bazaar","Falaknuma Palace","Shilparamam Craft Village","KBR National Park","Durgam Cheruvu Lake","Snow World","Wonderla Hyderabad","NTR Garden","Purani Haveli"],
+    "첸나이": ["Marina Beach","Kapaleeshwarar Temple","Fort St. George","Mahabalipuram Day Trip","Government Museum Chennai","Birla Planetarium","Elliot's Beach","Valluvar Kottam","VGP Universal Kingdom","MGR Film City","DakshinaChitra Museum","Pulicat Lake","Cholamandal Artists Village","Santhome Cathedral","National Art Gallery","Guindy National Park","Theosophical Society","Parthasarathy Temple","Adyar River","Express Avenue Mall"],
+    "콜카타": ["Victoria Memorial","Howrah Bridge","Dakshineswar Kali Temple","Park Street Cemetery","Eden Gardens","Indian Museum","Kalighat Kali Temple","Marble Palace","Science City","Nicco Park","Botanic Garden Howrah","Kumartuli Potters Quarter","New Market","College Street Books","Princep Ghat","Mother Teresa House","Alipore Zoo","Tagore's House Jorasanko","North Kolkata Haveli","Shyambazar Five-Point Crossing"],
+    "자이푸르": ["Amber Fort","Hawa Mahal","City Palace","Jantar Mantar Jaipur","Jal Mahal Water Palace","Nahargarh Fort","Albert Hall Museum","Birla Mandir","Govind Dev Ji Temple","Galtaji Monkey Temple","Sisodia Rani Garden","Chokhi Dhani Village","Bapu Bazaar","Tripolia Gate","Elephant Village Amer","Pink City Walk","Jaigarh Fort","Amer Village","Kanota Bagh","Panna Meena Kund"]
+  },
+  "Turkey": {
+    "이스탄불": ["Hagia Sophia","Blue Mosque","Topkapi Palace","Grand Bazaar","Galata Tower","Bosphorus Strait Cruise","Dolmabahçe Palace","Basilica Cistern","Spice Bazaar","Princes Islands","Sultanahmet Square","Taksim Gezi Park","Ortaköy Mosque","Çırağan Palace","Istanbul Modern Museum","Balık Ekmek Fish","Karaköy Street Art","Eminönü Ferry","Pierre Loti Café","Süleymaniye Mosque"],
+    "카파도키아": ["Hot Air Balloon Sunrise","Göreme Open Air Museum","Fairy Chimneys","Underground City Derinkuyu","Uçhisar Castle","Devrent Valley","Rose Valley","Ihlara Valley","Paşabağ Monk Valley","Ortahisar Rock Castle","Zelve Valley","Avanos Pottery","Red Valley Trek","Sword Valley","Kaymakli Underground","Cavusin Old Village","Güvercinlik Pigeon Valley","Cappadocia Wine Caves","Sarıhan Caravanserai","Cappadocia Pottery Workshop"]
+  },
+  "UAE": {
+    "두바이": ["Burj Khalifa At The Top","Dubai Frame","Palm Jumeirah","Dubai Marina Walk","Desert Safari Dune Bashing","Burj Al Arab","Dubai Mall Aquarium","Gold Souk","Spice Souk","Al Fahidi Historic District","Dubai Creek Dhow Cruise","Museum of the Future","IMG Worlds of Adventure","La Mer Beach","Kite Beach","Jumeirah Mosque","Motiongate Theme Park","Global Village","Alserkal Avenue","Dubai Opera"],
+    "아부다비": ["Sheikh Zayed Grand Mosque","Louvre Abu Dhabi","Corniche Beach Walk","Qasr Al Watan Palace","Ferrari World","Warner Bros World","Yas Marina Circuit","Mangrove National Park","Heritage Village","Abu Dhabi Falcon Hospital","Emirates Palace Hotel","Capital Gate Tower","Masdar City","Saadiyat Island Beach","Yas Island","Al Ain Oasis","Eastern Mangroves","Abu Dhabi Mall","Hudayriyat Island","Jubail Mangrove Walk"],
+    "샤르자": ["Sharjah Museum of Islamic Civilization","Heart of Sharjah","Al Noor Mosque","Sharjah Art Museum","Sharjah Aquarium","Al Qasba Canal","Sharjah Heritage Museum","Maraya Art Centre","Blue Souk","Al Majaz Waterfront","Sharjah Desert Park","Al Buhairah Corniche","King Faisal Mosque Sharjah","Sharjah City Centre","Khalid Lagoon","Al Jazirah Al Hamra Ghost Town","Sharjah Light Festival","Noor Island","Sharjah Biennial","Wasit Wetland Centre"]
+  },
+  "Saudi Arabia": {
+    "리야드": ["Kingdom Tower Al Faisaliah","National Museum Saudi","Masmak Fortress","Diriyah UNESCO Site","King Abdulaziz Historical Centre","Al Murabba Palace","Boulevard Riyadh City","Riyadh Zoo","King Abdullah Financial District","Wadi Hanifah","Riyadh Season","Diriyah Gate","Edge of the World Jebel Fihrayn","Saudi National Day","Al Naseem Park","Al Bujairi Heritage Park","Riyadh Water Tower","Muqrin Palace","Al Malaz District","Riyadh Exhibition Center"],
+    "제다": ["Al-Balad Historic District","King Fahd Fountain","Corniche Promenade","Floating Mosque Al-Rahma","Fakieh Aquarium","Red Sea Mall","Al-Shallal Theme Park","Jeddah Waterfront","Athr Gallery","Souq Al-Alawi","Prince Fahd Park","Al-Aqeeq Valley","Cave Hira Day Trip","Jeddah Season","King Abdulaziz International Airport View","Jameel Arts Centre","Al-Nakheel Village","Jeddah Historic Mosque","Obhur Beach","Durrat Al-Arus Resort"],
+    "메카": ["Masjid Al-Haram","Kaaba Grand Mosque","Abraj Al-Bait Towers","Mount Arafah","Mina Tent City","Muzdalifah","Jabal Al-Nour Cave Hira","Zamzam Well","Al-Ghamamah Mosque","Masjid Al-Khayf","Mecca Museum","Al-Zaher Palace","Souq Al-Zal Market","Mecca Clock Tower","King Abdulaziz Gate","Ajyad Fortress Ruins","Masjid Al-Jinn","King Fahd Road","Umm Al-Qura University","Mecca Mall"],
+    "메디나": ["Al-Masjid An-Nabawi","Quba Mosque","Al-Baqi Cemetery","Masjid Al-Qiblatayn","Uhud Mountain","Al-Madinah Museum","Palm Groves Medina","Dates Market","King Fahd Complex Print Quran","Al-Anbariyya Mosque","Dar Al-Madinah Museum","Al-Aqoul Mosque","Al-Ghamama Mosque","Prince Mohammad Bin Abdulaziz Airport","Al-Badr Museum","Sultan Bin Abdulaziz Park","Khalid Bin Walid Mosque","Al-Hazm Park","Medina Dates Village","Hijaz Railway Museum"]
+  },
+  "Qatar": {
+    "도하": ["Souq Waqif","Museum of Islamic Art","The Pearl Qatar","Katara Cultural Village","National Museum of Qatar","Corniche Promenade","Al Zubarah Fort","Barzan Towers","Doha Fort Al Koot","Education City Campus","Aspire Zone","West Bay Skyline","Al Wakrah Souk","Villaggio Mall","Banana Island","Inland Sea Khor Al Adaid","Al Shaqab Equestrian","The Gate Mall","Grand Hyatt Katara","Doha Exhibition Center"]
+  },
+  "United Kingdom": {
+    "런던": ["Big Ben","Tower of London","Buckingham Palace","Tower Bridge","British Museum","Trafalgar Square","Borough Market","Tate Modern","Hyde Park","Covent Garden","Westminster Abbey","St. Paul's Cathedral","Camden Market","Greenwich Observatory","Natural History Museum","The Shard View","Portobello Road Market","Shoreditch Street Art","Notting Hill","Shakespeare's Globe Theatre"],
+    "맨체스터": ["Old Trafford Stadium","Manchester City Etihad","Northern Quarter Street Art","John Rylands Library","Manchester Cathedral","Castlefield Canal","Manchester Museum","Science and Industry Museum","Afflecks Palace","Chinatown Manchester","Salford Quays MediaCity","Manchester Art Gallery","Spinningfields District","Exchange Square","Deansgate Locks","Manchester Town Hall","Piccadilly Gardens","NOMA District","Whitworth Gallery","Manchester Christmas Market"],
+    "리버풀": ["The Beatles Story Museum","Albert Dock","Cavern Club Mathew Street","Liverpool Cathedral Anglican","Metropolitan Cathedral","Merseyside Maritime Museum","Tate Liverpool","Liverpool FC Anfield","Everton FC Goodison Park","Museum of Liverpool","Liverpool Waterfront","William Brown Street","St George's Hall","John Lennon Airport Art","Crosby Beach Antony Gormley","Calderstones Park","Speke Hall","Port of Liverpool Building","Royal Liver Building","Liverpool Christmas Market"],
+    "버밍엄": ["Bullring Selfridges","Cadbury World","Birmingham Museum and Art Gallery","Gas Street Canal Basin","Brindleyplace","Jewellery Quarter","Birmingham Cathedral","Digbeth Street Art","Birmingham Hippodrome","Villa Park Aston Villa","Edgbaston Cricket Ground","Sutton Coldfield Park","MAC Arts Centre","Cannon Hill Park","Birmingham Botanical Gardens","Black Country Museum","Thinktank Science Museum","Birmingham Back to Backs","Snow Hill Station","Birmingham Grand Central"],
+    "에든버러": ["Edinburgh Castle","Arthur's Seat","Royal Mile","Holyrood Palace","Scottish National Museum","Calton Hill Viewpoint","Dean Village","Greyfriars Kirkyard","Victoria Street","Grassmarket","Scotch Whisky Experience","Scottish Parliament","Portobello Beach","Cramond Island","National Gallery Scotland","Dynamic Earth","Surgeons Hall Museum","Leith Waterfront","Camera Obscura","Princes Street Gardens"]
+  },
+  "France": {
+    "파리": ["Eiffel Tower","Louvre Museum","Notre-Dame Cathedral","Sacré-Cœur Basilica","Champs-Élysées","Palace of Versailles","Musée d'Orsay","Arc de Triomphe","Seine River Cruise","Place de la Concorde","Palais Royal Gardens","Marais District","Montmartre Artists Quarter","Sainte-Chapelle","Catacombs of Paris","Centre Pompidou","Tuileries Garden","Place des Vosges","Père Lachaise Cemetery","Rue Crémieux Colorful Street"],
+    "리옹": ["Vieux-Lyon Renaissance District","Basilique Notre-Dame de Fourvière","Parc de la Tête d'Or","Musée des Confluences","Traboules Hidden Passageways","Lyon Street Art","Croix-Rousse Silk District","Quai Saint-Antoine Market","Lyon Gastronomy Street","Presqu'île District","Roman Theatre Fourvière","Place Bellecour","Musée Gadagne","Lumière Museum Cinema","Lyon Opera House","Confluence District","Parc Blandan","Vaise Industrial Heritage","Cité Internationale","Gerland Park"],
+    "마르세유": ["Vieux-Port Old Harbour","MuCEM Museum","Notre-Dame de la Garde Basilica","Calanques National Park","Château d'If","Muséum d'Histoire Naturelle","Palais Longchamp","Cours Julien Street Art","Frioul Islands","Belsunce District","La Canebière Boulevard","Corniche Kennedy","Parc Borély","Basilique Saint-Victor","Marseille Soap Factory","L'Estaque Village","Cathédrale de la Major","Espace Julien","Noailles Market","Plage des Catalans"],
+    "니스": ["Promenade des Anglais","Old Nice Market","Castle Hill Viewpoint","Cap Ferrat Coastline","Eze Village","Monaco Prince's Palace","Antibes Old Town","Menton Lemon Festival","Nice Cathedral","Villa Ephrussi de Rothschild","Musée Matisse Nice","Cimiez Ruins","Cannes Croisette","Grasse Perfume Capital","Saint-Paul-de-Vence","Villefranche-sur-Mer Bay","Nice Flower Market","Beaulieu-sur-Mer","Musée Marc Chagall","Cap d'Antibes"]
+  },
+  "Germany": {
+    "베를린": ["Brandenburg Gate","Berlin Wall East Side Gallery","Reichstag Glass Dome","Holocaust Memorial","Museum Island","Checkpoint Charlie","Potsdamer Platz","Alexanderplatz TV Tower","Pergamon Museum","Berlin Mitte District","Prenzlauer Berg","Kreuzberg Night","Tiergarten Park","KaDeWe Department Store","Charlottenburg Palace","Hackescher Markt","Tempelhof Field","Mauerpark Flea Market","Neukölln Street Art","Molecule Man Sculpture"],
+    "뮌헨": ["Marienplatz Glockenspiel","Neuschwanstein Castle Day Trip","English Garden Beer Garden","BMW Museum","Nymphenburg Palace","Viktualienmarkt","Hofbräuhaus","Deutsches Museum","Dachau Memorial","Olympic Park Munich","Residenz Palace","Alte Pinakothek","Augustiner Beer Hall","Schwabing District","Museum Quarter","Isar River","Frauenkirche Cathedral","Berchtesgaden Alps Day Trip","Max-Joseph-Platz","Karlsplatz"],
+    "함부르크": ["Speicherstadt Warehouse District","Miniatur Wunderland","Hamburg Harbour","Reeperbahn Night District","Elbphilharmonie Concert Hall","Alster Lakes","Planten un Blomen Park","Hamburg Kunsthalle","Chilehaus Architecture","Fish Market St Pauli","Hamburg Town Hall","Deichtorhallen","International Maritime Museum","Hagenbeck Zoo","Hamburg Dungeon","Landungsbrücken Piers","Altona Balkon View","Schanzen District","Blankenese River Elbe","Neumühlen Riverside"],
+    "프랑크푸르트": ["Römerberg Old Town","Städel Museum","Palmengarten","Frankfurt Skyline","Goethe House Museum","Museum Embankment","Sachsenhausen Apple Wine","Main River Cruise","Kleinmarkthalle","Commerzbank Tower","Senckenberg Natural History Museum","Zeil Shopping Mile","Old Opera House","Konstablerwache Market","Zoo Frankfurt","Kaiserdom Cathedral","Sachsenhausen Bridge","Berger Strasse","Nordend District","Bornheim Merianplatz"],
+    "쾰른": ["Cologne Cathedral Kölner Dom","Old Town Altstadt","Chocolate Museum","Museum Ludwig","Hohenzollern Bridge Locks","Rhine River Promenade","Cologne Carnival","Fischmarkt Old","Roman Germanic Museum","Lanxess Arena","Cologne Philharmonie","Belgium Quarter","Ehrenfeld Street Art","Rudolfplatz","Neumarkt Square","Cologne Zoo","Flora Botanical Garden","Deutz Bank","Rheinauhafen","Triangle Panorama Tower"]
+  },
+  "Italy": {
+    "로마": ["Colosseum","Roman Forum","Trevi Fountain","Vatican St. Peter's Basilica","Pantheon","Spanish Steps","Borghese Gallery","Campo de Fiori","Trastevere District","Piazza Navona","Castel Sant Angelo","Circus Maximus","Mouth of Truth","Aventine Keyhole","Ostia Antica Ruins","Piazza del Popolo","Gianicolo Hill Viewpoint","Coppedè Fantasy District","Appian Way","Villa Borghese Park"],
+    "밀라노": ["Duomo di Milano","Galleria Vittorio Emanuele II","The Last Supper","Navigli Canal District","Brera Art District","Castello Sforzesco","Porta Venezia Fashion","San Siro Stadium","Isola Trendy Neighbourhood","Pinacoteca di Brera","Piazza Gae Aulenti","Cimitero Monumentale","Fondazione Prada","Armani Silos Museum","Eataly Milano","Montenapoleone Shopping","Corso Como Night","Sempione Park","Milan Fashion District","Piazza della Scala"],
+    "베네치아": ["Canal Grande","Piazza San Marco","Doge's Palace","Rialto Bridge","Murano Glass Island","Burano Colorful Houses","Gondola Ride","St. Mark's Basilica","Bridge of Sighs","Dorsoduro District","Peggy Guggenheim Collection","Santa Maria della Salute","Jewish Ghetto","Arsenale","Vaporetto Water Bus","Grand Canal Sunset","Cannaregio Canals","Torcello Island","Giudecca Island","Accademia Bridge"],
+    "피렌체": ["Duomo Cathedral Brunelleschi","Uffizi Gallery","Ponte Vecchio","Piazzale Michelangelo","David Statue Accademia","Pitti Palace","Boboli Gardens","Piazza della Signoria","Santa Croce Basilica","San Miniato al Monte","Mercato Centrale","Oltrarno Artisan District","Bargello Museum","San Lorenzo Market","Medici Chapels","Fiesole Viewpoint","Basilica Santa Maria Novella","Palazzo Vecchio","Loggia dei Lanzi","Bardini Gardens"],
+    "나폴리": ["Pompeii Ruins Day Trip","Mount Vesuvius","Spaccanapoli Street","Naples National Archaeological Museum","Castel Nuovo","Piazza del Plebiscito","San Gregorio Armeno","Capri Day Trip","Amalfi Coast Day Trip","Naples Underground","Royal Palace Naples","Certosa San Martino","Catacombs of San Gennaro","Quartieri Spagnoli","Via Toledo Shopping","Rione Sanità","Pizzeria da Michele","Lungomare Caracciolo","Palazzo Reale","Teatro San Carlo"]
+  },
+  "Spain": {
+    "마드리드": ["Prado Museum","Retiro Park","Royal Palace","Puerta del Sol","Gran Vía","Reina Sofía Museum","Thyssen-Bornemisza Museum","Temple of Debod","Plaza Mayor","El Rastro Market","Malasaña District","Lavapiés","Bernabéu Stadium","Palacio de Cristal","Chueca Rainbow","Mercado de San Miguel","La Latina Tapas","Salamanca Luxury District","Casa de Campo","Cibeles Fountain"],
+    "바르셀로나": ["Sagrada Familia","Park Güell","Casa Batlló","La Rambla","Gothic Quarter","Camp Nou Stadium","Barceloneta Beach","Palau de la Música Catalana","Montjuïc Castle","MNAC Art Museum","El Born District","Mercat de Santa Caterina","Bunkers del Carmel Viewpoint","Tibidabo Amusement Park","Parc de la Ciutadella","Casa Milà La Pedrera","Poble Espanyol","Joan Miró Foundation","Arc de Triomf","Diagonal Mar"],
+    "세비야": ["Seville Cathedral","Giralda Tower","Alcázar Palace","Plaza de España","Barrio Santa Cruz","Triana Flamenco","Torre del Oro","Metropol Parasol","Real Maestranza Bullring","Casa de Pilatos","Flamenco Museum","Macarena Basilica","Seville University","Guadalquivir River","Italica Roman Ruins","La Alameda","Parque de María Luisa","Archivo de Indias","Mercado Lonja del Barranco","Triana Bridge"],
+    "발렌시아": ["City of Arts and Sciences","La Lonja de la Seda","Valencia Cathedral","Albufera Natural Park","Mercado Central","Turia Gardens","Malvarrosa Beach","Bioparc Valencia","IVAM Museum","El Carmen District","Plaza de la Reina","Palau de la Música","Oceanogràfic Aquarium","Hemisfèric IMAX","Palacio del Marqués de Dos Aguas","Las Fallas Festival","Barrio del Carmen","Russafa Hipster District","North Station","Cabanyal Fishermen District"]
+  },
+  "Netherlands": {
+    "암스테르담": ["Canal Ring","Rijksmuseum","Van Gogh Museum","Anne Frank House","Vondelpark","Jordaan District","Albert Cuyp Market","NEMO Science Museum","Amsterdam Noord","Heineken Experience","Royal Palace Dam Square","Bloemenmarkt Flower Market","Westerkerk","Rembrandt House","Eye Film Museum","A'DAM Lookout","Hortus Botanicus","De Pijp District","Leidseplein","Amsterdam Canals Night"],
+    "로테르담": ["Markthal Rotterdam","Cube Houses","Erasmus Bridge","Rotterdam Port Tour","SS Rotterdam Ship Hotel","Museum Boijmans Van Beuningen","Kunsthal Museum","Witte de Withstraat","Rotterdam Zoo Blijdorp","Delfshaven Historic","Hotel New York","Fenix Food Factory","Feyenoord Stadium","Rotterdam Central Station","Depot Museum Boijmans","Hofbogen Viaduct","Rotterdam Rooftop Days","Schiedam Windmills","Kinderdijk Day Trip","The Rotterdam Building"],
+    "헤이그": ["Binnenhof Parliament","Mauritshuis Museum Vermeer","Peace Palace","Madurodam Miniature City","Scheveningen Beach","The Hague Museum Quarter","Gemeentemuseum","Escher Museum","Panorama Mesdag","Westbroekpark","Binnenhof Hofvijver","Gevangenpoort Museum","Haagse Markt","Meppenweggebied","Louwman Automobile Museum","Zuiderpark","Bijenhal","Paleis Noordeinde","Anton Philipszaal","The Hague Academy International Law"]
+  },
+  "United States": {
+    "뉴욕": ["Times Square","Central Park","Brooklyn Bridge","Statue of Liberty","Empire State Building","High Line Park","One World Trade Center","The Met Museum","MOMA","Grand Central Terminal","Fifth Avenue","Coney Island","Dumbo Brooklyn","Rockefeller Center","Harlem Jazz Streets","Greenwich Village","Little Italy","Chelsea Market","The Oculus","New York Public Library"],
+    "로스앤젤레스": ["Hollywood Sign","Santa Monica Pier","Griffith Observatory","Venice Beach","Getty Center","Malibu Beaches","Rodeo Drive Beverly Hills","LACMA Art Museum","Universal Studios Hollywood","Koreatown Night Food","Echo Park Lake","Runyon Canyon","The Getty Villa","Huntington Garden","Mulholland Drive","The Broad Museum","Griffith Park Trail","SoFi Stadium","Los Angeles Downtown Arts","Elysian Park"],
+    "시카고": ["Cloud Gate Millennium Park","Willis Tower Skydeck","Navy Pier","Chicago Riverwalk","Art Institute of Chicago","Magnificent Mile","Wrigley Field","Lincoln Park Zoo","Chicago Architecture Boat Tour","Museum of Science and Industry","Grant Park Buckingham Fountain","Hyde Park","Boystown Rainbow Pylons","Chicago Theatre","Blue Chicago Jazz","Chinatown Chicago","Pilsen Murals","Logan Square","Museum Campus","Adler Planetarium"],
+    "휴스턴": ["Space Center Houston","Houston Museum of Natural Science","Buffalo Bayou Park","Galleria Houston Shopping","Houston Zoo","The Museum District","Discovery Green","Gerald D. Hines Waterwall","Houston Museum of Fine Arts","George Ranch Historical Park","Beer Can House","Downtown Aquarium","Market Square Park","Hermann Park","Houston Arboretum","San Jacinto Monument","NASA Johnson Space Center","Rothko Chapel","Menil Collection","NRG Stadium"],
+    "마이애미": ["South Beach Art Deco","Wynwood Walls Street Art","Little Havana Calle Ocho","Vizcaya Museum Gardens","Miami Beach Boardwalk","Bayside Marketplace","Key Biscayne Park","Miami Design District","Coconut Grove","Coral Gables Miracle Mile","Everglades Day Trip","Pérez Art Museum Miami","Opa-locka Moorish Architecture","Fairchild Tropical Botanic","Miami Seaquarium","Jungle Island","Aventura Mall","Brickell City Centre","Collins Avenue Hotels","Ocean Drive Neon Night"],
+    "라스베가스": ["Las Vegas Strip","Bellagio Fountains","High Roller Ferris Wheel","Fremont Street Experience","Red Rock Canyon","Hoover Dam","Valley of Fire","Las Vegas Neon Museum","The STRAT Tower","Venetian Grand Canal","Wynn Hotel Gardens","Area 15 Immersive Art","Caesars Palace","Mojave Desert Sunset","Welcome to Las Vegas Sign","T-Mobile Arena","Las Vegas Monorail View","Downtown Container Park","Las Vegas Night Aerial","Allegiant Stadium"],
+    "샌프란시스코": ["Golden Gate Bridge","Alcatraz Island","Fisherman's Wharf","Cable Car Powell Street","Lombard Street Curves","Chinatown San Francisco","Haight-Ashbury","Union Square","Coit Tower","Palace of Fine Arts","Lands End Coastal Trail","Twin Peaks Viewpoint","Ferry Building Marketplace","Dolores Park","Ocean Beach Sunset","North Beach Jazz","Castro District","Mission Murals Clarion Alley","Salesforce Park","Muir Woods Day Trip"],
+    "시애틀": ["Space Needle","Pike Place Market","Chihuly Garden Glass","Seattle Art Museum","Capitol Hill District","Olympic Sculpture Park","Fremont Troll","Kerry Park Viewpoint","Museum of Pop Culture","Queen Anne Counterbalance","Seattle Waterfront","Pioneer Square","Ballard Locks","Seattle Japanese Garden","Discovery Park","Lake Union Houseboats","Amazon Spheres","Columbia Center Observation","Lincoln Park Ferry","Mount Rainier Day Trip"]
+  },
+  "Canada": {
+    "토론토": ["CN Tower","Ripley's Aquarium","Kensington Market","St. Lawrence Market","Royal Ontario Museum","Distillery District","Toronto Islands Ferry","Casa Loma Castle","Nathan Phillips Square","Scarborough Bluffs","Art Gallery of Ontario","Yorkville Luxury","Little Italy Toronto","Chinatown Spadina","High Park","Toronto Harbourfront","Hockey Hall of Fame","Eaton Centre","Rogers Centre Blue Jays","Niagara Falls Day Trip"],
+    "밴쿠버": ["Stanley Park","Granville Island Market","Capilano Suspension Bridge","Whistler Day Trip","Gastown District","Lynn Canyon","Grouse Mountain","Chinatown Historic Vancouver","English Bay Beach","Lighthouse Park","Yaletown","North Shore Mountains","Science World","VanDusen Botanical Garden","Queen Elizabeth Park","False Creek Ferry","Richmond Night Market","UBC Museum of Anthropology","Cypress Mountain","Squamish Sea-to-Sky"],
+    "몬트리올": ["Old Montreal Historic","Mont Royal Park","Notre-Dame Basilica","Biosphère Environment Museum","Montreal Museum of Fine Arts","Jean-Talon Market","Plateau Mont-Royal","Sainte-Catherine Street","Underground City RÉSO","Olympic Stadium","La Fontaine Park","Little Italy Montreal","Chinatown Montreal","Festival Juste pour Rire","Montreal Jazz Festival","Marché Atwater","McGill University Campus","Mile End District","Botanical Garden","Quartier des Spectacles"],
+    "캘거리": ["Calgary Tower","Stampede Park","Bow River Pathway","Banff Day Trip","Calgary Zoo","Heritage Park Historical Village","Prince's Island Park","Inglewood Bird Sanctuary","Glenbow Museum","TELUS Spark Science Centre","Stephen Avenue Walk","Eau Claire Market","Nose Hill Park","17th Avenue SW","National Music Centre","Fort Calgary","Calgary Flames Scotiabank Saddledome","Winsport Canada Olympic Park","Chinook Centre Mall","Pearce Estate Park"],
+    "오타와": ["Parliament Hill","Rideau Canal","Canadian Museum of History","National Gallery of Canada","Gatineau Park","ByWard Market","Rideau Hall","National War Memorial","Canadian War Museum","Canadian Museum of Nature","Sparks Street Mall","Major's Hill Park","Château Laurier","Confederation Park","Notre-Dame Cathedral Basilica","Ottawa River","Hull Casino","Tulip Festival","Canada Agriculture Museum","Canadian Aviation and Space Museum"]
+  },
+  "Mexico": {
+    "멕시코시티": ["Zócalo Main Square","Teotihuacan Pyramids","Frida Kahlo Museum","Chapultepec Park","Bellas Artes Palace","UNAM Campus","Coyoacán District","Roma Norte Cafes","Xochimilco Canals","Anthropology Museum","San Ángel Market","Templo Mayor Ruins","Torre Latinoamericana","Lucha Libre Wrestling","Polanco District","Azcapotzalco Murals","Tlatelolco Plaza","Mercado de Jamaica","Condesa Dog Park","Mezcalería Tasting"],
+    "칸쿤": ["Cancún Hotel Zone","Chichen Itza Day Trip","Tulum Cliff Ruins","Cenote Ik Kil","Cobá Jungle Pyramid","Isla Mujeres","Playa del Carmen","Xcaret Park","Xel-Há Park","Holbox Island","Sian Ka'an Biosphere","Akumal Turtles","Cenote Dos Ojos","Bacalar Lagoon","Playa Paraíso Tulum","Coba Bike Jungle","Mayan Museum Cancun","Puerto Morelos Reef","Cenote El Pit","Gran Cenote Tulum"],
+    "과달라하라": ["Guadalajara Cathedral","Tlaquepaque Crafts","Tonalá Artisan Market","Hospicio Cabañas Orozco Murals","Guadalajara Zoo","Zapopan Basilica","Lake Chapala Day Trip","Tequila Town Day Trip","Rotonda de los Jalisciences","Plaza Tapatía","Teatro Degollado","Parque Agua Azul","Barranca de Huentitán","Primavera Forest","Guadalajara Regional Museum","San Juan de Dios Market","Estadio Jalisco","Estadio Akron Chivas","La Minerva Monument","Andador Independencia"],
+    "몬테레이": ["Cerro de la Silla Mountain","Macroplaza","Barrio Antiguo","Parque Fundidora","MARCO Museum","Parque La Huasteca","Grutas de García Caves","Historia Mexican Museum","Monterrey Cathedral","Puente de los Soldados","Paseo Santa Lucía","Café Iguana","Obispado Hill","Arena Monterrey","San Pedro Garza García","Chipinque Ecological Park","Cervecería Cuauhtémoc Moctezuma","Linares Historic","Rio Santa Catarina","Estadio BBVA"]
+  },
+  "Brazil": {
+    "상파울루": ["Ibirapuera Park","MASP Art Museum","Paulista Avenue","Liberdade Japanese District","São Paulo Cathedral","Pinacoteca Museum","Vila Madalena Street Art","Mercadão Municipal Market","Parque Trianon","Beco do Batman","Museu do Ipiranga","Football Museum","Teatro Municipal","Rua Oscar Freire Luxury","Higienópolis","Bar do Binho","Interlagos Formula 1","Jardins District","Embu das Artes Day Trip","Museu Afro Brasil"],
+    "리우데자네이루": ["Christ the Redeemer","Sugarloaf Mountain","Copacabana Beach","Ipanema Beach","Maracanã Stadium","Lapa Arches","Santa Teresa District","Rio Carnival","Tijuca National Forest","Pão de Açúcar Cable Car","Botanical Garden","Niterói Contemporary Art","Selaron Stairs","Favela Vidigal Tour","Rodrigo de Freitas Lagoon","Gloria Church","National Museum","Arpoador Sunset Rock","Urca Village","Rio de Janeiro Bay Cruise"],
+    "브라질리아": ["National Congress","Palácio da Alvorada","Brasília Cathedral","JK Memorial","Paranoá Lake","Supreme Federal Tribunal","Cúpula do Planalto","TV Tower Brasília","Parque da Cidade","Dom Bosco Sanctuary","Catetinho Museum","Brasília National Park","Gilberto Salomão Commercial","Shopping Conjunto Nacional","Burle Marx Park","Setor de Clubes Esportivos","Pontão do Lago Sul","Palácio Itamaraty","Esplanada dos Ministérios","Parque Olhos d'Água"]
+  },
+  "Argentina": {
+    "부에노스아이레스": ["La Boca Caminito","Recoleta Cemetery","Casa Rosada Pink House","San Telmo Market","Palermo Soho","Buenos Aires Obelisk","Tigre Delta Day Trip","MALBA Museum","San Isidro Basilica","Puerto Madero Waterfront","Tango Show San Telmo","Café Tortoni Historic","Jardín Japonés","Museo Nacional de Bellas Artes","Palermo Parks","Congreso de la Nación","San Martín Theatre","Fundación Proa","El Ateneo Grand Splendid Bookshop","Estadio Monumental River Plate"],
+    "코르도바": ["Jesuit Block UNESCO","Manzana Jesuítica","Cabildo de Córdoba","Parque Sarmiento","Serranías de Córdoba","La Cañada Walk","Museo Superior de Bellas Artes","Alta Córdoba","Villa General Belgrano Day Trip","Carlos Paz Day Trip","Los Cocos Village","Cosquín Folklore","Córdoba Cathedral","Plaza San Martín","Nuevo Centro Shopping","Paseo del Buen Pastor","Chateau Carreras Stadium","National University Córdoba","Guiñazú Museum Children","Sierras Chicas Mountains"]
+  },
+  "Chile": {
+    "산티아고": ["San Cristóbal Hill","La Moneda Palace","Plaza de Armas Santiago","Pablo Neruda House","Barrio Bellavista","Central Market Mercado","Cerro Santa Lucía","MAVI Art Museum","Chilean National History Museum","Maipo Valley Wine","Cajón del Maipo Day Trip","Barrio Lastarria","Museo de la Memoria","Sky Costanera Tower","Pueblito Los Dominicos Crafts","Villa Grimaldi","Parque Bicentenario","Patronato Ethnic Market","Barrio Italia","Fantasilandia Theme Park"]
+  },
+  "Peru": {
+    "리마": ["Miraflores Coastal Walk","Plaza Mayor Lima","Larco Museum","Barranco Bohemian","Central Restaurant Gastronomy","Huaca Pucllana Ruins","Pachacamac Day Trip","Larcomar Shopping Mall","Parque Kennedy","Catacombs Lima","Palacio de Gobierno","Museo de Arte Lima","Surco District","Bodega y Cuadra Winery","San Isidro Golf Club","Callao La Punta","Barrios Altos","Museo Mario Testino","La Rosa Náutica Pier","Costa Verde Beach"],
+    "쿠스코": ["Machu Picchu","Cusco Plaza de Armas","Sacsayhuaman Fortress","Rainbow Mountain Vinicunca","Qorikancha Sun Temple","San Pedro Market","Valle Sagrado Pisac","Ollantaytambo Ruins","Chinchero Weaving Village","Moray Inca Terraces","San Blas Artisan Quarter","Inca Museum","Catedral del Cusco","Cristo Blanco Statue","Wakrapukara Day Trip","Humantay Lake","Palccoyo Rainbow","Aguas Calientes","Pikillaqta Ruins","Andahuaylillas Chapel"]
+  },
+  "Australia": {
+    "시드니": ["Sydney Opera House","Harbour Bridge Climb","Bondi Beach","Manly Beach Ferry","Blue Mountains","Darling Harbour","The Rocks Historic District","Royal Botanic Garden","Taronga Zoo","Circular Quay","Paddington Markets","Sydney Fish Market","Luna Park","Coogee Coastal Walk","Centennial Park","Newtown Street Art","Hunter Valley Wine","Featherdale Wildlife","Cockatoo Island","Barangaroo Reserve"],
+    "멜버른": ["Federation Square","Flinders Street Station","Melbourne Laneways","Great Ocean Road","Queen Victoria Market","Melbourne Cricket Ground","St Kilda Penguin Colony","Yarra Valley Wine","Royal Exhibition Building","NGV Art Museum","Dandenong Ranges","Brighton Bathing Boxes","Melbourne Rooftop Bars","Southbank Promenade","Fitzroy Gardens","Melbourne Zoo","Healesville Sanctuary","Phillip Island Penguins","Mornington Peninsula","Melbourne Street Art"],
+    "브리즈번": ["South Bank Parklands","Story Bridge Climb","GOMA Gallery of Modern Art","Lone Pine Koala Sanctuary","Fortitude Valley Night","Mount Coot-tha Lookout","Brisbane Riverwalk","Kangaroo Point Cliffs","City Hall Clock Tower","Streets Beach Urban","Howard Smith Wharves","Eat Street Northshore","New Farm Park","Chinatown Mall","Roma Street Parkland","Wheel of Brisbane","QPAC Performing Arts","Eagle Street Pier","Toowong Cemetery","Moreton Island Day Trip"],
+    "퍼스": ["Kings Park Botanic","Cottesloe Beach","Fremantle Port","Rottnest Island Quokkas","Swan River Cruise","Perth Cultural Centre","Art Gallery of Western Australia","Scitech Discovery Centre","Bell Tower Carillon","Elizabeth Quay Waterfront","Northbridge Night District","Subiaco Market","Hillarys Boat Harbour","Caversham Wildlife Park","John Forrest National Park","Perth Observatory","Mandurah Canal","Mundaring Weir","Lancelin Sand Dunes","Pinnacles Desert Day Trip"],
+    "골드코스트": ["Surfers Paradise Beach","Theme Parks Dreamworld","Warner Bros Movie World","Sea World","Wet'n'Wild Water","Burleigh Heads National Park","Currumbin Wildlife Sanctuary","Lamington National Park","Tamborine Mountain","Hinterland Escape","Broadbeach Shopping","Southport Broadwater","Main Beach","Coolangatta Twin Towns","Gold Coast Aquatic Centre","Pacific Fair Shopping","Chevron Island Night","Q1 Sky Point Observation","Kirra Beach","Kurrawa Beach"]
+  },
+  "New Zealand": {
+    "오클랜드": ["Sky Tower Auckland","Waiheke Island","Rangitoto Island Volcano","Auckland War Memorial Museum","Viaduct Harbour","Mission Bay Beach","One Tree Hill","Ponsonby Road Dining","Auckland Domain","Waitematā Harbour Cruise","Mount Eden Crater","Devonport Village","Kelly Tarlton's Sea Life","Auckland Art Gallery","Karekare Black Sand Beach","Muriwai Gannet Colony","Piha Beach","West Coast Walks","Titirangi Artist Village","Rainbow's End Theme Park"],
+    "웰링턴": ["Te Papa Museum","Cuba Street Scene","Oriental Bay Beach","Mount Victoria Lookout","Wellington Botanic Garden","Wellington Cable Car","Zealandia Eco Sanctuary","Wellington Museum","Government Buildings","Waitangi Park","Frank Kitts Lagoon","Wellington Night Market","Weta Workshop","Academy Galleries","Civic Square","Lambton Quay Shopping","Newtown District","Island Bay Coast","Lyall Bay Surf","Martinborough Wine Day Trip"],
+    "크라이스트처치": ["Christchurch Botanic Gardens","Hagley Park","Avon River Punting","Canterbury Museum","Cardboard Cathedral","Sumner Beach","Gondola Crater Rim","International Antarctic Centre","Willowbank Wildlife Reserve","New Regent Street","Air Force Museum Wigram","Riccarton Racecourse Market","Lyttelton Harbour","Akaroa Day Trip","Port Hills Walks","Arts Centre","Quake City Museum","Margaret Mahy Family Playground","Westfield Riccarton","Victoria Square"]
+  },
+  "South Africa": {
+    "케이프타운": ["Table Mountain Cable Car","Cape of Good Hope","Boulders Penguin Colony","V&A Waterfront","Robben Island","Kirstenbosch Botanical Garden","Bo-Kaap Colourful Quarter","Chapman's Peak Drive","Signal Hill Sunset","Sea Point Promenade","Cape Winelands Stellenbosch","Camps Bay Beach","De Waterkloof Wine Estate","District Six Museum","Hout Bay Harbour","Two Oceans Aquarium","Cape Point Lighthouse","Constantia Wine Valley","Clifton Beaches","Long Street Night"],
+    "요하네스버그": ["Apartheid Museum","Soweto Township Tour","Nelson Mandela Square","Gold Reef City","Cradle of Humankind UNESCO","Constitution Hill","Maboneng Precinct","Lion Park","Zoo Lake Parkview","Sandton City Mall","Rosebank Market","Melville Koppies","Liliesleaf Farm Museum","South African Museum Wits","Johannesburg Art Gallery","Sci-Bono Discovery Centre","Ellis Park Stadium","FNB Stadium","Soweto Bicycle Tour","Northgate Shopping"],
+    "더반": ["Golden Mile Beachfront","uShaka Marine World","Durban Botanic Gardens","Victoria Street Market","Moses Mabhida Stadium","Durban Promenade","The Wheel Shopping","Mitchell Park","Campbell Collections Museum","Durban Natural Science Museum","Blue Lagoon Beach","North Beach Surf","Wilson's Wharf","Amphitheatre Gardens","Suncoast Casino","Ballito Beach Day Trip","Sardine Run","iSimangaliso Wetland","Valley of a Thousand Hills","Drakensberg Day Trip"]
+  },
+  "Egypt": {
+    "카이로": ["Pyramids of Giza","Sphinx Monument","Egyptian Museum","Khan el-Khalili Bazaar","Coptic Cairo","Al-Azhar Mosque","Islamic Cairo Citadel","Muhammad Ali Mosque","Nile River Corniche","Cairo Tower","Zamalek Island","Manial Palace","Giza Plateau Sunset","Light and Sound Show","Memphis Ruins Day Trip","Saqqara Step Pyramid","Memphis Museum","Maadi District","Heliopolis Obelisk","Cairo Opera House"],
+    "알렉산드리아": ["Bibliotheca Alexandrina","Qaitbay Citadel","Catacombs of Kom el Shoqafa","Stanley Bay Beach","Montaza Palace Gardens","Alexandria National Museum","El-Mursi Abul Abbas Mosque","Corniche Sea Walk","Roman Amphitheatre","Pompey's Pillar","Greek Club","Sidi Gaber Station","Cecil Hotel Historic","El-Mansheyya Square","Shatby Necropolis","Aquarium Anfushi","El Bosta Terrace","Smouha District","Abu Qir Seafood","Montaza Royal Gardens"]
+  },
+  "Morocco": {
+    "마라케시": ["Jemaa el-Fnaa Square","Majorelle Garden","Bahia Palace","Medina Souks","Koutoubia Mosque","Saadian Tombs","Museum of Marrakech","El Badi Palace","Mellah Jewish Quarter","Medersa Ben Youssef","Menara Garden","Palmeraie Date Palms","Ouzoud Waterfalls Day Trip","Agafay Desert","La Mamounia Garden","Marrakech Hammam","Rue de la Bahia","Night Market Djemaa","Ben Youssef Madrasa","Terrasse des Épices"],
+    "페스": ["Fes El Bali Medina","Chouara Tannery","Al-Qarawiyyin University","Medersa Bou Inania","Blue Gate Bab Bou Jeloud","Borj Nord Museum","Merenid Tombs Viewpoint","Dyers Souk","Andalusian Mosque","Fondouk el-Nejjarine","Fes El Jdid","Bou Jeloud Garden","Moulay Idriss Shrine","Pottery Souks","Henna Souk","El-Seffarine Square","Syndicate of Leather","Night Medina Walk","Jewish Mellah","Dar Batha Museum"]
+  },
+  "Greece": {
+    "아테네": ["Acropolis","Parthenon Temple","Acropolis Museum","Monastiraki Flea Market","Plaka Old Town","Temple of Hephaestus","Syntagma Square","National Archaeological Museum","Panathenaic Stadium","Kerameikos","Mount Lycabettus","Benaki Museum","Thissio Sunset","Cape Sounion Day Trip","Exarchia District","Kolonaki Upscale","Athens Riviera","Piraeus Harbour","Gazi Night District","Athens Street Art"],
+    "산토리니": ["Oia Sunset View","Fira Caldera Cliffs","Perissa Black Beach","Santorini Volcano","Amoudi Bay Fishing","Imerovigli Skaros Rock","Ancient Thira Ruins","Red Beach","White Beach Boat","Pyrgos Village","Santo Wines Vineyard","Akrotiri Archaeological Site","Kamari Beach","Armeni Port","Santorini Cable Car","Firostefani Walk","Megalochori Village","Vlychada Beach","Santorini Brewing Company","Ammoudi Bay Octopus"],
+    "크레타": ["Heraklion Knossos Palace","Samaria Gorge","Elafonissi Pink Beach","Balos Lagoon","Chania Venetian Harbor","Rethymno Old Town","Spinalonga Island","Palace of Phaistos","Matala Hippie Caves","Dikteon Cave","Crete Winery Tour","Lassithi Plateau Windmills","Agios Nikolaos Lake","Frangocastello Castle","Sitia Beach","Vai Palm Beach","Kritsa Stone Village","Arkadi Monastery","Chrisi Island Snorkel","Crete Olive Oil Museum"]
+  },
+  "Switzerland": {
+    "인터라켄": ["Jungfraujoch Top of Europe","Grindelwald First Cliff Walk","Lauterbrunnen Valley","Mürren Car-Free Village","Thun Lake","Brienz Lake","Harder Kulm Viewpoint","Schynige Platte","Giessbach Falls","Trümmelbach Falls","Männlichen Ridge Walk","Wengen Village","Kleine Scheidegg","Ballenberg Open Air Museum","Interlaken Village","Grindelwald Glacier","Oeschinen Lake","Iseltwald Pier","St. Beatus Caves","Beatenberg Viewpoint"],
+    "루체른": ["Lucerne Chapel Bridge","Lion Monument","Lake Lucerne","Mount Pilatus","Mount Rigi","Glacier Garden","Swiss Museum of Transport","Lucerne Old Town","Spreuer Bridge","Weinmarkt Square","Musegg Wall","Lake Cruise","Meggen Lighthouse","Vitznau Village","Lake Uri Cruise","Bürgenstock Resort","Weggis Village","Kehrsiten Cable Car","Klewenalp","Lucerne Festival Concert Hall"]
+  },
+  "Portugal": {
+    "리스본": ["Alfama District","Belém Tower","Jerónimos Monastery","Tram 28 Ride","Time Out Market","Sintra Day Trip","LX Factory","Miradouro da Graça","Castelo de São Jorge","Fado Music Show","Mouraria District","Bairro Alto Night","Praça do Comércio","Museu do Azulejo","Parque das Nações","Vasco da Gama Bridge","Oceanarium","Avenida da Liberdade","Rossio Square","Belém Pastéis de Nata"],
+    "포르투": ["Ribeira Quarter","Dom Luís Bridge","Livraria Lello Bookshop","Palácio da Bolsa","São Bento Station Tiles","Port Wine Cellars","Clerigos Tower","Crystal Palace Garden","Matosinhos Seafood","Foz do Douro Beach","Fundação Serralves","Douro River Cruise","Café Majestic","Igreja dos Carmelitas","Bonfim District","Rua das Flores","Porto Wine Tasting","Fontainhas Terrace","Campanhã District","Mercado do Bom Sucesso"]
+  }
+};
+
+let selectedCity = null;
+
+function onCountry() {
+  const c = document.getElementById('country-sel').value;
+  selectedCity = null;
+  const citySel = document.getElementById('city-sel');
+  const chipsDiv = document.getElementById('city-chips');
+  citySel.innerHTML = '<option value="">-- 전체 (도시 무관) --</option>';
+  chipsDiv.innerHTML = '';
+  chipsDiv.style.display = 'none';
+  if (c && CITIES[c]) {
+    const cities = Object.keys(CITIES[c]);
+    cities.forEach(city => {
+      const opt = document.createElement('option');
+      opt.value = city; opt.textContent = city;
+      citySel.appendChild(opt);
+      const chip = document.createElement('button');
+      chip.className = 'chip';
+      chip.textContent = city;
+      chip.onclick = () => selectCity(city, chip);
+      chipsDiv.appendChild(chip);
+    });
+    citySel.disabled = false;
+    if (cities.length) chipsDiv.style.display = 'flex';
+  } else {
+    citySel.disabled = true;
+  }
+  resetOutput();
+}
+
+function onCitySelect() {
+  const v = document.getElementById('city-sel').value;
+  selectedCity = v || null;
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.textContent === v));
+  resetOutput();
+}
+
+function selectCity(city, chipEl) {
+  selectedCity = city;
+  document.getElementById('city-sel').value = city;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  if (chipEl) chipEl.classList.add('active');
+  resetOutput();
+}
+
+function resetOutput() {
+  document.getElementById('placeholder').style.display = 'block';
+  document.getElementById('out-text').style.display = 'none';
+  document.getElementById('copy-btn').style.display = 'none';
+  document.getElementById('info-badge').style.display = 'none';
+}
+
+function generate() {
+  const country = document.getElementById('country-sel').value;
+  if (!country) { alert('나라를 먼저 선택하세요!'); return; }
+  const n = parseInt(document.getElementById('spot-count').value);
+  const style = document.getElementById('style-sel').value;
+  const cam = document.getElementById('cam-sel').value;
+
+  let spots = [];
+  let locationLabel = country;
+
+  if (selectedCity && CITIES[country] && CITIES[country][selectedCity]) {
+    spots = CITIES[country][selectedCity].slice(0, n);
+    locationLabel = selectedCity + ', ' + country;
+  } else if (CITIES[country]) {
+    const all = [];
+    Object.values(CITIES[country]).forEach(arr => { if (arr) all.push(...arr); });
+    const seen = new Set();
+    for (const s of all) { if (!seen.has(s)) { seen.add(s); spots.push(s); } if (spots.length >= n) break; }
+    spots = spots.slice(0, n);
+  }
+
+  if (!spots.length) { alert('관광지 데이터가 없습니다.'); return; }
+
+  const interval = parseFloat((1 / n).toFixed(2));
+  let timeList = '';
+  spots.forEach((s, i) => {
+    const t = (i * interval).toFixed(1);
+    timeList += `${t} sec  ${s}\n`;
+  });
+  const total = (spots.length * interval).toFixed(1);
+  const prompt = `Ultra-fast ${style} travel montage of ${locationLabel}.\n\n${timeList}\nEvery shot must be live-action video.\nNo still images.\nCamera movement required: ${cam}.\nFast-paced editing.\n4K cinematic travel commercial.\nTotal duration: ${total} seconds.`;
+
+  document.getElementById('placeholder').style.display = 'none';
+  const outText = document.getElementById('out-text');
+  outText.style.display = 'block';
+  outText.textContent = prompt;
+  const cb = document.getElementById('copy-btn');
+  cb.style.display = 'flex';
+  cb.classList.remove('copied');
+  cb.textContent = '📋 복사';
+  const badge = document.getElementById('info-badge');
+  badge.style.display = 'block';
+  badge.textContent = `✓ ${spots.length}개 관광지 · ${selectedCity || '전체'} · ${style} · ${total}초 분량`;
+}
+
+function copyPrompt() {
+  const txt = document.getElementById('out-text').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    const cb = document.getElementById('copy-btn');
+    cb.classList.add('copied');
+    cb.textContent = '✅ 복사됨!';
+    setTimeout(() => { cb.classList.remove('copied'); cb.textContent = '📋 복사'; }, 2000);
+  });
+}
+</script>
+</body>
+</html>
