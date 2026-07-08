@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const menu = [
-  { href: "/", label: "대시보드", icon: "📊" },
+  { href: "/tj-world", label: "TJ-월드", icon: "🌐" },
   { href: "/marketing", label: "마케팅 허브", icon: "🧰" },
   { href: "/influencer", label: "AI 인플루언서", icon: "👩" },
   { href: "/amazon", label: "Amazon SEO", icon: "🛒" },
